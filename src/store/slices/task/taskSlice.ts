@@ -1,20 +1,16 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { TaskState, Task } from '@/types/task'
+import { TaskState, Task, TaskStatus } from '@/types/task'
 import { fetchTasks, createTask, updateTaskById, deleteTaskById, updateTaskStatusById } from './taskThunks'
 
 const initialState: TaskState = {
-  tasks: [],
+  columns: {
+    TODO: { tasks: [], pagination: { currentPage: 1, hasNextPage: false, hasPreviousPage: false, itemsPerPage: 10, totalItems: 0, totalPages: 1 } },
+    IN_PROGRESS: { tasks: [], pagination: { currentPage: 1, hasNextPage: false, hasPreviousPage: false, itemsPerPage: 10, totalItems: 0, totalPages: 1 } },
+    DONE: { tasks: [], pagination: { currentPage: 1, hasNextPage: false, hasPreviousPage: false, itemsPerPage: 10, totalItems: 0, totalPages: 1 } },
+  },
   loading: false,
   error: null,
   selectedTask: null,
-  pagination: {
-    currentPage: 1,
-    hasNextPage: false,
-    hasPreviousPage: false,
-    itemsPerPage: 10,
-    totalItems: 0,
-    totalPages: 1,
-  },
 }
 
 const taskSlice = createSlice({
@@ -35,11 +31,40 @@ const taskSlice = createSlice({
         state.loading = true
         state.error = null
       })
-      .addCase(fetchTasks.fulfilled, (state, { payload }) => {
+      .addCase(fetchTasks.fulfilled, (state, { payload, meta }) => {
         state.loading = false
-        const { data } = payload;
-        state.tasks = data.tasks;
-        state.pagination = data.pagination;
+        const { data } = payload
+        const params = meta.arg as { status?: TaskStatus; page?: number; limit?: number } | undefined
+        const status = params?.status
+        
+        if (status) {
+          // Update specific column
+          state.columns[status].tasks = data.tasks
+          state.columns[status].pagination = {
+            currentPage: data.pagination.page,
+            hasNextPage: data.pagination.page < data.pagination.totalPages,
+            hasPreviousPage: data.pagination.page > 1,
+            itemsPerPage: data.pagination.limit,
+            totalItems: data.pagination.total,
+            totalPages: data.pagination.totalPages,
+          }
+        } else {
+          // Update all columns (fallback for backward compatibility)
+          const allTasks = data.tasks
+          Object.keys(state.columns).forEach((columnStatus) => {
+            const statusKey = columnStatus as TaskStatus
+            const columnTasks = allTasks.filter((task: Task) => task.status === statusKey)
+            state.columns[statusKey].tasks = columnTasks
+            state.columns[statusKey].pagination = {
+              currentPage: data.pagination.page,
+              hasNextPage: data.pagination.page < data.pagination.totalPages,
+              hasPreviousPage: data.pagination.page > 1,
+              itemsPerPage: data.pagination.limit,
+              totalItems: data.pagination.total,
+              totalPages: data.pagination.totalPages,
+            }
+          })
+        }
       })
       .addCase(fetchTasks.rejected, (state, action) => {
         state.loading = false
@@ -49,7 +74,12 @@ const taskSlice = createSlice({
     // Create Task
     builder
       .addCase(createTask.fulfilled, (state, action) => {
-        state.tasks.push(action.payload.data)
+        const newTask = action.payload.data
+        const status = newTask.status as TaskStatus
+        if (status && state.columns[status]) {
+          state.columns[status].tasks.unshift(newTask)
+          state.columns[status].pagination.totalItems += 1
+        }
       })
       .addCase(createTask.rejected, (state, action) => {
         state.error = action.error.message || 'Failed to create task'
@@ -58,9 +88,20 @@ const taskSlice = createSlice({
     // Update Task
     builder
       .addCase(updateTaskById.fulfilled, (state, action) => {
-        const index = state.tasks.findIndex(task => task.id === action.payload.data.id)
-        if (index !== -1) {
-          state.tasks[index] = action.payload.data
+        const updatedTask = action.payload.data
+        const status = updatedTask.status as TaskStatus
+        
+        // Remove from old column if status changed
+        Object.keys(state.columns).forEach((columnStatus) => {
+          const statusKey = columnStatus as TaskStatus
+          state.columns[statusKey].tasks = state.columns[statusKey].tasks.filter(
+            task => task.id !== updatedTask.id
+          )
+        })
+        
+        // Add to new column
+        if (status && state.columns[status]) {
+          state.columns[status].tasks.unshift(updatedTask)
         }
       })
       .addCase(updateTaskById.rejected, (state, action) => {
@@ -70,7 +111,15 @@ const taskSlice = createSlice({
     // Delete Task
     builder
       .addCase(deleteTaskById.fulfilled, (state, action) => {
-        state.tasks = state.tasks.filter(task => task.id !== action.meta.arg)
+        const taskId = action.meta.arg
+        Object.keys(state.columns).forEach((columnStatus) => {
+          const statusKey = columnStatus as TaskStatus
+          const taskIndex = state.columns[statusKey].tasks.findIndex(task => task.id === taskId)
+          if (taskIndex !== -1) {
+            state.columns[statusKey].tasks.splice(taskIndex, 1)
+            state.columns[statusKey].pagination.totalItems -= 1
+          }
+        })
       })
       .addCase(deleteTaskById.rejected, (state, action) => {
         state.error = action.error.message || 'Failed to delete task'
@@ -79,9 +128,26 @@ const taskSlice = createSlice({
     // Update Task Status
     builder
       .addCase(updateTaskStatusById.fulfilled, (state, action) => {
-        const task = state.tasks.find(t => t.id === action.meta.arg.id)
-        if (task) {
-          task.status = action.meta.arg.status
+        const { id, status } = action.meta.arg
+        const newStatus = status as TaskStatus
+        
+        // Find and remove task from all columns
+        let taskToMove: Task | undefined
+        Object.keys(state.columns).forEach((columnStatus) => {
+          const statusKey = columnStatus as TaskStatus
+          const taskIndex = state.columns[statusKey].tasks.findIndex(task => task.id === id)
+          if (taskIndex !== -1) {
+            taskToMove = state.columns[statusKey].tasks[taskIndex]
+            state.columns[statusKey].tasks.splice(taskIndex, 1)
+            state.columns[statusKey].pagination.totalItems -= 1
+          }
+        })
+        
+        // Add to new column
+        if (taskToMove && newStatus && state.columns[newStatus]) {
+          taskToMove.status = newStatus
+          state.columns[newStatus].tasks.unshift(taskToMove)
+          state.columns[newStatus].pagination.totalItems += 1
         }
       })
       .addCase(updateTaskStatusById.rejected, (state, action) => {

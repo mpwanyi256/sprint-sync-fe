@@ -22,7 +22,15 @@ export const registerUser = createAsyncThunk<AuthResponse, RegisterData>(
 export const logoutUser = createAsyncThunk<void, void>(
   'auth/logoutUser',
   async () => {
-    await api.post('/auth/logout')
+    try {
+      // Try to call logout endpoint, but don't fail if it doesn't exist
+      await api.post('/auth/logout')
+    } catch (error) {
+      // Log the error but don't fail the logout process
+      console.warn('Logout endpoint failed, but continuing with local logout:', error)
+    }
+    // Always return success to ensure local logout happens
+    return
   }
 )
 

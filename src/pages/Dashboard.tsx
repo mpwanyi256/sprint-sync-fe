@@ -1,71 +1,124 @@
-import { useEffect } from 'react'
-import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { fetchTasks } from '@/store/slices/task'
-import { selectTasks, selectTaskLoading } from '@/store/slices/task'
+import { useState } from 'react'
+import { useAppDispatch } from '@/store/hooks'
+import { updateTaskStatusById, deleteTaskById } from '@/store/slices/task'
+import { Task, TaskStatus } from '@/types/task'
+import TaskColumn from '@/components/TaskColumn'
+import CreateTaskModal from '@/components/CreateTaskModal'
+import TaskDetailsModal from '@/components/TaskDetailsModal'
+import { Button } from '@/components/ui/button'
+import { Plus, RefreshCw } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 const Dashboard = () => {
   const dispatch = useAppDispatch()
-  const tasks = useAppSelector(selectTasks)
-  const loading = useAppSelector(selectTaskLoading)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null)
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
 
-  useEffect(() => {
-    dispatch(fetchTasks())
-  }, [dispatch])
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-lg text-gray-600">Loading tasks...</div>
-      </div>
-    )
+  const handleStatusChange = async (taskId: string, newStatus: TaskStatus) => {
+    try {
+      await dispatch(updateTaskStatusById({ id: taskId, status: newStatus })).unwrap()
+    } catch (error) {
+      console.error('Failed to update task status:', error)
+    }
   }
 
+  const handleViewTaskDetails = (task: Task) => {
+    setSelectedTask(task)
+    setIsDetailsModalOpen(true)
+  }
+
+  const handleCreateTask = () => {
+    setIsCreateModalOpen(true)
+  }
+
+  const handleTaskCreated = () => {
+    // Refresh all columns
+    setRefreshing(true)
+    setTimeout(() => setRefreshing(false), 100)
+  }
+
+  const handleEditTask = (task: Task) => {
+    // TODO: Implement edit functionality
+    console.log('Edit task:', task)
+  }
+
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+      await dispatch(deleteTaskById(taskId)).unwrap()
+      setIsDetailsModalOpen(false)
+      setSelectedTask(null)
+    } catch (error) {
+      console.error('Failed to delete task:', error)
+    }
+  }
+
+  const columns = [
+    { status: 'TODO' as TaskStatus, title: 'To Do' },
+    { status: 'IN_PROGRESS' as TaskStatus, title: 'In Progress' },
+    { status: 'DONE' as TaskStatus, title: 'Done' },
+  ]
+
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <button className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
-          Create Task
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">To Do</h3>
-          <div className="space-y-2">
-            {tasks.filter(task => task.status === 'TODO').map(task => (
-              <div key={task.id} className="p-3 bg-gray-50 rounded border">
-                <h4 className="font-medium text-gray-900">{task.title}</h4>
-                <p className="text-sm text-gray-600">{task.description}</p>
-              </div>
-            ))}
+    <div className="pt-20 pb-8 px-4 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Task Dashboard</h1>
+            <p className="mt-2 text-gray-600">
+              Manage your tasks and track progress across different stages
+            </p>
+          </div>
+          
+          <div className="mt-4 sm:mt-0 flex space-x-3">
+            <Button
+              variant="outline"
+              onClick={() => setRefreshing(true)}
+              disabled={refreshing}
+            >
+              <RefreshCw className={cn("h-4 w-4 mr-2", refreshing && "animate-spin")} />
+              Refresh
+            </Button>
+            <Button onClick={handleCreateTask}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Task
+            </Button>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">In Progress</h3>
-          <div className="space-y-2">
-            {tasks.filter(task => task.status === 'IN_PROGRESS').map(task => (
-              <div key={task.id} className="p-3 bg-blue-50 rounded border border-blue-200">
-                <h4 className="font-medium text-gray-900">{task.title}</h4>
-                <p className="text-sm text-gray-600">{task.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Done</h3>
-          <div className="space-y-2">
-            {tasks.filter(task => task.status === 'DONE').map(task => (
-              <div key={task.id} className="p-3 bg-green-50 rounded border border-green-200">
-                <h4 className="font-medium text-gray-900">{task.title}</h4>
-                <p className="text-sm text-gray-600">{task.description}</p>
-              </div>
-            ))}
-          </div>
+        {/* Task Columns */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
+          {columns.map((column) => (
+            <TaskColumn
+              key={column.status}
+              status={column.status}
+              title={column.title}
+              onViewTaskDetails={handleViewTaskDetails}
+              onStatusChange={handleStatusChange}
+            />
+          ))}
         </div>
       </div>
+
+      {/* Modals */}
+      <CreateTaskModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={handleTaskCreated}
+      />
+
+      <TaskDetailsModal
+        task={selectedTask}
+        isOpen={isDetailsModalOpen}
+        onClose={() => {
+          setIsDetailsModalOpen(false)
+          setSelectedTask(null)
+        }}
+        onEdit={handleEditTask}
+        onDelete={handleDeleteTask}
+      />
     </div>
   )
 }

@@ -1,4 +1,6 @@
-import { APIResponse, Pagination } from './api'
+import { APIResponse } from './api'
+
+export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE'
 
 export interface Task {
   id: string
@@ -6,19 +8,17 @@ export interface Task {
   description: string
   status: TaskStatus
   totalMinutes: number
-  createdBy: string
   assignedTo?: string
   createdAt: string
   updatedAt: string
 }
-
-export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE'
 
 export interface CreateTaskData {
   title: string
   description: string
   totalMinutes: number
   assignedTo?: string
+  status: TaskStatus
 }
 
 export interface UpdateTaskData {
@@ -26,20 +26,42 @@ export interface UpdateTaskData {
   description?: string
   totalMinutes?: number
   assignedTo?: string
+  status?: TaskStatus
+}
+
+export interface ColumnTasks {
+  tasks: Task[]
+  pagination: {
+    currentPage: number
+    hasNextPage: boolean
+    hasPreviousPage: boolean
+    itemsPerPage: number
+    totalItems: number
+    totalPages: number
+  }
 }
 
 export interface TaskState {
-  tasks: Task[]
+  columns: {
+    TODO: ColumnTasks
+    IN_PROGRESS: ColumnTasks
+    DONE: ColumnTasks
+  }
   loading: boolean
   error: string | null
   selectedTask: Task | null
-  pagination: Pagination
 }
 
 export interface TasksResponseData {
-  pagination: Pagination,
   tasks: Task[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+  }
 }
 
 export interface TasksResponse extends APIResponse<TasksResponseData> {}
+
 export interface TaskResponse extends APIResponse<Task> {}
