@@ -98,12 +98,12 @@ const TaskColumn = ({
 
   return (
     <div className={cn(
-      "flex flex-col h-full min-h-[600px] border-2 rounded-lg",
+      "flex flex-col h-[calc(100vh-112px)] border-2 rounded-lg",
       getColumnColor(status)
     )}>
       {/* Column Header */}
       <div className={cn(
-        "p-4 border-b rounded-t-lg",
+        "p-4 border-b rounded-t-lg flex-shrink-0",
         getColumnHeaderColor(status)
       )}>
         <div className="flex items-center justify-between mb-2">
@@ -116,8 +116,8 @@ const TaskColumn = ({
         </div>
       </div>
 
-      {/* Task Cards */}
-      <div className="flex-1 p-4 space-y-3 overflow-y-auto">
+      {/* Task Cards - Fixed height with scroll */}
+      <div className="flex-1 p-4 space-y-3 overflow-y-auto min-h-0">
         {tasks.map((task) => (
           <TaskCard
             key={task.id}

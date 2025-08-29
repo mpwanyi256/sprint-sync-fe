@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useAppDispatch } from '@/store/hooks'
-import { deleteTaskById } from '@/store/slices/task'
+import { updateTaskById } from '@/store/slices/task'
 import { Task } from '@/types/task'
 import TaskColumn from '@/components/TaskColumn'
 import CreateTaskModal from '@/components/CreateTaskModal'
@@ -20,11 +20,18 @@ const Dashboard = () => {
     setIsDetailsModalOpen(true)
   }
 
-  const handleDeleteTask = async (taskId: string) => {
+  const handleSaveTask = async (updatedTask: Task) => {
     try {
-      await dispatch(deleteTaskById(taskId)).unwrap()
+      const updateData = {
+        title: updatedTask.title,
+        description: updatedTask.description,
+        totalMinutes: updatedTask.totalMinutes,
+        assignedTo: updatedTask.assignedTo,
+        status: updatedTask.status,
+      }
+      await dispatch(updateTaskById({ id: updatedTask.id, data: updateData })).unwrap()
     } catch (error) {
-      console.error('Failed to delete task:', error)
+      console.error('Failed to update task:', error)
     }
   }
 
@@ -32,7 +39,7 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Task Board */}
       <div className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto items-start">
           <TaskColumn
             title="To Do"
             status="TODO"
@@ -65,7 +72,7 @@ const Dashboard = () => {
             setIsDetailsModalOpen(false)
             setSelectedTask(null)
           }}
-          onDelete={handleDeleteTask}
+          onSave={handleSaveTask}
         />
       )}
     </div>

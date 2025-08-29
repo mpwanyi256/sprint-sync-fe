@@ -86,19 +86,30 @@ const taskSlice = createSlice({
     builder
       .addCase(updateTaskById.fulfilled, (state, action) => {
         const updatedTask = action.payload.data
-        const status = updatedTask.status as TaskStatus
+        const newStatus = updatedTask.status as TaskStatus
         
-        // Remove from old column if status changed
-        Object.keys(state.columns).forEach((columnStatus) => {
+        // Find and remove the task from its current column
+        let foundInColumn: TaskStatus | null = null
+        
+        // Search through all columns to find the task
+        for (const columnStatus of Object.keys(state.columns)) {
           const statusKey = columnStatus as TaskStatus
-          state.columns[statusKey].tasks = state.columns[statusKey].tasks.filter(
-            task => task.id !== updatedTask.id
-          )
-        })
+          const column = state.columns[statusKey]
+          const taskIndex = column.tasks.findIndex(task => task.id === updatedTask.id)
+          
+          if (taskIndex !== -1) {
+            foundInColumn = statusKey
+            // Remove the task from this column
+            column.tasks.splice(taskIndex, 1)
+            column.pagination.totalItems -= 1
+            break
+          }
+        }
         
-        // Add to new column
-        if (status && state.columns[status]) {
-          state.columns[status].tasks.unshift(updatedTask)
+        // Add the updated task to the appropriate column
+        if (newStatus && state.columns[newStatus]) {
+          state.columns[newStatus].tasks.unshift(updatedTask)
+          state.columns[newStatus].pagination.totalItems += 1
         }
       })
       .addCase(updateTaskById.rejected, (state, action) => {
