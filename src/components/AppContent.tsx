@@ -46,10 +46,7 @@ function AppContent() {
         onClose={closeSidebar}
       />
       <main className="lg:ml-64 pt-16">
-        <Dashboard 
-          isCreateModalOpen={isCreateModalOpen}
-          onCloseCreateModal={() => setIsCreateModalOpen(false)}
-        />
+        <Dashboard />
       </main>
     </div>
   )

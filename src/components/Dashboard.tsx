@@ -1,84 +1,31 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { updateTaskStatusById, deleteTaskById, fetchTasks } from '@/store/slices/task'
-import { selectTasksByStatus } from '@/store/slices/task/taskSelectors'
-import { Task, TaskStatus } from '@/types/task'
+import { useState } from 'react'
+import { useAppDispatch } from '@/store/hooks'
+import { deleteTaskById } from '@/store/slices/task'
+import { Task } from '@/types/task'
 import TaskColumn from '@/components/TaskColumn'
 import CreateTaskModal from '@/components/CreateTaskModal'
 import TaskDetailsModal from '@/components/TaskDetailsModal'
 
-interface DashboardProps {
-  isCreateModalOpen: boolean
-  onCloseCreateModal: () => void
-}
-
-const Dashboard = ({ isCreateModalOpen, onCloseCreateModal }: DashboardProps) => {
+const Dashboard = () => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
   const dispatch = useAppDispatch()
-  
-  // Get tasks from Redux store instead of hardcoded data
-  const todoTasks = useAppSelector(state => selectTasksByStatus(state, 'TODO'))
-  const inProgressTasks = useAppSelector(state => selectTasksByStatus(state, 'IN_PROGRESS'))
-  const doneTasks = useAppSelector(state => selectTasksByStatus(state, 'DONE'))
 
-  // Fetch tasks on component mount and when dependencies change
-  useEffect(() => {
-    const loadAllTasks = async () => {
-      try {
-        // Fetch tasks for all statuses
-        await Promise.all([
-          dispatch(fetchTasks({ status: 'TODO', page: 1, limit: 50 })).unwrap(),
-          dispatch(fetchTasks({ status: 'IN_PROGRESS', page: 1, limit: 50 })).unwrap(),
-          dispatch(fetchTasks({ status: 'DONE', page: 1, limit: 50 })).unwrap(),
-        ])
-      } catch (error) {
-        console.error('Failed to load tasks:', error)
-      }
-    }
-
-    loadAllTasks()
-  }, [dispatch])
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task)
     setIsDetailsModalOpen(true)
   }
 
-  const handleStatusChange = async (taskId: string, newStatus: TaskStatus) => {
-    try {
-      await dispatch(updateTaskStatusById({ id: taskId, status: newStatus })).unwrap()
-      // Refresh tasks after status change
-      await Promise.all([
-        dispatch(fetchTasks({ status: 'TODO', page: 1, limit: 50 })).unwrap(),
-        dispatch(fetchTasks({ status: 'IN_PROGRESS', page: 1, limit: 50 })).unwrap(),
-        dispatch(fetchTasks({ status: 'DONE', page: 1, limit: 50 })).unwrap(),
-      ])
-    } catch (error) {
-      console.error('Failed to update task status:', error)
-    }
-  }
-
   const handleDeleteTask = async (taskId: string) => {
     try {
       await dispatch(deleteTaskById(taskId)).unwrap()
-      // Refresh tasks after deletion
-      await Promise.all([
-        dispatch(fetchTasks({ status: 'TODO', page: 1, limit: 50 })).unwrap(),
-        dispatch(fetchTasks({ status: 'IN_PROGRESS', page: 1, limit: 50 })).unwrap(),
-        dispatch(fetchTasks({ status: 'DONE', page: 1, limit: 50 })).unwrap(),
-      ])
     } catch (error) {
       console.error('Failed to delete task:', error)
     }
-  }
-
-  const handleAddTaskToColumn = (status: TaskStatus) => {
-    // TODO: Implement quick add task to specific column
-    console.log('Add task to column:', status)
-    onCloseCreateModal()
   }
 
   return (
@@ -90,22 +37,16 @@ const Dashboard = ({ isCreateModalOpen, onCloseCreateModal }: DashboardProps) =>
             title="To Do"
             status="TODO"
             onViewTaskDetails={handleTaskClick}
-            onStatusChange={handleStatusChange}
-            onAddTask={handleAddTaskToColumn}
           />
           <TaskColumn
             title="In Progress"
             status="IN_PROGRESS"
             onViewTaskDetails={handleTaskClick}
-            onStatusChange={handleStatusChange}
-            onAddTask={handleAddTaskToColumn}
           />
           <TaskColumn
             title="Done"
             status="DONE"
             onViewTaskDetails={handleTaskClick}
-            onStatusChange={handleStatusChange}
-            onAddTask={handleAddTaskToColumn}
           />
         </div>
       </div>
@@ -113,7 +54,7 @@ const Dashboard = ({ isCreateModalOpen, onCloseCreateModal }: DashboardProps) =>
       {/* Modals */}
       <CreateTaskModal
         isOpen={isCreateModalOpen}
-        onClose={onCloseCreateModal}
+        onClose={() => setIsCreateModalOpen(false)}
       />
 
       {selectedTask && (

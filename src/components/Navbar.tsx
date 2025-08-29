@@ -1,10 +1,11 @@
-import { useEffect } from 'react'
+import { useState } from 'react'
 import { useAppSelector, useAppDispatch } from '@/store/hooks'
-import { fetchCurrentUser, logoutUser } from '@/store/slices/auth'
+import { logoutUser } from '@/store/slices/auth'
 import { selectUser, selectIsAuthenticated } from '@/store/slices/auth'
 import { Menu, X, Search, Grid3X3, List, Star, Rocket, MoreHorizontal, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import CreateTaskModal from '@/components/CreateTaskModal'
 
 interface NavbarProps {
   onSidebarToggle: () => void
@@ -17,10 +18,7 @@ const Navbar = ({ onSidebarToggle, sidebarOpen, onCreateTask, onSearch }: Navbar
   const dispatch = useAppDispatch()
   const user = useAppSelector(selectUser)
   const isAuthenticated = useAppSelector(selectIsAuthenticated)
-
-  useEffect(() => {
-    dispatch(fetchCurrentUser())
-  }, []) // Remove dispatch dependency to prevent infinite loop
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
   const handleLogout = () => {
     dispatch(logoutUser())
@@ -103,15 +101,13 @@ const Navbar = ({ onSidebarToggle, sidebarOpen, onCreateTask, onSearch }: Navbar
             </Button>
 
             {/* Create task button */}
-            {onCreateTask && (
               <Button
-                onClick={onCreateTask}
+                onClick={() => setIsCreateModalOpen(true)}
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Create Task
               </Button>
-            )}
 
             {/* More options */}
             <Button
@@ -138,6 +134,10 @@ const Navbar = ({ onSidebarToggle, sidebarOpen, onCreateTask, onSearch }: Navbar
           )}
         </div>
       </div>
+      <CreateTaskModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+      />
     </nav>
   )
 }

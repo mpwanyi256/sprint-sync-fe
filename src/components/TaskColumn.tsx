@@ -14,16 +14,12 @@ interface TaskColumnProps {
   status: TaskStatus
   title: string
   onViewTaskDetails: (task: Task) => void
-  onStatusChange: (taskId: string, newStatus: TaskStatus) => void
-  onAddTask?: (status: TaskStatus) => void
 }
 
 const TaskColumn = ({ 
   status, 
   title, 
-  onViewTaskDetails, 
-  onStatusChange,
-  onAddTask
+  onViewTaskDetails,
 }: TaskColumnProps) => {
   const dispatch = useAppDispatch()
   const tasks = useAppSelector(state => selectTasksByStatus(state, status))
