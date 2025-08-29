@@ -2,13 +2,20 @@ import { APIResponse } from './api'
 
 export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE'
 
+export interface Assignee {
+  firstName: string
+  lastName: string
+  email: string
+  id: string
+}
+
 export interface Task {
   id: string
   title: string
   description: string
   status: TaskStatus
   totalMinutes: number
-  assignedTo?: string
+  assignedTo: Assignee | null
   createdAt: string
   updatedAt: string
 }
@@ -23,7 +30,7 @@ export interface UpdateTaskData {
   title?: string
   description?: string
   totalMinutes?: number
-  assignedTo?: string
+  assignedTo?: Assignee | null
   status?: TaskStatus
 }
 

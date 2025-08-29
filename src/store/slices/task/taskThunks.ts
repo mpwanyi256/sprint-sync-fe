@@ -50,3 +50,10 @@ export const updateTaskStatusById = createAsyncThunk<void, { id: string; status:
     await api.patch(`/tasks/${id}/status`, { status })
   }
 )
+
+export const assignTaskToUser = createAsyncThunk<void, { taskId: string; assignedTo: string }>(
+  'tasks/assignTaskToUser',
+  async ({ taskId, assignedTo }) => {
+    await api.patch(`/tasks/${taskId}/assign`, { assignedTo })
+  }
+)

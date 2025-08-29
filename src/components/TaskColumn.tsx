@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
 import { Task, TaskStatus } from '@/types/task'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { fetchTasks } from '@/store/slices/task'
+import { fetchTasks, updateTaskById } from '@/store/slices/task'
 import { selectTasksByStatus, selectColumnPagination } from '@/store/slices/task/taskSelectors'
 import TaskCard from './TaskCard'
 import { Loader2, Plus } from 'lucide-react'
@@ -26,6 +26,7 @@ const TaskColumn = ({
   const pagination = useAppSelector(state => selectColumnPagination(state, status))
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
+  const [isDragOver, setIsDragOver] = useState(false)
   const observerRef = useRef<HTMLDivElement>(null)
   const tasksCount = useMemo(() => pagination.totalItems, [pagination])
 
@@ -70,6 +71,35 @@ const TaskColumn = ({
     return () => observer.disconnect()
   }, [loadMore, pagination.hasNextPage, loading])
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    setIsDragOver(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragOver(false)
+  }
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragOver(false)
+    
+    const taskId = e.dataTransfer.getData('text/plain')
+    if (!taskId) return
+
+    try {
+      await dispatch(updateTaskById({ 
+        id: taskId, 
+        data: { status } 
+      })).unwrap()
+      console.log(`Task ${taskId} moved to ${status}`)
+    } catch (error) {
+      console.error('Failed to move task:', error)
+    }
+  }
+
   const getColumnColor = (status: TaskStatus) => {
     switch (status) {
       case 'TODO':
@@ -89,22 +119,27 @@ const TaskColumn = ({
         return 'bg-white border-gray-200'
       case 'IN_PROGRESS':
         return 'bg-blue-50 border-blue-200'
-      case 'DONE':
-        return 'bg-green-50 border-green-200'
       default:
-        return 'bg-white border-gray-200'
+        return 'bg-green-50 border-green-200'
     }
   }
 
   return (
-    <div className={cn(
-      "flex flex-col h-[calc(100vh-112px)] border-2 rounded-lg",
-      getColumnColor(status)
-    )}>
+    <div 
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      className={cn(
+        "flex flex-col h-[calc(100vh-112px)] border-2 rounded-lg transition-all duration-200",
+        getColumnColor(status),
+        isDragOver && "border-blue-400 bg-blue-50/50 shadow-lg"
+      )}
+    >
       {/* Column Header */}
       <div className={cn(
-        "p-4 border-b rounded-t-lg flex-shrink-0",
-        getColumnHeaderColor(status)
+        "p-4 border-b rounded-t-lg flex-shrink-0 transition-colors duration-200",
+        getColumnHeaderColor(status),
+        isDragOver && "bg-blue-100 border-blue-300"
       )}>
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-lg font-semibold text-gray-900">{title}</h3>

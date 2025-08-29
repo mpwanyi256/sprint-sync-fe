@@ -1,8 +1,7 @@
 'use client'
 
-import { Task, TaskStatus } from '@/types/task'
-import { Badge } from '@/components/ui/badge'
-import { Calendar, Clock } from 'lucide-react'
+import { Task } from '@/types/task'
+import { Clock, Calendar, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface TaskCardProps {
@@ -12,88 +11,85 @@ interface TaskCardProps {
 }
 
 const TaskCard = ({ task, onClick, className }: TaskCardProps) => {
-  const getStatusColor = (status: TaskStatus) => {
-    switch (status) {
-      case 'TODO':
-        return 'bg-gray-100 text-gray-800 border-gray-200'
-      case 'IN_PROGRESS':
-        return 'bg-blue-100 text-blue-800 border-blue-200'
-      case 'DONE':
-        return 'bg-green-100 text-green-800 border-green-200'
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200'
-    }
+  const getInitials = (firstName: string, lastName: string) => {
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
   }
 
-  const getStatusLabel = (status: TaskStatus) => {
-    switch (status) {
-      case 'TODO':
-        return 'To Do'
-      case 'IN_PROGRESS':
-        return 'In Progress'
-      case 'DONE':
-        return 'Done'
-      default:
-        return status
-    }
+  const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.setData('text/plain', task.id)
+    e.dataTransfer.effectAllowed = 'move'
+    e.currentTarget.classList.add('opacity-50', 'scale-105', 'shadow-lg')
   }
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffTime = Math.abs(now.getTime() - date.getTime())
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-    
-    if (diffDays === 1) return 'Today'
-    if (diffDays === 2) return 'Yesterday'
-    if (diffDays <= 7) return `${diffDays - 1} days ago`
-    return date.toLocaleDateString()
+  const handleDragEnd = (e: React.DragEvent) => {
+    e.currentTarget.classList.remove('opacity-50', 'scale-105', 'shadow-lg')
   }
 
   return (
     <div
+      draggable
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onClick={onClick}
       className={cn(
-        "bg-white rounded-lg border border-gray-200 p-4 cursor-pointer hover:shadow-md transition-shadow",
+        "bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer relative group",
         "hover:border-gray-300",
         className
       )}
-      onClick={onClick}
     >
-      {/* Header with status badge */}
-      <div className="flex items-start justify-between mb-3">
-        <Badge 
-          variant="outline" 
-          className={cn("text-xs font-medium", getStatusColor(task.status))}
-        >
-          {getStatusLabel(task.status)}
-        </Badge>
+      {/* Drag Indicator */}
+      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
       </div>
-
-      {/* Task title */}
-      <h3 className="font-medium text-gray-900 mb-2 line-clamp-2">
+      
+      {/* Task Title */}
+      <h3 className="font-semibold text-lg text-gray-900 mb-3 line-clamp-2 leading-tight">
         {task.title}
       </h3>
 
-      {/* Task description */}
-      {task.description && (
-        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+      {/* Task Description */}
+      <div className="mb-4">
+        <p className="text-gray-600 line-clamp-3 leading-relaxed">
           {task.description}
         </p>
-      )}
+      </div>
 
-      {/* Task metadata */}
-      <div className="space-y-2">
-        {/* Time estimate */}
-        <div className="flex items-center text-xs text-gray-500">
-          <Clock className="h-3 w-3 mr-1" />
-          <span>{task.totalMinutes} min</span>
+      {/* Task Metadata */}
+      <div className="space-y-3 pt-2 border-t border-gray-100">
+        <div className="flex items-center text-sm text-gray-500">
+          <Clock className="h-4 w-4 mr-2" />
+          <span className="font-medium">{task.totalMinutes} minutes</span>
         </div>
+        
+        <div className="flex items-center text-sm text-gray-500">
+          <Calendar className="h-4 w-4 mr-2" />
+          <span className="font-medium">
+            {new Date(task.createdAt).toLocaleDateString()}
+          </span>
+        </div>
+      </div>
 
-        {/* Created date */}
-        <div className="flex items-center text-xs text-gray-500">
-          <Calendar className="h-3 w-3 mr-1" />
-          <span>{formatDate(task.createdAt)}</span>
-        </div>
+      {/* Assignee Section */}
+      <div className="mt-4 pt-3 border-t border-gray-100">
+        {task.assignedTo ? (
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center shadow-sm">
+              <span className="text-sm font-semibold text-blue-700">
+                {getInitials(task.assignedTo.firstName, task.assignedTo.lastName)}
+              </span>
+            </div>
+            <span className="text-sm font-medium text-gray-700">
+              {task.assignedTo.firstName} {task.assignedTo.lastName}
+            </span>
+          </div>
+        ) : (
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center shadow-sm">
+              <User className="h-4 w-4 text-gray-400" />
+            </div>
+            <span className="text-sm font-medium text-gray-500">Unassigned</span>
+          </div>
+        )}
       </div>
     </div>
   )

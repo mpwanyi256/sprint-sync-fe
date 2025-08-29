@@ -6,6 +6,7 @@ import { Menu, X, Search, Grid3X3, List, Star, Rocket, MoreHorizontal, Plus } fr
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import CreateTaskModal from '@/components/CreateTaskModal'
+import Image from 'next/image'
 
 interface NavbarProps {
   onSidebarToggle: () => void
@@ -46,8 +47,13 @@ const Navbar = ({ onSidebarToggle, sidebarOpen, onCreateTask, onSearch }: Navbar
               {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <div className="w-5 h-5 bg-blue-600 rounded"></div>
+              <div className="p-2 bg-blue-100 rounded-lg flex items-center justify-center overflow-hidden">
+              <Image
+                src="/assets/logo.svg"
+                alt="SprintSync Logo"
+                width={30}
+                height={30}
+              />
               </div>
               <h1 className="text-xl font-bold text-gray-900">SprintSync</h1>
             </div>

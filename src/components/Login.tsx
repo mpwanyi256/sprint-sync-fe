@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { loginUser } from '@/store/slices/auth'
 import { selectAuthLoading } from '@/store/slices/auth'
+import Image from 'next/image'
 
 const Login = () => {
   const [email, setEmail] = useState('')
@@ -27,6 +28,14 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
+          <div className="flex justify-center">
+            <Image 
+              src="/assets/logo.svg"
+              alt="SprintSync Logo"
+              width={150}
+              height={150}
+            />
+          </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Sign in to SprintSync
           </h2>

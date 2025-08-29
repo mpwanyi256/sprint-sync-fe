@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useAppDispatch } from '@/store/hooks'
 import { updateTaskById } from '@/store/slices/task'
-import { Task } from '@/types/task'
+import { Task, TaskStatus } from '@/types/task'
 import TaskColumn from '@/components/TaskColumn'
 import CreateTaskModal from '@/components/CreateTaskModal'
 import TaskDetailsModal from '@/components/TaskDetailsModal'
@@ -40,21 +40,27 @@ const Dashboard = () => {
       {/* Task Board */}
       <div className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto items-start">
-          <TaskColumn
-            title="To Do"
-            status="TODO"
-            onViewTaskDetails={handleTaskClick}
-          />
-          <TaskColumn
-            title="In Progress"
-            status="IN_PROGRESS"
-            onViewTaskDetails={handleTaskClick}
-          />
-          <TaskColumn
-            title="Done"
-            status="DONE"
-            onViewTaskDetails={handleTaskClick}
-          />
+          <div id="TODO">
+            <TaskColumn
+              title="To Do"
+              status="TODO"
+              onViewTaskDetails={handleTaskClick}
+            />
+          </div>
+          <div id="IN_PROGRESS">
+            <TaskColumn
+              title="In Progress"
+              status="IN_PROGRESS"
+              onViewTaskDetails={handleTaskClick}
+            />
+          </div>
+          <div id="DONE">
+            <TaskColumn
+              title="Done"
+              status="DONE"
+              onViewTaskDetails={handleTaskClick}
+            />
+          </div>
         </div>
       </div>
 
