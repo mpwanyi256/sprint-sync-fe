@@ -1,6 +1,7 @@
-import { useState } from 'react'
-import { useAppDispatch } from '@/store/hooks'
+import { useState, useEffect } from 'react'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { createTask } from '@/store/slices/task'
+import { generateTaskDescription } from '@/store/slices/ai'
 import { CreateTaskData } from '@/types/task'
 import {
   Dialog,
@@ -15,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { apiError, apiSuccess } from '@/util/toast'
+import { Sparkles, Loader2 } from 'lucide-react'
 
 interface CreateTaskModalProps {
   isOpen: boolean
@@ -24,12 +26,34 @@ interface CreateTaskModalProps {
 
 const CreateTaskModal = ({ isOpen, onClose, onSuccess }: CreateTaskModalProps) => {
   const dispatch = useAppDispatch()
-  const [loading, setLoading] = useState(false)
+  const { loading, generatingDescription, error, streamingContent } = useAppSelector(state => state.ai)
+  const [formLoading, setFormLoading] = useState(false)
   const [formData, setFormData] = useState<CreateTaskData>({
     title: '',
     description: '',
     totalMinutes: 0,
   })
+
+  // Update description when streaming content changes
+  useEffect(() => {
+    console.log('Streaming content changed:', streamingContent)
+    console.log('Generating description:', generatingDescription)
+    
+    if (streamingContent) {
+      setFormData(prev => ({
+        ...prev,
+        description: streamingContent
+      }))
+    }
+  }, [streamingContent])
+
+  // Clear streaming content when modal opens/closes
+  useEffect(() => {
+    if (!isOpen) {
+      // Clear streaming content when modal closes
+      dispatch({ type: 'ai/clearStreamingContent' })
+    }
+  }, [isOpen, dispatch])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -39,7 +63,7 @@ const CreateTaskModal = ({ isOpen, onClose, onSuccess }: CreateTaskModalProps) =
     }
 
     try {
-      setLoading(true)
+      setFormLoading(true)
       await dispatch(createTask(formData)).unwrap()
       
       // Reset form
@@ -56,7 +80,7 @@ const CreateTaskModal = ({ isOpen, onClose, onSuccess }: CreateTaskModalProps) =
       apiError('Failed to create task')
       console.error('Failed to create task:', error)
     } finally {
-      setLoading(false)
+      setFormLoading(false)
     }
   }
 
@@ -72,6 +96,34 @@ const CreateTaskModal = ({ isOpen, onClose, onSuccess }: CreateTaskModalProps) =
       ...prev,
       assignedTo: value === '' ? undefined : value
     }))
+  }
+
+  const handleAiSuggest = async () => {
+    if (!formData.title.trim()) {
+      apiError('Please enter a task title first')
+      return
+    }
+
+    try {
+      const result = await dispatch(generateTaskDescription({ title: formData.title })).unwrap()
+      
+      // The description is already updated via streaming, but we can set it here as a fallback
+      if (result.description) {
+        setFormData(prev => ({
+          ...prev,
+          description: result.description
+        }))
+      }
+      
+      apiSuccess('AI suggestion generated successfully')
+    } catch (error) {
+      console.error('Failed to get AI suggestion:', error)
+      if (error instanceof Error) {
+        apiError(`Failed to get AI suggestion: ${error.message}`)
+      } else {
+        apiError('Failed to get AI suggestion')
+      }
+    }
   }
 
   return (
@@ -94,15 +146,45 @@ const CreateTaskModal = ({ isOpen, onClose, onSuccess }: CreateTaskModalProps) =
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="description">Description *</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="description">Description *</Label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleAiSuggest}
+                disabled={generatingDescription || !formData.title.trim()}
+                className="flex items-center gap-2"
+              >
+                {generatingDescription ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Sparkles className="h-4 w-4" />
+                )}
+                {generatingDescription ? 'Generating...' : 'AI Suggest'}
+              </Button>
+            </div>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder="Enter task description"
+              placeholder="Enter task description or use AI to generate one"
               rows={3}
               required
+              className={generatingDescription ? 'border-blue-300 bg-blue-50' : ''}
             />
+            {generatingDescription && streamingContent && (
+              <div className="text-sm text-blue-600 bg-blue-50 p-2 rounded border border-blue-200">
+                <div className="flex items-center gap-2 mb-1">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  <span className="font-medium">AI is generating description...</span>
+                </div>
+                <div className="text-gray-700">
+                  {streamingContent}
+                  <span className="animate-pulse">|</span>
+                </div>
+              </div>
+            )}
           </div>
           
           <div className="grid grid-cols-2 gap-4">
@@ -125,15 +207,15 @@ const CreateTaskModal = ({ isOpen, onClose, onSuccess }: CreateTaskModalProps) =
               type="button"
               variant="outline"
               onClick={onClose}
-              disabled={loading}
+              disabled={formLoading}
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={loading || !formData.title.trim() || !formData.description.trim() || formData.totalMinutes <= 0}
+              disabled={formLoading || !formData.title.trim() || !formData.description.trim() || formData.totalMinutes <= 0}
             >
-              {loading ? 'Creating...' : 'Create Task'}
+              {formLoading ? 'Creating...' : 'Create Task'}
             </Button>
           </DialogFooter>
         </form>
