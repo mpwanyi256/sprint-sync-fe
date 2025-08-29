@@ -71,8 +71,9 @@ const taskSlice = createSlice({
     builder
       .addCase(createTask.fulfilled, (state, action) => {
         const newTask = action.payload.data
+        console.log('newTask response', newTask)
         const status = newTask.status as TaskStatus
-        if (status && state.columns[status]) {
+        if (status && state.columns['TODO']) {
           state.columns[status].tasks.unshift(newTask)
           state.columns[status].pagination.totalItems += 1
         }

@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
-import { CreateTaskData, UpdateTaskData, TaskStatus, TasksResponse, TaskResponse, TasksResponseData } from '@/types/task'
+import { CreateTaskData, UpdateTaskData, TaskStatus, TasksResponse, TaskResponse, TasksResponseData, Task } from '@/types/task'
 import api from '@/services/api'
 import { APIResponse } from '@/types';
 
@@ -21,10 +21,11 @@ export const fetchTasks = createAsyncThunk<TasksResponse, { status?: TaskStatus;
 export const createTask = createAsyncThunk<TaskResponse, CreateTaskData>(
   'tasks/createTask',
   async (taskData) => {
-    const response = await api.post<TaskResponse>('/tasks', taskData)
-    return response.data
+    const { data } = await api.post<TaskResponse>('/tasks', taskData)
+    console.log('createTask response', data)
+    return data
   }
-)
+) 
 
 export const updateTaskById = createAsyncThunk<TaskResponse, { id: string; data: UpdateTaskData }>(
   'tasks/updateTaskById',

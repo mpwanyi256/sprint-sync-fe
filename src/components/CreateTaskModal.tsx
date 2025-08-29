@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { apiError, apiSuccess } from '@/util/toast'
 
 interface CreateTaskModalProps {
   isOpen: boolean
@@ -49,8 +50,10 @@ const CreateTaskModal = ({ isOpen, onClose, onSuccess }: CreateTaskModalProps) =
       })
       
       onSuccess?.()
+      apiSuccess('Task created successfully')
       onClose()
     } catch (error) {
+      apiError('Failed to create task')
       console.error('Failed to create task:', error)
     } finally {
       setLoading(false)
