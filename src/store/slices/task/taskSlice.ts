@@ -2,11 +2,23 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { TaskState, Task, TaskStatus } from '@/types/task'
 import { fetchTasks, createTask, updateTaskById, deleteTaskById, updateTaskStatusById } from './taskThunks'
 
+const initialColumnState = {
+  tasks: [],
+  pagination: {
+    currentPage: 1,
+    hasNextPage: false,
+    hasPreviousPage: false,
+    itemsPerPage: 10,
+    totalItems: 0,
+    totalPages: 1,
+  },
+}
+
 const initialState: TaskState = {
   columns: {
-    TODO: { tasks: [], pagination: { currentPage: 1, hasNextPage: false, hasPreviousPage: false, itemsPerPage: 10, totalItems: 0, totalPages: 1 } },
-    IN_PROGRESS: { tasks: [], pagination: { currentPage: 1, hasNextPage: false, hasPreviousPage: false, itemsPerPage: 10, totalItems: 0, totalPages: 1 } },
-    DONE: { tasks: [], pagination: { currentPage: 1, hasNextPage: false, hasPreviousPage: false, itemsPerPage: 10, totalItems: 0, totalPages: 1 } },
+    TODO: initialColumnState,
+    IN_PROGRESS: initialColumnState,
+    DONE: initialColumnState,
   },
   loading: false,
   error: null,
@@ -39,31 +51,15 @@ const taskSlice = createSlice({
         
         if (status) {
           // Update specific column
-          state.columns[status].tasks = data.tasks
+          state.columns[status].tasks = data.pagination.currentPage === 1 ? data.tasks : [...state.columns[status].tasks, ...data.tasks]
           state.columns[status].pagination = {
-            currentPage: data.pagination.page,
-            hasNextPage: data.pagination.page < data.pagination.totalPages,
-            hasPreviousPage: data.pagination.page > 1,
-            itemsPerPage: data.pagination.limit,
-            totalItems: data.pagination.total,
+            currentPage: data.pagination.currentPage,
+            hasNextPage: data.pagination.hasNextPage,
+            hasPreviousPage: data.pagination.currentPage > 1,
+            itemsPerPage: data.pagination.itemsPerPage,
+            totalItems: data.pagination.totalItems,
             totalPages: data.pagination.totalPages,
           }
-        } else {
-          // Update all columns (fallback for backward compatibility)
-          const allTasks = data.tasks
-          Object.keys(state.columns).forEach((columnStatus) => {
-            const statusKey = columnStatus as TaskStatus
-            const columnTasks = allTasks.filter((task: Task) => task.status === statusKey)
-            state.columns[statusKey].tasks = columnTasks
-            state.columns[statusKey].pagination = {
-              currentPage: data.pagination.page,
-              hasNextPage: data.pagination.page < data.pagination.totalPages,
-              hasPreviousPage: data.pagination.page > 1,
-              itemsPerPage: data.pagination.limit,
-              totalItems: data.pagination.total,
-              totalPages: data.pagination.totalPages,
-            }
-          })
         }
       })
       .addCase(fetchTasks.rejected, (state, action) => {

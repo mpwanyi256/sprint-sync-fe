@@ -17,8 +17,6 @@ export interface CreateTaskData {
   title: string
   description: string
   totalMinutes: number
-  assignedTo?: string
-  status: TaskStatus
 }
 
 export interface UpdateTaskData {
@@ -55,13 +53,19 @@ export interface TaskState {
 export interface TasksResponseData {
   tasks: Task[]
   pagination: {
-    page: number
-    limit: number
-    total: number
+    currentPage: number
+    hasNextPage: boolean
+    hasPreviousPage: boolean
+    itemsPerPage: number
+    totalItems: number
     totalPages: number
   }
 }
 
-export interface TasksResponse extends APIResponse<TasksResponseData> {}
+export interface TasksResponse extends APIResponse<TasksResponseData> {
+  // Extends APIResponse with TasksResponseData
+}
 
-export interface TaskResponse extends APIResponse<Task> {}
+export interface TaskResponse extends APIResponse<Task> {
+  // Extends APIResponse with Task
+}

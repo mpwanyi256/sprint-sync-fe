@@ -1,4 +1,7 @@
-import { Link, useLocation } from 'react-router-dom'
+'use client'
+
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { LayoutDashboard, BarChart3, Settings, Users, Calendar } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -16,7 +19,7 @@ const navigation = [
 ]
 
 const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
-  const location = useLocation()
+  const pathname = usePathname()
 
   return (
     <>
@@ -37,11 +40,11 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
           {/* Navigation */}
           <nav className="flex-1 px-4 py-6 space-y-2">
             {navigation.map((item) => {
-              const isActive = location.pathname === item.href
+              const isActive = pathname === item.href
               return (
                 <Link
                   key={item.name}
-                  to={item.href}
+                  href={item.href}
                   onClick={onClose}
                   className={cn(
                     "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",

@@ -2,7 +2,7 @@ import { RootState } from '@/store'
 import { TaskStatus } from '@/types/task'
 
 export const selectTasks = (state: RootState) => {
-  const allTasks: any[] = []
+  const allTasks: import('@/types/task').Task[] = []
   Object.values(state.tasks.columns).forEach(column => {
     allTasks.push(...column.tasks)
   })

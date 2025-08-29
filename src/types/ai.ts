@@ -1,7 +1,7 @@
 export interface AISuggestion {
   type: 'task_description' | 'daily_plan'
   content: string
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 export interface AISuggestionRequest {

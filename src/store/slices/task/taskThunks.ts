@@ -1,17 +1,17 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
-import { CreateTaskData, UpdateTaskData, TaskStatus, TasksResponse, TaskResponse } from '@/types/task'
+import { CreateTaskData, UpdateTaskData, TaskStatus, TasksResponse, TaskResponse, TasksResponseData } from '@/types/task'
 import api from '@/services/api'
+import { APIResponse } from '@/types';
 
 export const fetchTasks = createAsyncThunk<TasksResponse, { status?: TaskStatus; page?: number; limit?: number } | void>(
   'tasks/fetchTasks',
   async (params = {}) => {
     const { status, page = 1, limit = 10 } = typeof params === 'object' ? params : {}
-    
-    const response = await api.get<TasksResponse>('/tasks', {
+    const response = await api.get<APIResponse<TasksResponseData>>('/tasks', {
       params: {
         page,
         limit,
-        ...(status && { status }),
+        status,
       },
     })
     return response.data

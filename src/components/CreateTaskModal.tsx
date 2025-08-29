@@ -28,8 +28,6 @@ const CreateTaskModal = ({ isOpen, onClose, onSuccess }: CreateTaskModalProps) =
     title: '',
     description: '',
     totalMinutes: 0,
-    assignedTo: undefined,
-    status: 'TODO',
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,8 +46,6 @@ const CreateTaskModal = ({ isOpen, onClose, onSuccess }: CreateTaskModalProps) =
         title: '',
         description: '',
         totalMinutes: 0,
-        assignedTo: undefined,
-        status: 'TODO',
       })
       
       onSuccess?.()
@@ -119,40 +115,6 @@ const CreateTaskModal = ({ isOpen, onClose, onSuccess }: CreateTaskModalProps) =
                 required
               />
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="status">Status *</Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value) => handleInputChange('status', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="TODO">To Do</SelectItem>
-                  <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
-                  <SelectItem value="DONE">Done</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="assignedTo">Assign To</Label>
-            <Select
-              value={formData.assignedTo || ''}
-              onValueChange={handleAssignedToChange}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select user" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Unassigned</SelectItem>
-                <SelectItem value="user1">John Doe</SelectItem>
-                <SelectItem value="user2">Jane Smith</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
           
           <DialogFooter>

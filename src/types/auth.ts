@@ -31,7 +31,9 @@ export interface AuthData {
   tokens: AuthTokens
 }
 
-export interface AuthResponse extends APIResponse<AuthData> {}
+export interface AuthResponse extends APIResponse<AuthData> {
+  // Extends APIResponse with AuthData
+}
 
 export interface AuthState {
   user: User | null

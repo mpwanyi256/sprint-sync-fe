@@ -10,5 +10,5 @@ export type Theme = 'light' | 'dark'
 export interface ModalState {
   isOpen: boolean
   type: 'task' | 'ai' | 'confirm'
-  data?: any
+  data?: unknown
 }

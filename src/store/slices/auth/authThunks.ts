@@ -34,7 +34,7 @@ export const logoutUser = createAsyncThunk<void, void>(
   }
 )
 
-export const fetchCurrentUser = createAsyncThunk<APIResponse<any>, void>(
+export const fetchCurrentUser = createAsyncThunk<APIResponse<{ user: any }>, void>(
   'auth/fetchCurrentUser',
   async () => {
     const response = await api.get('/auth/me')

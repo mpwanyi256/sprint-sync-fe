@@ -3,13 +3,29 @@ import { AuthState, User, AuthResponse } from '@/types/auth'
 import { APIResponse } from '@/types/api'
 import { loginUser, registerUser, logoutUser, fetchCurrentUser } from './authThunks'
 
-const initialState: AuthState = {
-  user: null,
-  accessToken: localStorage.getItem('accessToken'),
-  refreshToken: localStorage.getItem('refreshToken'),
-  isAuthenticated: !!localStorage.getItem('accessToken'),
-  loading: false,
+const getInitialState = (): AuthState => {
+  if (typeof window === 'undefined') {
+    return {
+      user: null,
+      accessToken: null,
+      refreshToken: null,
+      isAuthenticated: false,
+      loading: false,
+    }
+  }
+  
+  // Don't automatically authenticate based on localStorage tokens
+  // Let the AuthProvider handle validation
+  return {
+    user: null,
+    accessToken: localStorage.getItem('accessToken'),
+    refreshToken: localStorage.getItem('refreshToken'),
+    isAuthenticated: false, // Start as false, let validation determine true state
+    loading: false,
+  }
 }
+
+const initialState: AuthState = getInitialState()
 
 const authSlice = createSlice({
   name: 'auth',
@@ -17,14 +33,20 @@ const authSlice = createSlice({
   reducers: {
     setUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload
+      state.isAuthenticated = true
     },
     clearAuth: (state) => {
       state.user = null
       state.accessToken = null
       state.refreshToken = null
       state.isAuthenticated = false
-      localStorage.removeItem('accessToken')
-      localStorage.removeItem('refreshToken')
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('refreshToken')
+      }
+    },
+    setAuthenticated: (state, action: PayloadAction<boolean>) => {
+      state.isAuthenticated = action.payload
     },
   },
   extraReducers: (builder) => {
@@ -42,8 +64,10 @@ const authSlice = createSlice({
           state.user = data.user
           state.accessToken = data.tokens.accessToken
           state.refreshToken = data.tokens.refreshToken
-          localStorage.setItem('accessToken', data.tokens.accessToken)
-          localStorage.setItem('refreshToken', data.tokens.refreshToken)
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('accessToken', data.tokens.accessToken)
+            localStorage.setItem('refreshToken', data.tokens.refreshToken)
+          }
         }
       })
       .addCase(loginUser.rejected, (state) => {
@@ -52,6 +76,10 @@ const authSlice = createSlice({
         state.user = null
         state.accessToken = null
         state.refreshToken = null
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('accessToken')
+          localStorage.removeItem('refreshToken')
+        }
       })
 
     // Register User
@@ -68,8 +96,10 @@ const authSlice = createSlice({
           state.user = data.user
           state.accessToken = data.tokens.accessToken
           state.refreshToken = data.tokens.refreshToken
-          localStorage.setItem('accessToken', data.tokens.accessToken)
-          localStorage.setItem('refreshToken', data.tokens.refreshToken)
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('accessToken', data.tokens.accessToken)
+            localStorage.setItem('refreshToken', data.tokens.refreshToken)
+          }
         }
       })
       .addCase(registerUser.rejected, (state) => {
@@ -78,6 +108,10 @@ const authSlice = createSlice({
         state.user = null
         state.accessToken = null
         state.refreshToken = null
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('accessToken')
+          localStorage.removeItem('refreshToken')
+        }
       })
 
     // Logout User
@@ -87,25 +121,30 @@ const authSlice = createSlice({
         state.accessToken = null
         state.refreshToken = null
         state.isAuthenticated = false
-        localStorage.removeItem('accessToken')
-        localStorage.removeItem('refreshToken')
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('accessToken')
+          localStorage.removeItem('refreshToken')
+        }
       })
 
     // Fetch Current User
     builder
       .addCase(fetchCurrentUser.fulfilled, (state, action: PayloadAction<APIResponse<User>>) => {
         state.user = action.payload.data
+        state.isAuthenticated = true
       })
       .addCase(fetchCurrentUser.rejected, (state) => {
         state.user = null
         state.accessToken = null
         state.refreshToken = null
         state.isAuthenticated = false
-        localStorage.removeItem('accessToken')
-        localStorage.removeItem('refreshToken')
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('accessToken')
+          localStorage.removeItem('refreshToken')
+        }
       })
   },
 })
 
-export const { setUser, clearAuth } = authSlice.actions
+export const { setUser, clearAuth, setAuthenticated } = authSlice.actions
 export default authSlice.reducer
