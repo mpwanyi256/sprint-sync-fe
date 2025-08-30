@@ -26,7 +26,7 @@ const initialState: TaskState = {
 }
 
 const taskSlice = createSlice({
-  name: 'tasks',
+  name: 'task',
   initialState,
   reducers: {
     setSelectedTask: (state, action: PayloadAction<Task | null>) => {

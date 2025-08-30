@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useAppSelector, useAppDispatch } from '@/store/hooks'
 import { logoutUser } from '@/store/slices/auth'
 import { selectUser, selectIsAuthenticated } from '@/store/slices/auth'
+import { selectViewFormat, setViewFormat } from '@/store/slices/ui'
 import { Menu, X, Search, Grid3X3, List, Star, Rocket, MoreHorizontal, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -19,10 +20,15 @@ const Navbar = ({ onSidebarToggle, sidebarOpen, onCreateTask, onSearch }: Navbar
   const dispatch = useAppDispatch()
   const user = useAppSelector(selectUser)
   const isAuthenticated = useAppSelector(selectIsAuthenticated)
+  const viewFormat = useAppSelector(selectViewFormat)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
   const handleLogout = () => {
     dispatch(logoutUser())
+  }
+
+  const handleViewFormatChange = (format: 'kanban' | 'list') => {
+    dispatch(setViewFormat(format))
   }
 
   const getUserDisplayName = () => {
@@ -76,14 +82,16 @@ const Navbar = ({ onSidebarToggle, sidebarOpen, onCreateTask, onSearch }: Navbar
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 px-2 rounded-md"
+                className={`h-8 px-2 rounded-md ${viewFormat === 'list' ? 'bg-white shadow-sm' : ''}`}
+                onClick={() => handleViewFormatChange('list')}
               >
                 <List className="h-4 w-4" />
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 px-2 rounded-md bg-white shadow-sm"
+                className={`h-8 px-2 rounded-md ${viewFormat === 'kanban' ? 'bg-white shadow-sm' : ''}`}
+                onClick={() => handleViewFormatChange('kanban')}
               >
                 <Grid3X3 className="h-4 w-4" />
               </Button>

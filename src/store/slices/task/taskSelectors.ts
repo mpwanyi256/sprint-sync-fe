@@ -1,23 +1,23 @@
 import { RootState } from '@/store'
-import { TaskStatus } from '@/types/task'
+import { TaskStatus, ColumnTasks } from '@/types/task'
 
 export const selectTasks = (state: RootState) => {
   const allTasks: import('@/types/task').Task[] = []
-  Object.values(state.tasks.columns).forEach(column => {
+  Object.values(state.task.columns).forEach((column: ColumnTasks) => {
     allTasks.push(...column.tasks)
   })
   return allTasks
 }
 
-export const selectTaskLoading = (state: RootState) => state.tasks.loading
-export const selectTaskError = (state: RootState) => state.tasks.error
-export const selectSelectedTask = (state: RootState) => state.tasks.selectedTask
+export const selectTaskLoading = (state: RootState) => state.task.loading
+export const selectTaskError = (state: RootState) => state.task.error
+export const selectSelectedTask = (state: RootState) => state.task.selectedTask
 
 export const selectTasksByStatus = (state: RootState, status: TaskStatus) =>
-  state.tasks.columns[status]?.tasks || []
+  state.task.columns[status]?.tasks || []
 
 export const selectColumnPagination = (state: RootState, status: TaskStatus) =>
-  state.tasks.columns[status]?.pagination || {
+  state.task.columns[status]?.pagination || {
     currentPage: 1,
     hasNextPage: false,
     hasPreviousPage: false,
@@ -28,7 +28,7 @@ export const selectColumnPagination = (state: RootState, status: TaskStatus) =>
 
 export const selectTasksByUser = (state: RootState, userId: string) => {
   const allTasks = selectTasks(state)
-  return allTasks.filter(task => task.assignedTo === userId)
+  return allTasks.filter(task => task.assignedTo?.id === userId)
 }
 
 export const selectTotalTaskTime = (state: RootState) => {
@@ -38,8 +38,8 @@ export const selectTotalTaskTime = (state: RootState) => {
 
 export const selectTasksByStatusCount = (state: RootState) => {
   return {
-    todo: state.tasks.columns.TODO?.tasks.length || 0,
-    inProgress: state.tasks.columns.IN_PROGRESS?.tasks.length || 0,
-    done: state.tasks.columns.DONE?.tasks.length || 0,
+    todo: state.task.columns.TODO?.tasks.length || 0,
+    inProgress: state.task.columns.IN_PROGRESS?.tasks.length || 0,
+    done: state.task.columns.DONE?.tasks.length || 0,
   }
 }

@@ -9,6 +9,7 @@ import TaskCard from './TaskCard'
 import { Loader2, Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import Image from 'next/image'
 
 interface TaskColumnProps {
   status: TaskStatus
@@ -180,7 +181,12 @@ const TaskColumn = ({
         {!loading && tasks.length === 0 && (
           <div className="text-center py-8 text-gray-500">
             <div className="w-12 h-12 mx-auto mb-3 bg-gray-200 rounded-full flex items-center justify-center">
-              <Plus className="h-6 w-6 text-gray-400" />
+              <Image 
+                src="/assets/empty.svg"
+                alt="Empty Task"
+                width={150}
+                height={150}
+              />
             </div>
             <p className="text-sm font-medium text-gray-900 mb-1">No tasks yet</p>
           </div>

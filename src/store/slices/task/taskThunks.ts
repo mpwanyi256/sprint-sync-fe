@@ -54,6 +54,13 @@ export const updateTaskStatusById = createAsyncThunk<void, { id: string; status:
 export const assignTaskToUser = createAsyncThunk<void, { taskId: string; assignedTo: string }>(
   'tasks/assignTaskToUser',
   async ({ taskId, assignedTo }) => {
-    await api.patch(`/tasks/${taskId}/assign`, { assignedTo })
+    await api.post(`/tasks/${taskId}/assign`, { assignedTo })
+  }
+)
+
+export const unAssignTask = createAsyncThunk<void, { taskId: string }>(
+  'tasks/unAssignTask',
+  async ({ taskId }) => {
+    await api.delete(`/tasks/${taskId}/assign`)
   }
 )

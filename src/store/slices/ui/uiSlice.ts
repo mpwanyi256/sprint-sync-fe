@@ -1,31 +1,33 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { UIState, Theme } from '@/types/ui'
 
-const initialState: UIState = {
-  isTaskModalOpen: false,
-  isAIPanelOpen: false,
+export type ViewFormat = 'kanban' | 'list'
+
+interface UiState {
+  sidebarOpen: boolean
+  viewFormat: ViewFormat
+}
+
+const initialState: UiState = {
   sidebarOpen: false,
-  theme: 'light',
+  viewFormat: 'kanban'
 }
 
 const uiSlice = createSlice({
   name: 'ui',
   initialState,
   reducers: {
-    toggleTaskModal: (state) => {
-      state.isTaskModalOpen = !state.isTaskModalOpen
-    },
-    toggleAIPanel: (state) => {
-      state.isAIPanelOpen = !state.isAIPanelOpen
-    },
     toggleSidebar: (state) => {
       state.sidebarOpen = !state.sidebarOpen
     },
-    setTheme: (state, action: PayloadAction<Theme>) => {
-      state.theme = action.payload
+    setSidebarOpen: (state, action: PayloadAction<boolean>) => {
+      state.sidebarOpen = action.payload
     },
-  },
+    setViewFormat: (state, action: PayloadAction<ViewFormat>) => {
+      state.viewFormat = action.payload
+    }
+  }
 })
 
-export const { toggleTaskModal, toggleAIPanel, toggleSidebar, setTheme } = uiSlice.actions
+export const { toggleSidebar, setSidebarOpen, setViewFormat } = uiSlice.actions
 export default uiSlice.reducer

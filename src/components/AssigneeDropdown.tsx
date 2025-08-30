@@ -5,22 +5,16 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Loader2, Search, User, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { useAppDispatch } from '@/store/hooks'
-import { assignTaskToUser } from '@/store/slices/task'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { assignTaskToUser, unAssignTask } from '@/store/slices/task'
+import { fetchUsers, selectUsers, selectUsersPagination, selectUsersLoading } from '@/store/slices/users'
 import { apiSuccess, apiError } from '@/util/toast'
-
-interface User {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-}
 
 interface AssigneeDropdownProps {
   taskId: string
-  currentAssignee?: User | null
+  currentAssignee?: any
   onClose: () => void
-  onAssigneeChange: (user: User) => void
+  onAssigneeChange: (user: any) => void
 }
 
 export const AssigneeDropdown = ({ 
@@ -30,60 +24,68 @@ export const AssigneeDropdown = ({
   onAssigneeChange 
 }: AssigneeDropdownProps) => {
   const dispatch = useAppDispatch()
-  const [users, setUsers] = useState<User[]>([])
-  const [loading, setLoading] = useState(false)
+  const users = useAppSelector(selectUsers)
+  const pagination = useAppSelector(selectUsersPagination)
+  const loading = useAppSelector(selectUsersLoading)
   const [searchQuery, setSearchQuery] = useState('')
   const [page, setPage] = useState(1)
-  const [hasMore, setHasMore] = useState(true)
-  const [selectedUser, setSelectedUser] = useState<User | null>(null)
-  const observerRef = useRef<HTMLDivElement>(null)
+  const [filteredUsers, setFilteredUsers] = useState<any[]>([])
+  const searchTimeoutRef = useRef<NodeJS.Timeout>()
 
-  const fetchUsers = useCallback(async (search = '', pageNum = 1) => {
+  const fetchUsersData = useCallback(async (search = '', pageNum = 1) => {
     try {
-      setLoading(true)
-      // Mock API call - replace with your actual users endpoint
-      const response = await fetch(`/api/users?search=${search}&page=${pageNum}&limit=20`)
-      const data = await response.json()
-      
-      if (pageNum === 1) {
-        setUsers(data.users || [])
-      } else {
-        setUsers(prev => [...prev, ...(data.users || [])])
-      }
-      
-      setHasMore(data.hasMore || false)
+      await dispatch(fetchUsers({ page: pageNum, limit: 10, search: search.trim() })).unwrap()
     } catch (error) {
       console.error('Failed to fetch users:', error)
-    } finally {
-      setLoading(false)
     }
-  }, [])
+  }, [dispatch])
 
   useEffect(() => {
-    fetchUsers(searchQuery, 1)
+    fetchUsersData('', 1)
     setPage(1)
-  }, [searchQuery, fetchUsers])
+  }, [fetchUsersData])
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loading) {
-          const nextPage = page + 1
-          setPage(nextPage)
-          fetchUsers(searchQuery, nextPage)
-        }
-      },
-      { threshold: 0.1 }
-    )
-
-    if (observerRef.current) {
-      observer.observe(observerRef.current)
+    if (searchQuery.trim() === '') {
+      setFilteredUsers(users)
+    } else {
+      const query = searchQuery.toLowerCase()
+      const filtered = users.filter(user => 
+        user.firstName.toLowerCase().includes(query) ||
+        user.lastName.toLowerCase().includes(query) ||
+        user.email.toLowerCase().includes(query)
+      )
+      setFilteredUsers(filtered)
     }
+  }, [users, searchQuery])
 
-    return () => observer.disconnect()
-  }, [hasMore, loading, page, searchQuery, fetchUsers])
+  // Debounced search with API call
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value)
+    
+    // Clear previous timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current)
+    }
+    
+    // Set new timeout for debounced search
+    searchTimeoutRef.current = setTimeout(() => {
+      // Reset to page 1 when searching
+      setPage(1)
+      // Call API with search parameter
+      fetchUsersData(value, 1)
+    }, 500) // Increased debounce time for API calls
+  }
 
-  const handleUserSelect = async (user: User) => {
+  const loadMore = useCallback(() => {
+    if (!loading && pagination?.hasNextPage) {
+      const nextPage = page + 1
+      setPage(nextPage)
+      fetchUsersData(searchQuery, nextPage)
+    }
+  }, [loading, pagination?.hasNextPage, page, searchQuery, fetchUsersData])
+
+  const handleUserSelect = async (user: any) => {
     try {
       await dispatch(assignTaskToUser({ taskId, assignedTo: user.id })).unwrap()
       onAssigneeChange(user)
@@ -97,8 +99,8 @@ export const AssigneeDropdown = ({
 
   const handleRemoveAssignee = async () => {
     try {
-      await dispatch(assignTaskToUser({ taskId, assignedTo: '' })).unwrap()
-      onAssigneeChange(null as any)
+      await dispatch(unAssignTask({ taskId })).unwrap()
+      onAssigneeChange(null)
       apiSuccess('Assignee removed successfully')
       onClose()
     } catch (error) {
@@ -111,8 +113,17 @@ export const AssigneeDropdown = ({
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
   }
 
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current)
+      }
+    }
+  }, [])
+
   return (
-    <div className="absolute top-full left-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+    <div className="w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
       {/* Header */}
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between mb-3">
@@ -133,7 +144,7 @@ export const AssigneeDropdown = ({
           <Input
             placeholder="Search users..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="pl-10"
           />
         </div>
@@ -169,29 +180,39 @@ export const AssigneeDropdown = ({
         </div>
       )}
 
-      {/* Users List */}
-      <div className="max-h-64 overflow-y-auto">
-        {users.map((user) => (
-          <div
-            key={user.id}
-            className="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-            onClick={() => handleUserSelect(user)}
-          >
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center">
-                <span className="text-sm font-semibold text-gray-700">
-                  {getInitials(user.firstName, user.lastName)}
-                </span>
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900">
-                  {user.firstName} {user.lastName}
-                </p>
-                <p className="text-xs text-gray-500">{user.email}</p>
+      {/* Users List - Fixed height for better UX */}
+      <div className="h-64 overflow-y-auto">
+        {filteredUsers.length > 0 ? (
+          filteredUsers.map((user) => (
+            <div
+              key={user.id}
+              className="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+              onClick={() => handleUserSelect(user)}
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center">
+                  <span className="text-sm font-semibold text-gray-700">
+                    {getInitials(user.firstName, user.lastName)}
+                  </span>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900">
+                    {user.firstName} {user.lastName}
+                  </p>
+                  <p className="text-xs text-gray-500">{user.email}</p>
+                </div>
               </div>
             </div>
+          ))
+        ) : searchQuery.trim() !== '' ? (
+          <div className="p-4 text-center text-gray-500">
+            <p className="text-sm">No users found matching "{searchQuery}"</p>
           </div>
-        ))}
+        ) : (
+          <div className="p-4 text-center text-gray-500">
+            <p className="text-sm">No users available</p>
+          </div>
+        )}
         
         {/* Loading indicator */}
         {loading && (
@@ -200,9 +221,18 @@ export const AssigneeDropdown = ({
           </div>
         )}
         
-        {/* Infinite scroll trigger */}
-        {hasMore && (
-          <div ref={observerRef} className="h-4" />
+        {/* Load more button - only show if not searching */}
+        {pagination?.hasNextPage && !loading && searchQuery.trim() === '' && (
+          <div className="p-3 border-t border-gray-100">
+            <Button
+              onClick={loadMore}
+              variant="outline"
+              size="sm"
+              className="w-full"
+            >
+              Load More Users
+            </Button>
+          </div>
         )}
       </div>
     </div>
