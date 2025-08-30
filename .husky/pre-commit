@@ -2,6 +2,10 @@
 
 echo "🔍 Running pre-commit checks..."
 
+# Check code formatting
+echo "🎨 Checking code formatting..."
+yarn format:check
+
 # Run linting
 echo "📝 Checking code style..."
 yarn lint

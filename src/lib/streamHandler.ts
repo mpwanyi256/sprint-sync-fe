@@ -20,7 +20,7 @@ export class StreamHandler {
    */
   createStreamResponse(response: Response): Response {
     const stream = new ReadableStream({
-      start: async (controller) => {
+      start: async controller => {
         try {
           const reader = response.body?.getReader();
           if (!reader) {
@@ -40,7 +40,8 @@ export class StreamHandler {
 
             for (const line of lines) {
               const trimmedLine = line.trim();
-              if (trimmedLine === '' || trimmedLine === 'data: [DONE]') continue;
+              if (trimmedLine === '' || trimmedLine === 'data: [DONE]')
+                continue;
 
               if (trimmedLine.startsWith('data: ')) {
                 try {
@@ -52,8 +53,8 @@ export class StreamHandler {
                     accumulatedContent += content;
                     controller.enqueue(
                       this.encoder.encode(
-                        `data: ${JSON.stringify({ content: accumulatedContent, done: false })}\n\n`,
-                      ),
+                        `data: ${JSON.stringify({ content: accumulatedContent, done: false })}\n\n`
+                      )
                     );
                   }
                 } catch (e) {
@@ -66,8 +67,8 @@ export class StreamHandler {
           // Send final message with complete content
           controller.enqueue(
             this.encoder.encode(
-              `data: ${JSON.stringify({ content: accumulatedContent, done: true })}\n\n`,
-            ),
+              `data: ${JSON.stringify({ content: accumulatedContent, done: true })}\n\n`
+            )
           );
           controller.close();
         } catch (error) {
@@ -88,7 +89,10 @@ export class StreamHandler {
   /**
    * Handles client-side streaming from a fetch response
    */
-  async handleClientStream(response: Response, options: StreamOptions = {}): Promise<string> {
+  async handleClientStream(
+    response: Response,
+    options: StreamOptions = {}
+  ): Promise<string> {
     const { onChunk, onComplete, onError } = options;
 
     try {
@@ -164,7 +168,8 @@ export class StreamHandler {
       onComplete?.('');
       return '';
     } catch (error) {
-      const errorObj = error instanceof Error ? error : new Error('Streaming failed');
+      const errorObj =
+        error instanceof Error ? error : new Error('Streaming failed');
       onError?.(errorObj);
       throw errorObj;
     }
@@ -173,13 +178,16 @@ export class StreamHandler {
   /**
    * Handles regular (non-streaming) responses
    */
-  async handleRegularResponse(response: Response, options: StreamOptions = {}): Promise<string> {
+  async handleRegularResponse(
+    response: Response,
+    options: StreamOptions = {}
+  ): Promise<string> {
     const { onChunk, onComplete, onError } = options;
 
     try {
       const textResponse = await response.text();
       console.log('Regular response received:', textResponse);
-      
+
       if (textResponse) {
         this.accumulatedContent = textResponse;
         onChunk?.({ content: textResponse, done: true });
@@ -190,7 +198,8 @@ export class StreamHandler {
       onComplete?.('');
       return '';
     } catch (error) {
-      const errorObj = error instanceof Error ? error : new Error('Failed to read response');
+      const errorObj =
+        error instanceof Error ? error : new Error('Failed to read response');
       onError?.(errorObj);
       throw errorObj;
     }
@@ -203,7 +212,9 @@ export class StreamHandler {
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       start(controller) {
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content, done: true })}\n\n`));
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify({ content, done: true })}\n\n`)
+        );
         controller.close();
       },
     });

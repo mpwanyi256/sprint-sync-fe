@@ -1,34 +1,34 @@
-import { APIResponse } from "./api"
+import { APIResponse } from './api';
 
 export interface User {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-  isAdmin?: boolean
-  resumeSnippet?: string
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  isAdmin?: boolean;
+  resumeSnippet?: string;
 }
 
 export interface LoginCredentials {
-  email: string
-  password: string
+  email: string;
+  password: string;
 }
 
 export interface RegisterData {
-  firstName: string
-  lastName: string
-  email: string
-  password: string
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
 }
 
 export interface AuthTokens {
-  accessToken: string
-  refreshToken: string
+  accessToken: string;
+  refreshToken: string;
 }
 
 export interface AuthData {
-  user: User
-  tokens: AuthTokens
+  user: User;
+  tokens: AuthTokens;
 }
 
 export interface AuthResponse extends APIResponse<AuthData> {
@@ -36,9 +36,9 @@ export interface AuthResponse extends APIResponse<AuthData> {
 }
 
 export interface AuthState {
-  user: User | null
-  accessToken: string | null
-  refreshToken: string | null
-  isAuthenticated: boolean
-  loading: boolean
+  user: User | null;
+  accessToken: string | null;
+  refreshToken: string | null;
+  isAuthenticated: boolean;
+  loading: boolean;
 }

@@ -1,6 +1,9 @@
 import { toast } from 'react-toastify';
 
-export const showToast = (message: string, type: 'success' | 'error' | 'info' | 'warning') => {
+export const showToast = (
+  message: string,
+  type: 'success' | 'error' | 'info' | 'warning'
+) => {
   toast[type](message, {
     position: 'top-right',
     autoClose: 3000,

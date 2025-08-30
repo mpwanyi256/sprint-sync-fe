@@ -1,6 +1,6 @@
-import axios from 'axios'
+import axios from 'axios';
 
-import { app } from '@/lib/constants'
+import { app } from '@/lib/constants';
 
 const api = axios.create({
   baseURL: `${app.baseUrl}/api`,
@@ -8,30 +8,30 @@ const api = axios.create({
     'Content-Type': 'application/json',
     'x-api-key': app.apiKey,
   },
-})
+});
 
-api.interceptors.request.use((config) => {
+api.interceptors.request.use(config => {
   if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('accessToken')
+    const token = localStorage.getItem('accessToken');
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`
+      config.headers.Authorization = `Bearer ${token}`;
     }
   }
-  return config
-})
+  return config;
+});
 
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
+  response => response,
+  error => {
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('accessToken')
-        localStorage.removeItem('refreshToken')
-        window.location.href = '/login'
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        window.location.href = '/login';
       }
     }
-    return Promise.reject(error)
+    return Promise.reject(error);
   }
-)
+);
 
-export default api
+export default api;

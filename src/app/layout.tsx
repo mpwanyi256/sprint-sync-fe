@@ -1,7 +1,7 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import './globals.css'
-import { Providers } from '@/components/Providers'
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { Providers } from '@/components/Providers';
 import { ToastContainer, toast } from 'react-toastify';
 
 const inter = Inter({
@@ -12,24 +12,22 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'Sprint Sync',
   description: 'Project management and task tracking application',
-}
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang='en'>
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name='viewport' content='width=device-width, initial-scale=1' />
       </head>
       <body className={`${inter.className} font-sans antialiased`}>
-        <Providers>
-          {children}
-        </Providers>
+        <Providers>{children}</Providers>
         <ToastContainer />
       </body>
     </html>
-  )
+  );
 }

@@ -1,14 +1,14 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
-  
+  const { pathname } = request.nextUrl;
+
   // Check if user is authenticated (you can implement your own logic here)
   // For now, we'll let the client-side handle auth
   // This middleware can be enhanced later with server-side auth checks
-  
-  return NextResponse.next()
+
+  return NextResponse.next();
 }
 
 export const config = {
@@ -22,4 +22,4 @@ export const config = {
      */
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
-}
+};

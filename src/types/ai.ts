@@ -1,31 +1,31 @@
 export interface AISuggestion {
-  type: 'task_description' | 'daily_plan'
-  content: string
-  metadata?: Record<string, unknown>
+  type: 'task_description' | 'daily_plan';
+  content: string;
+  metadata?: Record<string, unknown>;
 }
 
 export interface AISuggestionRequest {
-  mode: 'task_description' | 'daily_plan'
-  title?: string
-  userId: string
+  mode: 'task_description' | 'daily_plan';
+  title?: string;
+  userId: string;
 }
 
 export interface AISuggestionResponse {
-  success: boolean
-  data: AISuggestion
-  error?: string
+  success: boolean;
+  data: AISuggestion;
+  error?: string;
 }
 
 export interface AutoAssignRequest {
-  taskId: string
+  taskId: string;
 }
 
 export interface AutoAssignResponse {
-  success: boolean
+  success: boolean;
   data: {
-    taskId: string
-    assignedUserId: string
-    matchScore: number
-  }
-  error?: string
+    taskId: string;
+    assignedUserId: string;
+    matchScore: number;
+  };
+  error?: string;
 }
