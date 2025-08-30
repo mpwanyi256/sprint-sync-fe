@@ -22,16 +22,10 @@ import Image from 'next/image';
 interface NavbarProps {
   onSidebarToggle: () => void;
   sidebarOpen: boolean;
-  onCreateTask?: () => void;
   onSearch?: (query: string) => void;
 }
 
-const Navbar = ({
-  onSidebarToggle,
-  sidebarOpen,
-  onCreateTask,
-  onSearch,
-}: NavbarProps) => {
+const Navbar = ({ onSidebarToggle, sidebarOpen, onSearch }: NavbarProps) => {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);

@@ -10,7 +10,8 @@
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "lint:fix": "next lint --fix"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
@@ -21,6 +22,7 @@
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-toast": "^1.2.15",
     "@reduxjs/toolkit": "^2.0.1",
+    "@types/redux-persist": "^4.3.1",
     "axios": "^1.6.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -30,6 +32,7 @@
     "react-dom": "^18",
     "react-redux": "^9.0.4",
     "react-toastify": "^11.0.5",
+    "redux-persist": "^6.0.0",
     "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {

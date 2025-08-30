@@ -2,10 +2,10 @@ import type { Metadata } from 'next';
 import Login from '@/components/Login';
 
 export const metadata: Metadata = {
-  title: 'Login',
-  description: 'Login page',
+  title: 'Signup',
+  description: 'Create a new account',
 };
 
-export default function HomePage() {
+export default function SignupPage() {
   return <Login />;
 }

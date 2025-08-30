@@ -6,6 +6,6 @@ export const metadata: Metadata = {
   description: 'Login page',
 };
 
-export default function HomePage() {
+export default function LoginPage() {
   return <Login />;
 }
