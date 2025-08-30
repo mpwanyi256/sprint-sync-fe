@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { createTask } from '@/store/slices/task'
-import { generateTaskDescription } from '@/store/slices/ai'
+import { clearStreamingContent, generateTaskDescription } from '@/store/slices/ai'
 import { CreateTaskData } from '@/types/task'
 import {
   Dialog,
@@ -14,7 +14,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { apiError, apiSuccess } from '@/util/toast'
 import { Sparkles, Loader2 } from 'lucide-react'
 
@@ -26,7 +25,7 @@ interface CreateTaskModalProps {
 
 const CreateTaskModal = ({ isOpen, onClose, onSuccess }: CreateTaskModalProps) => {
   const dispatch = useAppDispatch()
-  const { loading, generatingDescription, error, streamingContent } = useAppSelector(state => state.ai)
+  const { generatingDescription, streamingContent } = useAppSelector(state => state.ai)
   const [formLoading, setFormLoading] = useState(false)
   const [formData, setFormData] = useState<CreateTaskData>({
     title: '',
@@ -36,9 +35,6 @@ const CreateTaskModal = ({ isOpen, onClose, onSuccess }: CreateTaskModalProps) =
 
   // Update description when streaming content changes
   useEffect(() => {
-    console.log('Streaming content changed:', streamingContent)
-    console.log('Generating description:', generatingDescription)
-    
     if (streamingContent) {
       setFormData(prev => ({
         ...prev,
@@ -47,11 +43,10 @@ const CreateTaskModal = ({ isOpen, onClose, onSuccess }: CreateTaskModalProps) =
     }
   }, [streamingContent])
 
-  // Clear streaming content when modal opens/closes
   useEffect(() => {
     if (!isOpen) {
       // Clear streaming content when modal closes
-      dispatch({ type: 'ai/clearStreamingContent' })
+      dispatch(clearStreamingContent())
     }
   }, [isOpen, dispatch])
 
@@ -88,13 +83,6 @@ const CreateTaskModal = ({ isOpen, onClose, onSuccess }: CreateTaskModalProps) =
     setFormData(prev => ({
       ...prev,
       [field]: field === 'totalMinutes' ? Number(value) : value
-    }))
-  }
-
-  const handleAssignedToChange = (value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      assignedTo: value === '' ? undefined : value
     }))
   }
 

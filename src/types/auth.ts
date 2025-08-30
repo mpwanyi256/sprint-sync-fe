@@ -1,7 +1,7 @@
 import { APIResponse } from "./api"
 
 export interface User {
-  _id: string
+  id: string
   firstName: string
   lastName: string
   email: string

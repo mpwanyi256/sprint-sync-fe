@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
-import { LoginCredentials, RegisterData, AuthResponse } from '@/types/auth'
+import { LoginCredentials, RegisterData, AuthResponse, User } from '@/types/auth'
 import { APIResponse } from '@/types/api'
 import api from '@/services/api'
 
@@ -34,7 +34,7 @@ export const logoutUser = createAsyncThunk<void, void>(
   }
 )
 
-export const fetchCurrentUser = createAsyncThunk<APIResponse<{ user: any }>, void>(
+export const fetchCurrentUser = createAsyncThunk<APIResponse<User>, void>(
   'auth/fetchCurrentUser',
   async () => {
     const response = await api.get('/auth/me')

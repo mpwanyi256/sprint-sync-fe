@@ -1,5 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 import { CreateTaskData, UpdateTaskData, TaskStatus, TasksResponse, TaskResponse, TasksResponseData, Task } from '@/types/task'
+import { User } from '@/types/auth'
 import api from '@/services/api'
 import { APIResponse } from '@/types';
 
@@ -22,7 +23,6 @@ export const createTask = createAsyncThunk<TaskResponse, CreateTaskData>(
   'tasks/createTask',
   async (taskData) => {
     const { data } = await api.post<TaskResponse>('/tasks', taskData)
-    console.log('createTask response', data)
     return data
   }
 ) 
@@ -31,7 +31,6 @@ export const updateTaskById = createAsyncThunk<TaskResponse, { id: string; data:
   'tasks/updateTaskById',
   async ({ id, data }, { dispatch }) => {
     const response = await api.patch<TaskResponse>(`/tasks/${id}`, data)
-
     dispatch(fetchTasks({ status: data.status }))
     return response.data
   }
@@ -51,10 +50,11 @@ export const updateTaskStatusById = createAsyncThunk<void, { id: string; status:
   }
 )
 
-export const assignTaskToUser = createAsyncThunk<void, { taskId: string; assignedTo: string }>(
+export const assignTaskToUser = createAsyncThunk<{ user: User }, { taskId: string; user: User }>(
   'tasks/assignTaskToUser',
-  async ({ taskId, assignedTo }) => {
-    await api.post(`/tasks/${taskId}/assign`, { assignedTo })
+  async ({ taskId, user }) => {
+    await api.post(`/tasks/${taskId}/assign`, { assignedTo: user.id })
+    return { user }
   }
 )
 

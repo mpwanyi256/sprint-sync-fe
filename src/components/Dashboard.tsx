@@ -56,7 +56,6 @@ const Dashboard = () => {
             setIsDetailsModalOpen(false)
             setSelectedTask(null)
           }}
-          onSave={handleSaveTask}
         />
       )}
     </div>

@@ -95,7 +95,6 @@ const TaskColumn = ({
         id: taskId, 
         data: { status } 
       })).unwrap()
-      console.log(`Task ${taskId} moved to ${status}`)
     } catch (error) {
       console.error('Failed to move task:', error)
     }

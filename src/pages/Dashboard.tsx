@@ -96,7 +96,6 @@ const Dashboard = () => {
               status={column.status}
               title={column.title}
               onViewTaskDetails={handleViewTaskDetails}
-              onStatusChange={handleStatusChange}
             />
           ))}
         </div>
@@ -116,8 +115,6 @@ const Dashboard = () => {
           setIsDetailsModalOpen(false)
           setSelectedTask(null)
         }}
-        onEdit={handleEditTask}
-        onDelete={handleDeleteTask}
       />
     </div>
   )

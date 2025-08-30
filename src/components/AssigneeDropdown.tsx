@@ -9,6 +9,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { assignTaskToUser, unAssignTask } from '@/store/slices/task'
 import { fetchUsers, selectUsers, selectUsersPagination, selectUsersLoading } from '@/store/slices/users'
 import { apiSuccess, apiError } from '@/util/toast'
+import { User as UserType } from '@/types/auth'
 
 interface AssigneeDropdownProps {
   taskId: string
@@ -68,13 +69,10 @@ export const AssigneeDropdown = ({
       clearTimeout(searchTimeoutRef.current)
     }
     
-    // Set new timeout for debounced search
     searchTimeoutRef.current = setTimeout(() => {
-      // Reset to page 1 when searching
       setPage(1)
-      // Call API with search parameter
       fetchUsersData(value, 1)
-    }, 500) // Increased debounce time for API calls
+    }, 500)
   }
 
   const loadMore = useCallback(() => {
@@ -85,9 +83,9 @@ export const AssigneeDropdown = ({
     }
   }, [loading, pagination?.hasNextPage, page, searchQuery, fetchUsersData])
 
-  const handleUserSelect = async (user: any) => {
+  const handleUserSelect = async (user: UserType) => {
     try {
-      await dispatch(assignTaskToUser({ taskId, assignedTo: user.id })).unwrap()
+      await dispatch(assignTaskToUser({ taskId, user })).unwrap()
       onAssigneeChange(user)
       apiSuccess('Task assigned successfully')
       onClose()
@@ -206,7 +204,7 @@ export const AssigneeDropdown = ({
           ))
         ) : searchQuery.trim() !== '' ? (
           <div className="p-4 text-center text-gray-500">
-            <p className="text-sm">No users found matching "{searchQuery}"</p>
+            <p className="text-sm">No users found matching &quot;{searchQuery}&quot;</p>
           </div>
         ) : (
           <div className="p-4 text-center text-gray-500">
