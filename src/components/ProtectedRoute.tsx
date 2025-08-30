@@ -1,5 +1,7 @@
-import { ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
+'use client';
+
+import { ReactNode, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAppSelector } from '@/store/hooks';
 import { selectIsAuthenticated } from '@/store/slices/auth';
 
@@ -8,10 +10,17 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+  const router = useRouter();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, router]);
+
   if (!isAuthenticated) {
-    return <Navigate to='/login' replace />;
+    return null;
   }
 
   return <>{children}</>;
