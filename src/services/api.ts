@@ -32,7 +32,6 @@ api.interceptors.response.use(
       }
     }
     if (error.response?.data.statusCode !== ApiStatusCodes.SUCCESS) {
-      console.log('API Error', error.response?.data);
       throw new Error(error.response?.data.message);
     }
     return Promise.reject(error);

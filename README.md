@@ -2,6 +2,8 @@
 
 A React-based frontend application for the SprintSync productivity tool, built with modern web technologies and clean architecture principles.
 
+[Project Url](sprint-sync-fe.vercel.app)
+
 ## Tech Stack
 
 - **Frontend**: React 18, TypeScript, Tailwind CSS

@@ -7,6 +7,7 @@ import {
 } from '@/types/auth';
 import { APIResponse } from '@/types/api';
 import api from '@/services/api';
+import { clearAuth } from './authSlice';
 
 export const loginUser = createAsyncThunk<AuthResponse, LoginCredentials>(
   'auth/loginUser',
@@ -53,8 +54,15 @@ export const logoutUser = createAsyncThunk<void, void>(
 
 export const fetchCurrentUser = createAsyncThunk<APIResponse<User>, void>(
   'auth/fetchCurrentUser',
-  async () => {
-    const response = await api.get('/auth/me');
-    return response.data;
+  async (_, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await api.get('/auth/me');
+      return response.data;
+    } catch (error) {
+      dispatch(clearAuth());
+      return rejectWithValue(
+        error instanceof Error ? error.message : 'An unknown error occurred'
+      );
+    }
   }
 );
