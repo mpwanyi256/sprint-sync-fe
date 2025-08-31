@@ -76,3 +76,13 @@ export const unAssignTask = createAsyncThunk<void, { taskId: string }>(
     await api.delete(`/tasks/${taskId}/assign`);
   }
 );
+
+export const searchTasks = createAsyncThunk<
+  { tasks: Task[]; count: number; searchTerm: string },
+  { keyword: string }
+>('tasks/searchTasks', async ({ keyword }) => {
+  const response = await api.get<
+    APIResponse<{ tasks: Task[]; count: number; searchTerm: string }>
+  >(`/tasks/search/?keyword=${encodeURIComponent(keyword)}`);
+  return response.data.data;
+});

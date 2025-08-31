@@ -1,10 +1,6 @@
-import type { Metadata } from 'next';
-import Dashboard from '@/components/Dashboard';
+'use client';
 
-export const metadata: Metadata = {
-  title: 'Dashboard',
-  description: 'Manage your tasks',
-};
+import Dashboard from '@/components/Dashboard';
 
 export default function DashboardPage() {
   return <Dashboard />;

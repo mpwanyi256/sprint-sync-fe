@@ -5,9 +5,12 @@ import { useAppSelector } from '@/store/hooks';
 import { selectUser } from '@/store/slices/auth';
 import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
-import Dashboard from '@/components/Dashboard';
 
-export default function DashboardLayout() {
+interface ProtectedLayoutProps {
+  children: React.ReactNode;
+}
+
+export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const user = useAppSelector(selectUser);
 
@@ -36,9 +39,7 @@ export default function DashboardLayout() {
         onSearch={handleSearch}
       />
       <Sidebar isOpen={sidebarOpen} onClose={closeSidebar} />
-      <main className='lg:ml-64 pt-16'>
-        <Dashboard />
-      </main>
+      <main className='lg:ml-64 pt-16'>{children}</main>
     </div>
   );
 }

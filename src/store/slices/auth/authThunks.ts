@@ -10,9 +10,18 @@ import api from '@/services/api';
 
 export const loginUser = createAsyncThunk<AuthResponse, LoginCredentials>(
   'auth/loginUser',
-  async credentials => {
-    const response = await api.post<AuthResponse>('/auth/signin', credentials);
-    return response.data;
+  async (credentials, { rejectWithValue }) => {
+    try {
+      const response = await api.post<AuthResponse>(
+        '/auth/signin',
+        credentials
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error instanceof Error ? error.message : 'An unknown error occurred'
+      );
+    }
   }
 );
 

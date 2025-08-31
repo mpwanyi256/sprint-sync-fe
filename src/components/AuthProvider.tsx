@@ -28,21 +28,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
     if (isAuthenticated && user && publicRoutes.includes(pathname ?? '')) {
       router.push('/dashboard');
     } else if (!isAuthenticated && !publicRoutes.includes(pathname ?? '')) {
-      router.push('/login');
+      router.push('/');
     }
     setIsLoading(false);
   }, [isAuthenticated, user, pathname, router]);
 
-  if (isLoading) {
-    return (
-      <div className='flex items-center justify-center h-screen'>
-        <Loader2 className='animate-spin' />
-        <span className='text-sm text-gray-500'>
-          Checking authentication...
-        </span>
-      </div>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <div className='flex items-center justify-center h-screen'>
+  //       <Loader2 className='animate-spin' />
+  //       <span className='text-sm text-gray-500'>
+  //         Checking authentication...
+  //       </span>
+  //     </div>
+  //   );
+  // }
 
   return <>{children}</>;
 }

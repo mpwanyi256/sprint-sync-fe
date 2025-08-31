@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAppSelector } from '@/store/hooks';
+import { selectUser } from '@/store/slices/auth';
 import {
   LayoutDashboard,
   BarChart3,
@@ -16,16 +18,26 @@ interface SidebarProps {
   onClose: () => void;
 }
 
-const navigation = [
+const baseNavigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Calendar', href: '/calendar', icon: Calendar },
-  { name: 'Team', href: '/team', icon: Users },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
+const adminOnlyNavigation = [{ name: 'Team', href: '/team', icon: Users }];
+
 const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const pathname = usePathname();
+  const currentUser = useAppSelector(selectUser);
+
+  const navigation = currentUser?.isAdmin
+    ? [
+        ...baseNavigation.slice(0, 3),
+        ...adminOnlyNavigation,
+        ...baseNavigation.slice(3),
+      ]
+    : baseNavigation;
 
   return (
     <>

@@ -55,6 +55,9 @@ export interface TaskState {
   loading: boolean;
   error: string | null;
   selectedTask: Task | null;
+  searchResults: Task[];
+  searchLoading: boolean;
+  searchTerm: string;
 }
 
 export interface TasksResponseData {

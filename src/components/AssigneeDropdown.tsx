@@ -36,7 +36,7 @@ export const AssigneeDropdown = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
   const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
-  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  const searchTimeoutRef = useRef<NodeJS.Timeout>(null);
 
   const fetchUsersData = useCallback(
     async (search = '', pageNum = 1) => {

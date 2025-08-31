@@ -43,3 +43,9 @@ export const selectTasksByStatusCount = (state: RootState) => {
     done: state.task.columns.DONE?.tasks.length || 0,
   };
 };
+
+export const selectSearchResults = (state: RootState) =>
+  state.task.searchResults;
+export const selectSearchLoading = (state: RootState) =>
+  state.task.searchLoading;
+export const selectSearchTerm = (state: RootState) => state.task.searchTerm;

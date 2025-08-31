@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { UIState, Theme } from '@/types/ui';
 
 export type ViewFormat = 'kanban' | 'list';
 

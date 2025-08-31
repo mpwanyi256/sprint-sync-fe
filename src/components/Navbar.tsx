@@ -1,23 +1,26 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { logoutUser } from '@/store/slices/auth';
 import { selectUser, selectIsAuthenticated } from '@/store/slices/auth';
 import { selectViewFormat, setViewFormat } from '@/store/slices/ui';
 import {
-  Menu,
-  X,
-  Search,
-  Grid3X3,
-  List,
-  Star,
-  Rocket,
-  MoreHorizontal,
-  Plus,
-} from 'lucide-react';
+  selectSearchResults,
+  selectSearchLoading,
+  selectSearchTerm,
+} from '@/store/slices/task/taskSelectors';
+import {
+  searchTasks,
+  clearSearchResults,
+  setSelectedTask,
+} from '@/store/slices/task';
+import { Menu, X, Search, Grid3X3, List, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import CreateTaskModal from '@/components/CreateTaskModal';
+import SearchDropdown from '@/components/SearchDropdown';
+import TaskDetailsModal from '@/components/TaskDetailsModal';
 import Image from 'next/image';
+import { Task } from '@/types/task';
 
 interface NavbarProps {
   onSidebarToggle: () => void;
@@ -25,12 +28,23 @@ interface NavbarProps {
   onSearch?: (query: string) => void;
 }
 
-const Navbar = ({ onSidebarToggle, sidebarOpen, onSearch }: NavbarProps) => {
+const Navbar = ({ onSidebarToggle, sidebarOpen }: NavbarProps) => {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const viewFormat = useAppSelector(selectViewFormat);
+  const searchResults = useAppSelector(selectSearchResults);
+  const searchLoading = useAppSelector(selectSearchLoading);
+  const searchTerm = useAppSelector(selectSearchTerm);
+
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const [selectedTaskForModal, setSelectedTaskForModal] = useState<Task | null>(
+    null
+  );
+  const searchRef = useRef<HTMLDivElement>(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleLogout = () => {
     dispatch(logoutUser());
@@ -39,6 +53,65 @@ const Navbar = ({ onSidebarToggle, sidebarOpen, onSearch }: NavbarProps) => {
   const handleViewFormatChange = (format: 'kanban' | 'list') => {
     dispatch(setViewFormat(format));
   };
+
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+    setShowSearchDropdown(true);
+
+    // Clear previous timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    // If query is empty, clear results
+    if (!query.trim()) {
+      dispatch(clearSearchResults());
+      setShowSearchDropdown(false);
+      return;
+    }
+
+    // Debounce search
+    searchTimeoutRef.current = setTimeout(() => {
+      dispatch(searchTasks({ keyword: query.trim() }));
+    }, 300);
+  };
+
+  const handleTaskClick = (task: Task) => {
+    setSelectedTaskForModal(task);
+    dispatch(setSelectedTask(task));
+    setShowSearchDropdown(false);
+  };
+
+  const handleCloseSearchDropdown = () => {
+    setShowSearchDropdown(false);
+  };
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
+        setShowSearchDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Show dropdown when we have search results
+  useEffect(() => {
+    if (searchResults.length > 0 && searchQuery.trim()) {
+      setShowSearchDropdown(true);
+    }
+  }, [searchResults, searchQuery]);
 
   const getUserDisplayName = () => {
     if (user) {
@@ -49,7 +122,7 @@ const Navbar = ({ onSidebarToggle, sidebarOpen, onSearch }: NavbarProps) => {
 
   return (
     <nav className='bg-white shadow-sm border-b fixed top-0 left-0 right-0 z-50'>
-      <div className='container mx-auto px-4'>
+      <div className='mx-auto px-6'>
         <div className='flex justify-between items-center h-16'>
           {/* Left side - Logo and menu toggle */}
           <div className='flex items-center space-x-4'>
@@ -81,13 +154,23 @@ const Navbar = ({ onSidebarToggle, sidebarOpen, onSearch }: NavbarProps) => {
           {/* Center - Search and controls */}
           <div className='hidden md:flex items-center space-x-4 flex-1 justify-center max-w-2xl'>
             {/* Search */}
-            <div className='relative'>
+            <div className='relative' ref={searchRef}>
               <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400' />
               <Input
                 placeholder='Search tasks...'
                 className='pl-10 w-64'
-                onChange={e => onSearch?.(e.target.value)}
+                value={searchQuery}
+                onChange={e => handleSearchChange(e.target.value)}
               />
+              {showSearchDropdown && (
+                <SearchDropdown
+                  searchResults={searchResults}
+                  searchLoading={searchLoading}
+                  searchTerm={searchTerm}
+                  onTaskClick={handleTaskClick}
+                  onClose={handleCloseSearchDropdown}
+                />
+              )}
             </div>
 
             {/* View toggle buttons */}
@@ -110,15 +193,6 @@ const Navbar = ({ onSidebarToggle, sidebarOpen, onSearch }: NavbarProps) => {
               </Button>
             </div>
 
-            {/* Action buttons */}
-            <Button variant='ghost' size='sm' className='h-8 px-2'>
-              <Star className='h-4 w-4' />
-            </Button>
-
-            <Button variant='ghost' size='sm' className='h-8 px-2'>
-              <Rocket className='h-4 w-4' />
-            </Button>
-
             {/* Create task button */}
             <Button
               onClick={() => setIsCreateModalOpen(true)}
@@ -126,11 +200,6 @@ const Navbar = ({ onSidebarToggle, sidebarOpen, onSearch }: NavbarProps) => {
             >
               <Plus className='h-4 w-4 mr-2' />
               Create Task
-            </Button>
-
-            {/* More options */}
-            <Button variant='ghost' size='sm' className='h-8 px-2'>
-              <MoreHorizontal className='h-4 w-4' />
             </Button>
           </div>
 
@@ -150,6 +219,11 @@ const Navbar = ({ onSidebarToggle, sidebarOpen, onSearch }: NavbarProps) => {
       <CreateTaskModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
+      />
+      <TaskDetailsModal
+        task={selectedTaskForModal}
+        isOpen={!!selectedTaskForModal}
+        onClose={() => setSelectedTaskForModal(null)}
       />
     </nav>
   );

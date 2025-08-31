@@ -8,6 +8,7 @@ import {
   updateTaskStatusById,
   assignTaskToUser,
   unAssignTask,
+  searchTasks,
 } from './taskThunks';
 import {
   findTaskInColumns,
@@ -36,6 +37,9 @@ const initialState: TaskState = {
   loading: false,
   error: null,
   selectedTask: null,
+  searchResults: [],
+  searchLoading: false,
+  searchTerm: '',
 };
 
 const taskSlice = createSlice({
@@ -47,6 +51,10 @@ const taskSlice = createSlice({
     },
     clearTaskError: state => {
       state.error = null;
+    },
+    clearSearchResults: state => {
+      state.searchResults = [];
+      state.searchTerm = '';
     },
   },
   extraReducers: builder => {
@@ -205,9 +213,25 @@ const taskSlice = createSlice({
       })
       .addCase(unAssignTask.rejected, (state, action) => {
         state.error = action.error.message || 'Failed to unassign task';
+      })
+
+      .addCase(searchTasks.pending, state => {
+        state.searchLoading = true;
+        state.error = null;
+      })
+      .addCase(searchTasks.fulfilled, (state, action) => {
+        state.searchLoading = false;
+        state.searchResults = action.payload.tasks;
+        state.searchTerm = action.payload.searchTerm;
+      })
+      .addCase(searchTasks.rejected, (state, action) => {
+        state.searchLoading = false;
+        state.error = action.error.message || 'Failed to search tasks';
+        state.searchResults = [];
       });
   },
 });
 
-export const { setSelectedTask, clearTaskError } = taskSlice.actions;
+export const { setSelectedTask, clearTaskError, clearSearchResults } =
+  taskSlice.actions;
 export default taskSlice.reducer;
