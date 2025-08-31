@@ -4,6 +4,7 @@ import { taskReducer } from './slices/task';
 import { aiReducer } from './slices/ai';
 import { uiReducer } from './slices/ui';
 import { usersReducer } from './slices/users';
+import { analyticsReducer } from './slices/analytics';
 import { persistReducer, persistStore } from 'redux-persist';
 import { isDev } from '@/lib/constants';
 
@@ -13,6 +14,7 @@ const rootReducer = combineReducers({
   ai: aiReducer,
   ui: uiReducer,
   users: usersReducer,
+  analytics: analyticsReducer,
 });
 
 // Create store factory for SSR compatibility

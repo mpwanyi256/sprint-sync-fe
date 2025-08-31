@@ -7,6 +7,7 @@ import { fetchTasks, updateTaskById } from '@/store/slices/task';
 import {
   selectTasksByStatus,
   selectColumnPagination,
+  selectTasks,
 } from '@/store/slices/task/taskSelectors';
 import TaskCard from './TaskCard';
 import { Loader2 } from 'lucide-react';
@@ -22,6 +23,7 @@ interface TaskColumnProps {
 const TaskColumn = ({ status, title, onViewTaskDetails }: TaskColumnProps) => {
   const dispatch = useAppDispatch();
   const tasks = useAppSelector(state => selectTasksByStatus(state, status));
+  const allTasks = useAppSelector(selectTasks);
   const pagination = useAppSelector(state =>
     selectColumnPagination(state, status)
   );
@@ -89,6 +91,14 @@ const TaskColumn = ({ status, title, onViewTaskDetails }: TaskColumnProps) => {
 
     const taskId = e.dataTransfer.getData('text/plain');
     if (!taskId) return;
+
+    // Find the task being dropped to check its current status
+    const draggedTask = allTasks.find(task => task.id === taskId);
+
+    // If task is already in this column, don't make API call
+    if (draggedTask && draggedTask.status === status) {
+      return; // Just return without doing anything
+    }
 
     try {
       await dispatch(

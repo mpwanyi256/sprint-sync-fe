@@ -15,6 +15,7 @@ export interface Task {
   description: string;
   status: TaskStatus;
   totalMinutes: number;
+  totalTimeSpent: number;
   assignedTo: Assignee | null;
   createdAt: string;
   updatedAt: string;

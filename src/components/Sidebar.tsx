@@ -4,13 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAppSelector } from '@/store/hooks';
 import { selectUser } from '@/store/slices/auth';
-import {
-  LayoutDashboard,
-  BarChart3,
-  Settings,
-  Users,
-  Calendar,
-} from 'lucide-react';
+import { LayoutDashboard, BarChart3, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SidebarProps {
@@ -20,23 +14,19 @@ interface SidebarProps {
 
 const baseNavigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
-  { name: 'Calendar', href: '/calendar', icon: Calendar },
-  { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
-const adminOnlyNavigation = [{ name: 'Team', href: '/team', icon: Users }];
+const adminOnlyNavigation = [
+  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+  { name: 'Team', href: '/team', icon: Users },
+];
 
 const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const pathname = usePathname();
   const currentUser = useAppSelector(selectUser);
 
   const navigation = currentUser?.isAdmin
-    ? [
-        ...baseNavigation.slice(0, 3),
-        ...adminOnlyNavigation,
-        ...baseNavigation.slice(3),
-      ]
+    ? [...baseNavigation, ...adminOnlyNavigation]
     : baseNavigation;
 
   return (

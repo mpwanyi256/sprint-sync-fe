@@ -176,6 +176,7 @@ export const mockTask = {
   description: 'Test Description',
   status: 'TODO' as const,
   totalMinutes: 60,
+  totalTimeSpent: 3,
   assignedTo: null,
   createdAt: '2023-12-25T10:30:00Z',
   updatedAt: '2023-12-25T10:30:00Z',
