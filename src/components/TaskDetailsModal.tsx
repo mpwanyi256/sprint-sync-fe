@@ -4,7 +4,6 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -12,19 +11,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Clock,
-  User,
-  Calendar,
-  Save,
-  X,
-  Star,
-  MoreHorizontal,
-  History,
-} from 'lucide-react';
+import { Clock, User, Calendar, Save, X } from 'lucide-react';
 import { cn, formatDate } from '@/lib/utils';
 import { updateTaskById } from '@/store/slices/task';
-import { useAppDispatch } from '@/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { selectUser } from '@/store/slices/auth';
 import { apiError, apiSuccess } from '@/util/toast';
 import { AssigneeDropdown } from './AssigneeDropdown';
 import { DialogTitle } from '@radix-ui/react-dialog';
@@ -65,6 +56,9 @@ const TaskDetailsModal = ({ task, isOpen, onClose }: TaskDetailsModalProps) => {
   const [editedTask, setEditedTask] = useState<Task | null>(null);
   const [showAssigneeDropdown, setShowAssigneeDropdown] = useState(false);
   const dispatch = useAppDispatch();
+  const currentUser = useAppSelector(selectUser);
+
+  const isAdmin = currentUser?.isAdmin || false;
 
   useEffect(() => {
     if (task) {
@@ -174,10 +168,16 @@ const TaskDetailsModal = ({ task, isOpen, onClose }: TaskDetailsModalProps) => {
                   {editedTask.assignedTo ? (
                     <>
                       <div
-                        className='w-8 h-8 rounded-full bg-blue-100 border-2 border-blue-200 flex items-center justify-center cursor-pointer hover:border-blue-300 transition-colors'
-                        onClick={() =>
-                          setShowAssigneeDropdown(!showAssigneeDropdown)
-                        }
+                        className={`w-8 h-8 rounded-full bg-blue-100 border-2 border-blue-200 flex items-center justify-center transition-colors ${
+                          isAdmin
+                            ? 'cursor-pointer hover:border-blue-300'
+                            : 'cursor-not-allowed opacity-60'
+                        }`}
+                        onClick={() => {
+                          if (isAdmin) {
+                            setShowAssigneeDropdown(!showAssigneeDropdown);
+                          }
+                        }}
                       >
                         <span className='text-sm font-bold text-blue-700'>
                           {editedTask.assignedTo.firstName.charAt(0)}
@@ -192,21 +192,29 @@ const TaskDetailsModal = ({ task, isOpen, onClose }: TaskDetailsModalProps) => {
                   ) : (
                     <>
                       <div
-                        className='w-8 h-8 rounded-full bg-gray-100 border-2 border-gray-200 flex items-center justify-center cursor-pointer hover:border-gray-300 transition-colors'
-                        onClick={() =>
-                          setShowAssigneeDropdown(!showAssigneeDropdown)
-                        }
+                        className={`w-8 h-8 rounded-full bg-gray-100 border-2 border-gray-200 flex items-center justify-center transition-colors ${
+                          isAdmin
+                            ? 'cursor-pointer hover:border-gray-300'
+                            : 'cursor-not-allowed opacity-60'
+                        }`}
+                        onClick={() => {
+                          if (isAdmin) {
+                            setShowAssigneeDropdown(!showAssigneeDropdown);
+                          }
+                        }}
                       >
                         <User className='h-4 w-4 text-gray-400' />
                       </div>
-                      <span className='text-sm text-gray-500'>Unassigned</span>
+                      <span className='text-sm text-gray-500'>
+                        {isAdmin ? 'Unassigned' : 'Unassigned (Admin only)'}
+                      </span>
                     </>
                   )}
                 </div>
               </div>
 
               {/* Assignee Dropdown - Positioned relative to this section */}
-              {showAssigneeDropdown && (
+              {showAssigneeDropdown && isAdmin && (
                 <div className='absolute top-full left-0 mt-2 z-50'>
                   <AssigneeDropdown
                     taskId={editedTask.id}

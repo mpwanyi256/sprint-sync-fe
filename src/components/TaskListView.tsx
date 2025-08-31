@@ -22,7 +22,6 @@ interface TaskListViewProps {
 const TaskListView = ({ onViewTaskDetails }: TaskListViewProps) => {
   const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
   const [collapsedSections, setCollapsedSections] = useState<
     Record<TaskStatus, boolean>
   >({

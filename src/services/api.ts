@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 import { app } from '@/lib/constants';
+import { ApiStatusCodes } from '@/types/api';
 
 const api = axios.create({
   baseURL: `${app.baseUrl}/api`,
@@ -27,8 +28,12 @@ api.interceptors.response.use(
       if (typeof window !== 'undefined') {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        window.location.href = '/login';
+        window.location.href = '/';
       }
+    }
+    if (error.response?.data.statusCode !== ApiStatusCodes.SUCCESS) {
+      console.log('API Error', error.response?.data);
+      throw new Error(error.response?.data.message);
     }
     return Promise.reject(error);
   }

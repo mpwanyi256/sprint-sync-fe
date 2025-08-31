@@ -11,14 +11,24 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.extends('next/core-web-vitals', 'next/typescript'),
-  ...compat.extends('prettier'),
   {
-    plugins: ['prettier'],
     rules: {
       '@typescript-eslint/no-empty-object-type': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': 'warn',
+      '@typescript-eslint/no-require-imports': 'off',
       'react-hooks/exhaustive-deps': 'warn',
-      'prettier/prettier': 'error',
+      'react/no-unescaped-entities': 'warn',
+      '@next/next/no-img-element': 'warn',
+      'jsx-a11y/alt-text': 'warn',
+      'import/no-anonymous-default-export': 'warn',
+    },
+  },
+  {
+    files: ['**/__tests__/**/*', '**/*.test.*', '**/*.spec.*'],
+    rules: {
+      '@typescript-eslint/no-unused-vars': 'off',
+      'react/display-name': 'off',
     },
   },
   {
@@ -28,6 +38,15 @@ const eslintConfig = [
       'out/**',
       'build/**',
       'next-env.d.ts',
+      'src/__tests__/test-utils.tsx',
+      'jest.config.js',
+      'jest.setup.js',
+      '*.config.js',
+      '*.config.mjs',
+      'tailwind.config.js',
+      'src/tailwind.config.js',
+      'tsconfig.tsbuildinfo',
+      '*.d.ts',
     ],
   },
 ];

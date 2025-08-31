@@ -1,17 +1,30 @@
 #!/usr/bin/env sh
 
-echo "🔍 Running pre-commit checks..."
+echo "Running pre-commit checks..."
+
+# Auto-correct code formatting
+echo "Auto-correcting code formatting..."
+yarn format
 
 # Check code formatting
 echo "🎨 Checking code formatting..."
 yarn format:check
 
-# Run linting
-echo "📝 Checking code style..."
+# Auto-fix linting issues
+echo "Auto-fixing code style issues..."
+yarn lint:fix
+
+# Run linting check
+echo "Checking code style..."
 yarn lint
 
 # Run type checking
-echo "🔍 Checking TypeScript types..."
+echo "Checking TypeScript types..."
 yarn type-check
 
-echo "✅ Pre-commit checks passed!"
+
+# Run build to ensure everything compiles
+echo "Building application..."
+yarn build
+
+echo "Pre-commit checks passed!"

@@ -9,9 +9,8 @@ import {
   selectColumnPagination,
 } from '@/store/slices/task/taskSelectors';
 import TaskCard from './TaskCard';
-import { Loader2, Plus } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 
 interface TaskColumnProps {

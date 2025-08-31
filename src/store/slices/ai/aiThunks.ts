@@ -1,7 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import api from '@/services/api';
-import { streamHandler, StreamOptions } from '@/lib/streamHandler';
-import { APIResponse } from '@/types';
+import { streamHandler } from '@/lib/streamHandler';
 
 interface AiSuggestionRequest {
   title: string;

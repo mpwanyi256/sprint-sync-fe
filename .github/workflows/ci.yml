@@ -1,0 +1,42 @@
+name: Continuous Integration
+
+on:
+  pull_request:
+    branches: [ '*' ]
+  push:
+    branches: [ '*' ]
+
+jobs:
+  lint-and-type-check:
+    name: Lint and Type Check
+    uses: ./.github/workflows/lint-check.yml
+    
+  test:
+    name: Run Tests
+    needs: lint-and-type-check
+    uses: ./.github/workflows/test.yml
+    with:
+      node-version: '20'
+      
+  build-check:
+    name: Build Check
+    needs: [lint-and-type-check, test]
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'yarn'
+        
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+      
+    - name: Build project
+      run: yarn build
+      
+    # Build status is reported via GitHub Actions UI - no need for PR comments

@@ -2,12 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  // Check if user is authenticated (you can implement your own logic here)
-  // For now, we'll let the client-side handle auth
-  // This middleware can be enhanced later with server-side auth checks
-
+  // To implement auth checks
   return NextResponse.next();
 }
 

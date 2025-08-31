@@ -3,13 +3,15 @@
 import { useState } from 'react';
 import { useAppSelector } from '@/store/hooks';
 import { selectUser } from '@/store/slices/auth';
-import Navbar from './Navbar';
-import Sidebar from './Sidebar';
-import Dashboard from './Dashboard';
+import Navbar from '@/components/Navbar';
+import Sidebar from '@/components/Sidebar';
 
-function AppContent() {
+interface ProtectedLayoutProps {
+  children: React.ReactNode;
+}
+
+export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const user = useAppSelector(selectUser);
 
   const toggleSidebar = () => {
@@ -18,10 +20,6 @@ function AppContent() {
 
   const closeSidebar = () => {
     setSidebarOpen(false);
-  };
-
-  const handleCreateTask = () => {
-    setIsCreateModalOpen(true);
   };
 
   const handleSearch = (query: string) => {
@@ -38,15 +36,10 @@ function AppContent() {
       <Navbar
         onSidebarToggle={toggleSidebar}
         sidebarOpen={sidebarOpen}
-        onCreateTask={handleCreateTask}
         onSearch={handleSearch}
       />
       <Sidebar isOpen={sidebarOpen} onClose={closeSidebar} />
-      <main className='lg:ml-64 pt-16'>
-        <Dashboard />
-      </main>
+      <main className='lg:ml-64 pt-16'>{children}</main>
     </div>
   );
 }
-
-export default AppContent;
