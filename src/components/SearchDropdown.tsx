@@ -1,7 +1,7 @@
 import { Task } from '@/types/task';
 import { Badge } from '@/components/ui/badge';
 import { Clock, User } from 'lucide-react';
-import { cn, formatDate } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 
 interface SearchDropdownProps {
   searchResults: Task[];
@@ -99,7 +99,7 @@ const SearchDropdown = ({
         </div>
       ) : searchTerm ? (
         <div className='p-4 text-center text-gray-500'>
-          <p className='text-sm'>No tasks found for "{searchTerm}"</p>
+          <p className='text-sm'>No tasks found for &quot;{searchTerm}&quot;</p>
         </div>
       ) : null}
     </div>

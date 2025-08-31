@@ -111,7 +111,9 @@ beforeAll(() => {
     if (
       typeof args[0] === 'string' &&
       (args[0].includes('Warning: ReactDOM.render is deprecated') ||
-        args[0].includes('Warning: Each child in a list should have a unique') ||
+        args[0].includes(
+          'Warning: Each child in a list should have a unique'
+        ) ||
         args[0].includes('validateDOMNesting'))
     ) {
       return;
@@ -122,8 +124,7 @@ beforeAll(() => {
   console.warn = (...args) => {
     if (
       typeof args[0] === 'string' &&
-      (args[0].includes('deprecated') ||
-        args[0].includes('Warning:'))
+      (args[0].includes('deprecated') || args[0].includes('Warning:'))
     ) {
       return;
     }

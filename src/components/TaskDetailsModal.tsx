@@ -4,7 +4,6 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -12,16 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Clock,
-  User,
-  Calendar,
-  Save,
-  X,
-  Star,
-  MoreHorizontal,
-  History,
-} from 'lucide-react';
+import { Clock, User, Calendar, Save, X } from 'lucide-react';
 import { cn, formatDate } from '@/lib/utils';
 import { updateTaskById } from '@/store/slices/task';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';

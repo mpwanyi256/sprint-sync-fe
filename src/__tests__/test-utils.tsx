@@ -14,7 +14,7 @@ interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   store?: any;
 }
 
-export function setupStore(preloadedState?: any) {
+export function setupStore(preloadedState?: Partial<RootState>) {
   return configureStore({
     reducer: {
       auth: authReducer,
@@ -194,7 +194,10 @@ export const mockTaskWithAssignee = {
 };
 
 // Helper to create task state with tasks
-export const createTaskStateWithTasks = (tasks: any[], status: 'TODO' | 'IN_PROGRESS' | 'DONE' = 'TODO') => ({
+export const createTaskStateWithTasks = (
+  tasks: any[],
+  status: 'TODO' | 'IN_PROGRESS' | 'DONE' = 'TODO'
+) => ({
   ...defaultTaskState,
   columns: {
     ...defaultTaskState.columns,

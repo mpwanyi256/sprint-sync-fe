@@ -2,14 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import {
-  fetchCurrentUser,
-  selectUser,
-  selectIsAuthenticated,
-  setAuthenticated,
-} from '@/store/slices/auth';
-import { Loader2 } from 'lucide-react';
+import { useAppSelector } from '@/store/hooks';
+import { selectUser, selectIsAuthenticated } from '@/store/slices/auth';
 import { publicRoutes } from '@/lib/constants';
 
 interface AuthProviderProps {
@@ -32,17 +26,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
     setIsLoading(false);
   }, [isAuthenticated, user, pathname, router]);
-
-  // if (isLoading) {
-  //   return (
-  //     <div className='flex items-center justify-center h-screen'>
-  //       <Loader2 className='animate-spin' />
-  //       <span className='text-sm text-gray-500'>
-  //         Checking authentication...
-  //       </span>
-  //     </div>
-  //   );
-  // }
 
   return <>{children}</>;
 }

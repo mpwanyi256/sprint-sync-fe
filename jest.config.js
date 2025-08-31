@@ -45,7 +45,6 @@ const customJestConfig = {
   clearMocks: true,
   restoreMocks: true,
   resetMocks: true,
-
 };
 
 module.exports = createJestConfig(customJestConfig);

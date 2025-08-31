@@ -3,8 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, Search, User, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Loader2, Search, X } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { assignTaskToUser, unAssignTask } from '@/store/slices/task';
 import {

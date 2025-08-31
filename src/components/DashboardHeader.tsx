@@ -10,7 +10,6 @@ import {
   Star,
   Rocket,
   MoreHorizontal,
-  User,
 } from 'lucide-react';
 
 interface DashboardHeaderProps {
@@ -26,7 +25,6 @@ const DashboardHeader = ({
   subtitle,
   onCreateTask,
   onSearch,
-  onLogout,
 }: DashboardHeaderProps) => {
   return (
     <div className='bg-white border-b border-gray-200 px-6 py-4'>
