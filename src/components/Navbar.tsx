@@ -56,24 +56,26 @@ const Navbar = ({ onSidebarToggle, sidebarOpen }: NavbarProps) => {
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
-    setShowSearchDropdown(true);
 
     // Clear previous timeout
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
 
-    // If query is empty, clear results
-    if (!query.trim()) {
+    // If query is empty or less than 3 characters, clear results and hide dropdown
+    if (!query.trim() || query.trim().length < 3) {
       dispatch(clearSearchResults());
       setShowSearchDropdown(false);
       return;
     }
 
-    // Debounce search
+    // Show dropdown when query is valid
+    setShowSearchDropdown(true);
+
+    // Debounce search with 500ms delay for better UX
     searchTimeoutRef.current = setTimeout(() => {
       dispatch(searchTasks({ keyword: query.trim() }));
-    }, 300);
+    }, 500);
   };
 
   const handleTaskClick = (task: Task) => {
@@ -106,9 +108,9 @@ const Navbar = ({ onSidebarToggle, sidebarOpen }: NavbarProps) => {
     };
   }, []);
 
-  // Show dropdown when we have search results
+  // Show dropdown when we have search results and query is valid
   useEffect(() => {
-    if (searchResults.length > 0 && searchQuery.trim()) {
+    if (searchResults.length > 0 && searchQuery.trim().length >= 3) {
       setShowSearchDropdown(true);
     }
   }, [searchResults, searchQuery]);

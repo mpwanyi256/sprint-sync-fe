@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '@/services/api';
+import { toggleUserRole, bulkCreateUsers } from '../admin/adminSlice';
 
 export interface User {
   id: string;
@@ -63,6 +64,21 @@ const usersSlice = createSlice({
     clearUsersError: state => {
       state.error = null;
     },
+    updateUserInState: (state, action) => {
+      const { userId, updates } = action.payload;
+      const userIndex = state.users.findIndex(user => user.id === userId);
+      if (userIndex !== -1) {
+        state.users[userIndex] = { ...state.users[userIndex], ...updates };
+      }
+    },
+    addUsersToState: (state, action) => {
+      const newUsers = action.payload;
+      state.users = [...state.users, ...newUsers];
+      // Update pagination if needed
+      if (state.pagination) {
+        state.pagination.totalItems += newUsers.length;
+      }
+    },
   },
   extraReducers: builder => {
     builder
@@ -84,9 +100,47 @@ const usersSlice = createSlice({
       .addCase(fetchUsers.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch users';
+      })
+      // Listen to role toggle success to update user state
+      .addCase(toggleUserRole.fulfilled, (state, action) => {
+        const userData = action.payload.data.user;
+        const userIndex = state.users.findIndex(
+          user => user.id === userData._id
+        );
+        if (userIndex !== -1) {
+          state.users[userIndex] = {
+            ...state.users[userIndex],
+            isAdmin: userData.isAdmin,
+          };
+        }
+      })
+      // Listen to bulk user creation success to add users to state
+      .addCase(bulkCreateUsers.fulfilled, (state, action) => {
+        const newUsers = action.payload.data.created.map(user => ({
+          id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          isAdmin: user.isAdmin,
+          createdAt: user.createdAt,
+          updatedAt: user.createdAt,
+        }));
+
+        if (newUsers.length > 0) {
+          state.users = [...state.users, ...newUsers];
+          // Update pagination if needed
+          if (state.pagination) {
+            state.pagination.totalItems += newUsers.length;
+          }
+        }
       });
   },
 });
 
-export const { clearUsers, clearUsersError } = usersSlice.actions;
+export const {
+  clearUsers,
+  clearUsersError,
+  updateUserInState,
+  addUsersToState,
+} = usersSlice.actions;
 export default usersSlice.reducer;

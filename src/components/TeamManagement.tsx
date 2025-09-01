@@ -58,7 +58,7 @@ const TeamManagement = () => {
       ).unwrap();
 
       apiSuccess(result.message);
-      dispatch(fetchUsers({ page: 1, limit: 100 }));
+      // No need to fetch users - Redux state is updated automatically
     } catch (error) {
       console.error('Failed to update user admin status:', error);
       apiError('Failed to update user admin status');

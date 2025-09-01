@@ -182,12 +182,13 @@ export const AssigneeDropdown = ({
               </div>
             </div>
             <Button
-              variant='outline'
+              variant='ghost'
               size='sm'
               onClick={handleRemoveAssignee}
-              className='text-red-600 border-red-200 hover:bg-red-50'
+              className='h-6 w-6 p-0 text-red-600 hover:bg-red-50'
+              title='Remove assignee'
             >
-              Remove
+              <X className='h-4 w-4' />
             </Button>
           </div>
         </div>

@@ -95,7 +95,7 @@ const AddUserModal = ({ open, onOpenChange }: AddUserModalProps) => {
 
       if (result.data.summary.successful > 0) {
         apiSuccess(result.data.message);
-        dispatch(fetchUsers({ page: 1, limit: 100 }));
+        // No need to fetch users - Redux state is updated automatically
 
         if (result.data.summary.failed === 0) {
           onOpenChange(false);
