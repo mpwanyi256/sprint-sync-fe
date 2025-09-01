@@ -6,6 +6,7 @@ import {
   selectUsers,
   selectUsersLoading,
 } from '@/store/slices/users';
+import { toggleUserRole, selectRoleToggleLoading } from '@/store/slices/admin';
 import { User } from '@/types/auth';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,17 +18,20 @@ import {
   Mail,
   Shield,
   ShieldOff,
+  Plus,
 } from 'lucide-react';
-import api from '@/services/api';
 import { apiError, apiSuccess } from '@/util/toast';
 import { useRouter } from 'next/navigation';
 import { selectIsAdmin } from '@/store/slices/auth/authSelectors';
+import AddUserModal from './AddUserModal';
 
 const TeamManagement = () => {
   const dispatch = useAppDispatch();
   const users = useAppSelector(selectUsers);
   const loading = useAppSelector(selectUsersLoading);
+  const roleToggleLoading = useAppSelector(selectRoleToggleLoading);
   const [updatingUsers, setUpdatingUsers] = useState<Set<string>>(new Set());
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
   const isAdmin = useAppSelector(selectIsAdmin);
   const router = useRouter();
 
@@ -46,12 +50,14 @@ const TeamManagement = () => {
     setUpdatingUsers(prev => new Set(prev).add(userId));
 
     try {
-      await api.patch(`/users/${userId}/admin`, { isAdmin: !currentIsAdmin });
-      apiSuccess(
-        `User ${currentIsAdmin ? 'removed from' : 'promoted to'} admin successfully`
-      );
+      const result = await dispatch(
+        toggleUserRole({
+          userId,
+          isAdmin: !currentIsAdmin,
+        })
+      ).unwrap();
 
-      // Refresh the users list
+      apiSuccess(result.message);
       dispatch(fetchUsers({ page: 1, limit: 100 }));
     } catch (error) {
       console.error('Failed to update user admin status:', error);
@@ -86,12 +92,20 @@ const TeamManagement = () => {
   return (
     <div className='p-6 space-y-6'>
       {/* Header */}
-      <div className='flex items-center space-x-3'>
-        <Users className='h-8 w-8 text-blue-600' />
-        <div>
-          <h1 className='text-2xl font-bold text-gray-900'>Team Management</h1>
-          <p className='text-gray-600'>Manage user roles and permissions</p>
+      <div className='flex items-center justify-between'>
+        <div className='flex items-center space-x-3'>
+          <Users className='h-8 w-8 text-blue-600' />
+          <div>
+            <h1 className='text-2xl font-bold text-gray-900'>
+              Team Management
+            </h1>
+            <p className='text-gray-600'>Manage user roles and permissions</p>
+          </div>
         </div>
+        <Button onClick={() => setShowAddUserModal(true)}>
+          <Plus className='h-4 w-4 mr-2' />
+          Add Users
+        </Button>
       </div>
 
       {/* Stats */}
@@ -145,25 +159,37 @@ const TeamManagement = () => {
         </Card>
       </div>
 
-      {/* Administrators Section */}
+      {/* All Users Table */}
       <Card>
         <CardHeader>
           <CardTitle className='flex items-center space-x-2'>
-            <Crown className='h-5 w-5 text-purple-600' />
-            <span>Administrators ({adminUsers.length})</span>
+            <Users className='h-5 w-5 text-blue-600' />
+            <span>All Users ({users.length})</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {adminUsers.length > 0 ? (
-            <div className='space-y-3'>
-              {adminUsers.map(user => (
+          {users.length > 0 ? (
+            <div className='max-h-[calc(100vh-400px)] overflow-y-auto space-y-3'>
+              {users.map(user => (
                 <div
                   key={user.id}
-                  className='flex items-center justify-between p-4 border border-gray-200 rounded-lg bg-purple-50'
+                  className={`flex items-center justify-between p-4 border border-gray-200 rounded-lg ${
+                    user.isAdmin ? 'bg-purple-50' : 'bg-gray-50'
+                  }`}
                 >
                   <div className='flex items-center space-x-4'>
-                    <div className='w-10 h-10 rounded-full bg-purple-100 border-2 border-purple-200 flex items-center justify-center'>
-                      <span className='text-sm font-bold text-purple-700'>
+                    <div
+                      className={`w-10 h-10 rounded-full border-2 flex items-center justify-center ${
+                        user.isAdmin
+                          ? 'bg-purple-100 border-purple-200'
+                          : 'bg-gray-100 border-gray-200'
+                      }`}
+                    >
+                      <span
+                        className={`text-sm font-bold ${
+                          user.isAdmin ? 'text-purple-700' : 'text-gray-700'
+                        }`}
+                      >
                         {user.firstName.charAt(0)}
                         {user.lastName.charAt(0)}
                       </span>
@@ -177,91 +203,63 @@ const TeamManagement = () => {
                         <span>{user.email}</span>
                       </div>
                     </div>
-                    <Badge className='bg-purple-100 text-purple-800 border-purple-200'>
-                      <Crown className='h-3 w-3 mr-1' />
-                      Admin
+                    <Badge
+                      className={
+                        user.isAdmin
+                          ? 'bg-purple-100 text-purple-800 border-purple-200'
+                          : 'bg-gray-100 text-gray-800 border-gray-200'
+                      }
+                    >
+                      {user.isAdmin ? (
+                        <>
+                          <Crown className='h-3 w-3 mr-1' />
+                          Admin
+                        </>
+                      ) : (
+                        <>
+                          <UserIcon className='h-3 w-3 mr-1' />
+                          User
+                        </>
+                      )}
                     </Badge>
                   </div>
                   <Button
                     variant='outline'
                     size='sm'
-                    onClick={() => handleToggleAdminStatus(user.id, true)}
-                    disabled={updatingUsers.has(user.id)}
-                    className='border-red-200 text-red-600 hover:bg-red-50'
+                    onClick={() =>
+                      handleToggleAdminStatus(user.id, user.isAdmin)
+                    }
+                    disabled={updatingUsers.has(user.id) || roleToggleLoading}
+                    className={
+                      user.isAdmin
+                        ? 'border-red-200 text-red-600 hover:bg-red-50'
+                        : 'border-green-200 text-green-600 hover:bg-green-50'
+                    }
                   >
-                    <ShieldOff className='h-4 w-4 mr-2' />
+                    {user.isAdmin ? (
+                      <ShieldOff className='h-4 w-4 mr-2' />
+                    ) : (
+                      <Shield className='h-4 w-4 mr-2' />
+                    )}
                     {updatingUsers.has(user.id)
                       ? 'Updating...'
-                      : 'Remove Admin'}
+                      : user.isAdmin
+                        ? 'Remove Admin'
+                        : 'Make Admin'}
                   </Button>
                 </div>
               ))}
             </div>
           ) : (
-            <p className='text-gray-500 text-center py-8'>
-              No administrators found
-            </p>
+            <p className='text-gray-500 text-center py-8'>No users found</p>
           )}
         </CardContent>
       </Card>
 
-      {/* Regular Users Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className='flex items-center space-x-2'>
-            <UserIcon className='h-5 w-5 text-green-600' />
-            <span>Regular Users ({regularUsers.length})</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {regularUsers.length > 0 ? (
-            <div className='space-y-3'>
-              {regularUsers.map(user => (
-                <div
-                  key={user.id}
-                  className='flex items-center justify-between p-4 border border-gray-200 rounded-lg bg-gray-50'
-                >
-                  <div className='flex items-center space-x-4'>
-                    <div className='w-10 h-10 rounded-full bg-gray-100 border-2 border-gray-200 flex items-center justify-center'>
-                      <span className='text-sm font-bold text-gray-700'>
-                        {user.firstName.charAt(0)}
-                        {user.lastName.charAt(0)}
-                      </span>
-                    </div>
-                    <div>
-                      <h3 className='font-medium text-gray-900'>
-                        {getUserDisplayName(user)}
-                      </h3>
-                      <div className='flex items-center space-x-2 text-sm text-gray-600'>
-                        <Mail className='h-4 w-4' />
-                        <span>{user.email}</span>
-                      </div>
-                    </div>
-                    <Badge className='bg-gray-100 text-gray-800 border-gray-200'>
-                      <UserIcon className='h-3 w-3 mr-1' />
-                      User
-                    </Badge>
-                  </div>
-                  <Button
-                    variant='outline'
-                    size='sm'
-                    onClick={() => handleToggleAdminStatus(user.id, false)}
-                    disabled={updatingUsers.has(user.id)}
-                    className='border-green-200 text-green-600 hover:bg-green-50'
-                  >
-                    <Shield className='h-4 w-4 mr-2' />
-                    {updatingUsers.has(user.id) ? 'Updating...' : 'Make Admin'}
-                  </Button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className='text-gray-500 text-center py-8'>
-              No regular users found
-            </p>
-          )}
-        </CardContent>
-      </Card>
+      <AddUserModal
+        open={showAddUserModal}
+        onOpenChange={setShowAddUserModal}
+      />
     </div>
   );
 };
