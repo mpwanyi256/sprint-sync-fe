@@ -181,13 +181,6 @@ const TaskListView = ({ onViewTaskDetails }: TaskListViewProps) => {
                 {taskCount} tasks
               </Badge>
             </div>
-            <Button
-              variant='ghost'
-              size='sm'
-              className='text-gray-500 hover:text-gray-700'
-            >
-              <Plus className='h-4 w-4' />
-            </Button>
           </div>
         </div>
 
@@ -262,7 +255,7 @@ const TaskListView = ({ onViewTaskDetails }: TaskListViewProps) => {
   };
 
   return (
-    <div className='h-[calc(100vh-112px)] overflow-y-auto max-w-7xl mx-auto'>
+    <div className='h-[calc(100vh-112px)] overflow-y-auto max-w-7xl mx-auto flex flex-col gap-4'>
       {renderSection('TODO', todoTasks, todoPagination)}
       {renderSection('IN_PROGRESS', inProgressTasks, inProgressPagination)}
       {renderSection('DONE', doneTasks, donePagination)}
