@@ -1,3 +1,4 @@
+'use client';
 import { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
@@ -19,16 +20,24 @@ import {
 } from 'lucide-react';
 import api from '@/services/api';
 import { apiError, apiSuccess } from '@/util/toast';
+import { useRouter } from 'next/navigation';
+import { selectIsAdmin } from '@/store/slices/auth/authSelectors';
 
 const TeamManagement = () => {
   const dispatch = useAppDispatch();
   const users = useAppSelector(selectUsers);
   const loading = useAppSelector(selectUsersLoading);
   const [updatingUsers, setUpdatingUsers] = useState<Set<string>>(new Set());
+  const isAdmin = useAppSelector(selectIsAdmin);
+  const router = useRouter();
 
   useEffect(() => {
-    dispatch(fetchUsers({ page: 1, limit: 100 })); // Fetch all users
-  }, [dispatch]);
+    if (!isAdmin) {
+      router.push('/dashboard');
+    } else {
+      dispatch(fetchUsers({ page: 1, limit: 100 }));
+    }
+  }, [dispatch, isAdmin, router]);
 
   const handleToggleAdminStatus = async (
     userId: string,

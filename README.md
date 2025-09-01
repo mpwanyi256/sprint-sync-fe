@@ -1,64 +1,78 @@
 # SprintSync Frontend
 
-A React-based frontend application for the SprintSync productivity tool, built with modern web technologies and clean architecture principles.
+Next.js-based frontend for the SprintSync productivity tool using the App Router, TypeScript, Redux Toolkit, and Tailwind CSS.
 
-[Project Url](sprint-sync-fe.vercel.app)
+FrontEnd
+- [Project URL](https://sprint-sync-fe.vercel.app)
+
+Backend
+- [API Production URL](https://sprint-sync-be.onrender.com/api)
+- [API Documentation](https://sprint-sync-be.onrender.com/api-docs)
 
 ## Tech Stack
 
-- **Frontend**: React 18, TypeScript, Tailwind CSS
-- **State Management**: Redux Toolkit with RTK Query
-- **Routing**: React Router DOM
-- **Build Tool**: Vite
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript (strict)
+- **UI**: React 19, Tailwind CSS
+- **State Management**: Redux Toolkit (+ Redux Persist)
 - **HTTP Client**: Axios
+- **Testing**: Jest, Testing Library
+- **Linting/Formatting**: ESLint (Next config), Prettier
 
 ## Project Structure
 
 ```
 src/
-├── components/          # Reusable UI components
-├── pages/              # Page components
-├── store/              # Redux store configuration
-│   ├── slices/         # Redux slices organized by feature
-│   │   ├── auth/       # Authentication slice
-│   │   │   ├── authSlice.ts
-│   │   │   ├── authSelectors.ts
-│   │   │   ├── authThunks.ts
-│   │   │   └── index.ts
-│   │   ├── task/       # Task management slice
-│   │   │   ├── taskSlice.ts
-│   │   │   ├── taskSelectors.ts
-│   │   │   ├── taskThunks.ts
-│   │   │   └── index.ts
-│   │   └── ui/         # UI state slice
-│   │       ├── uiSlice.ts
-│   │       ├── uiSelectors.ts
-│   │       └── index.ts
-│   ├── hooks.ts        # Typed Redux hooks
-│   └── index.ts        # Store configuration
-├── services/            # API services
-├── types/               # TypeScript type definitions
-│   ├── auth.ts         # Authentication types
-│   ├── task.ts         # Task-related types
-│   ├── ui.ts           # UI state types
-│   ├── ai.ts           # AI service types
-│   └── index.ts        # Type exports
-├── utils/               # Utility functions
-└── hooks/               # Custom React hooks
+├── app/                      # Next.js App Router
+│   ├── (protected)/
+│   │   ├── dashboard/page.tsx
+│   │   ├── analytics/page.tsx
+│   │   └── team/page.tsx
+│   ├── layout.tsx
+│   ├── page.tsx
+│   └── globals.css
+├── components/               # Reusable UI & feature components
+│   ├── ui/                   # Primitive UI components
+│   └── ...
+├── store/                    # Redux store
+│   ├── index.ts              # Configure store
+│   └── slices/
+│       ├── auth/
+│       ├── task/
+│       ├── analytics/
+│       ├── users/
+│       ├── ui/
+│       └── ai/
+├── services/                 # API services (Axios)
+├── types/                    # Centralized TypeScript types
+├── lib/                      # Utilities shared across app
+├── util/                     # Helper functions
+├── __tests__/                # Unit/Component tests
+└── middleware.ts             # Next.js middleware (auth hooks, etc.)
 ```
 
 ## Path Aliases
 
-The project uses TypeScript path aliases for clean imports:
+- **`@/*`** → `src/*` (see `tsconfig.json`)
 
-- `@/*` → `src/*`
-- `@/components/*` → `src/components/*`
-- `@/pages/*` → `src/pages/*`
-- `@/store/*` → `src/store/*`
-- `@/services/*` → `src/services/*`
-- `@/types/*` → `src/types/*`
-- `@/utils/*` → `src/utils/*`
-- `@/hooks/*` → `src/hooks/*`
+## Environment Variables
+
+Create a `.env.local` in the project root:
+
+```bash
+NEXT_PUBLIC_API_URL=https://api.example.com
+NEXT_PUBLIC_API_KEY=your_api_key
+```
+
+## Scripts
+
+- **Dev**: `npm run dev` (Turbopack)
+- **Build**: `npm run build`
+- **Start**: `npm start`
+- **Lint**: `npm run lint` | `npm run lint:fix`
+- **Types**: `npm run type-check`
+- **Format**: `npm run format` | `npm run format:check`
+- **Test**: `npm test` | `npm run test:watch` | `npm run test:coverage` | `npm run test:ci`
 
 ## Getting Started
 
@@ -66,29 +80,59 @@ The project uses TypeScript path aliases for clean imports:
    ```bash
    npm install
    ```
-
-2. Start development server:
+2. Configure environment:
+   ```bash
+   cp .env.example .env.local # if provided, otherwise create as above
+   ```
+3. Run the app in development:
    ```bash
    npm run dev
    ```
-
-3. Build for production:
+4. Build for production:
    ```bash
    npm run build
    ```
+5. Start production server:
+   ```bash
+   npm start
+   ```
 
-## Development
+## Linting & Formatting
 
-- **Redux Slices**: Each feature has its own folder with slice, selectors, and thunks
-- **Type Safety**: All types are centralized in the `types/` folder
-- **API Integration**: Services use Axios with interceptors for authentication
-- **Component Architecture**: Small, focused components with clear separation of concerns
+- ESLint (Next.js): `npm run lint` / `npm run lint:fix`
+- Prettier: `npm run format` / `npm run format:check`
 
-## Features
+## Testing
 
-- User authentication (login/register)
-- Task management (CRUD operations)
-- Task status tracking
-- AI assistance integration
-- Responsive design with Tailwind CSS
-- Type-safe state management
+- Run tests: `npm test`
+- Watch mode: `npm run test:watch`
+- Coverage: `npm run test:coverage`
+
+Jest is configured via `jest.config.js` with `jest.setup.js` (jsdom, Next router mocks, DOM APIs). Test files live under `src/__tests__/`.
+
+## Branching & Commits (Pre-commit Hooks)
+
+- Create a branch:
+  ```bash
+  git checkout -b feature/short-description   # or fix/..., chore/...
+  ```
+- Make changes, then commit:
+  ```bash
+  git add -A
+  git commit -m "feat(Auth): A concise message"
+  ```
+- A pre-commit hook runs quality checks (lint, type-check, tests). If any fail, the commit is blocked. Fix issues and commit again.
+- Push and open a PR:
+  ```bash
+  git push -u origin feature/short-description
+  ```
+- Tip: run locally before committing:
+  ```bash
+  npm run lint && npm run type-check && npm test
+  ```
+
+## Development Notes
+
+- Types live in `src/types` and strict mode is enabled.
+- API access is via Axios in `src/services`.
+- UI is built with small, reusable components under `src/components`.

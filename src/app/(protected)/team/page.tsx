@@ -1,24 +1,11 @@
-'use client';
-
-import { useAppSelector } from '@/store/hooks';
-import { selectUser } from '@/store/slices/auth';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import type { Metadata } from 'next';
 import TeamManagement from '@/components/TeamManagement';
 
+export const metadata: Metadata = {
+  title: 'Team Management',
+  description: 'Team Management',
+};
+
 export default function TeamPage() {
-  const currentUser = useAppSelector(selectUser);
-  const router = useRouter();
-
-  useEffect(() => {
-    if (currentUser && !currentUser.isAdmin) {
-      router.push('/dashboard');
-    }
-  }, [currentUser, router]);
-
-  if (!currentUser?.isAdmin) {
-    return null;
-  }
-
   return <TeamManagement />;
 }

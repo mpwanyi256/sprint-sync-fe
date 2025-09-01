@@ -36,6 +36,8 @@ import {
   Line,
 } from 'recharts';
 import TimeLogModal from './TimeLogModal';
+import { selectIsAdmin } from '@/store/slices/auth/authSelectors';
+import { useRouter } from 'next/navigation';
 
 const Analytics = () => {
   const dispatch = useAppDispatch();
@@ -44,6 +46,8 @@ const Analytics = () => {
   const error = useAppSelector(selectAnalyticsError);
   const uniqueUsers = useAppSelector(selectUniqueUsers);
   const selectedUserId = useAppSelector(selectSelectedUserId);
+  const isAdmin = useAppSelector(selectIsAdmin);
+  const router = useRouter();
 
   const [startDate, setStartDate] = useState(() => {
     const date = new Date();
@@ -72,8 +76,12 @@ const Analytics = () => {
   }, [dispatch, startDate, endDate, selectedUserId]);
 
   useEffect(() => {
-    loadTimeLogs();
-  }, [loadTimeLogs]);
+    if (!isAdmin) {
+      router.push('/dashboard');
+    } else {
+      loadTimeLogs();
+    }
+  }, [loadTimeLogs, isAdmin, router]);
 
   const handleUserFilter = (userId: string) => {
     dispatch(setSelectedUserId(userId === 'all' ? null : userId));

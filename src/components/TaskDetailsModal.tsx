@@ -74,13 +74,13 @@ const TaskDetailsModal = ({ task, isOpen, onClose }: TaskDetailsModalProps) => {
         title: editedTask.title,
         description: editedTask.description,
         totalMinutes: editedTask.totalMinutes,
-        assignedTo: editedTask.assignedTo,
         status: editedTask.status,
       };
       await dispatch(
         updateTaskById({ id: editedTask.id, data: updateData })
       ).unwrap();
       apiSuccess('Task updated successfully');
+      onClose();
     } catch (error) {
       console.error('Failed to update task:', error);
       apiError('Failed to update task');
@@ -114,7 +114,7 @@ const TaskDetailsModal = ({ task, isOpen, onClose }: TaskDetailsModalProps) => {
 
         <div className='p-6 space-y-6'>
           <div
-            className='text-2xl font-bold text-gray-900 focus:outline-none'
+            className='text-2xl font-bold text-gray-900 focus:outline-none hover:bg-gray-200 p-2 rounded-md'
             contentEditable
             suppressContentEditableWarning={true}
             onBlur={e => handleInputChange('title', e.target.innerText)}
@@ -243,7 +243,7 @@ const TaskDetailsModal = ({ task, isOpen, onClose }: TaskDetailsModalProps) => {
               contentEditable
               suppressContentEditableWarning={true}
               onBlur={e => handleInputChange('description', e.target.innerText)}
-              className='min-h-[250px] focus:outline-none p-2 resize-none border border-gray-200 rounded-md'
+              className='min-h-[250px] focus:outline-none p-2 resize-none hover:bg-gray-200 rounded-md'
             >
               {editedTask.description}
             </div>
