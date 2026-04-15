@@ -19,7 +19,6 @@ import { Input } from '@/components/ui/input';
 import CreateTaskModal from '@/components/CreateTaskModal';
 import SearchDropdown from '@/components/SearchDropdown';
 import TaskDetailsModal from '@/components/TaskDetailsModal';
-import Image from 'next/image';
 import { Task } from '@/types/task';
 import { AppIcon } from './AppIcon';
 
@@ -108,14 +107,6 @@ const Navbar = ({ onSidebarToggle, sidebarOpen }: NavbarProps) => {
       }
     };
   }, []);
-
-  // Show dropdown when we have search results and query is valid
-  useEffect(() => {
-    if (searchResults.length > 0 && searchQuery.trim().length >= 3) {
-      setShowSearchDropdown(true);
-    }
-  }, [searchResults, searchQuery]);
-
   const getUserDisplayName = () => {
     if (user) {
       return `${user.firstName} ${user.lastName}`;

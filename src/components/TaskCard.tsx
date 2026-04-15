@@ -1,7 +1,7 @@
 'use client';
 
 import { Task } from '@/types/task';
-import { Clock, Calendar, User } from 'lucide-react';
+import { Calendar, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface TaskCardProps {

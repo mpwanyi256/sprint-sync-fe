@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Task } from '@/types/task';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
@@ -56,32 +56,31 @@ const getStatusLabel = (status: Task['status']) => {
   }
 };
 
-const TaskDetailsModal = ({ task, isOpen, onClose }: TaskDetailsModalProps) => {
-  const [editedTask, setEditedTask] = useState<Task | null>(null);
+interface TaskDetailsContentProps {
+  task: Task;
+  isAdmin: boolean;
+  onClose: () => void;
+}
+
+const TaskDetailsContent = ({
+  task,
+  isAdmin,
+  onClose,
+}: TaskDetailsContentProps) => {
   const [showAssigneeDropdown, setShowAssigneeDropdown] = useState(false);
   const dispatch = useAppDispatch();
-  const currentUser = useAppSelector(selectUser);
-
-  const isAdmin = currentUser?.isAdmin || false;
-
-  useEffect(() => {
-    if (task) {
-      setEditedTask({ ...task });
-    }
-  }, [task]);
-
-  if (!task || !editedTask) return null;
+  const [localTask, setLocalTask] = useState<Task>(() => ({ ...task }));
 
   const handleSaveTask = async () => {
     try {
       const updateData = {
-        title: editedTask.title,
-        description: editedTask.description,
-        totalMinutes: editedTask.totalMinutes,
-        status: editedTask.status,
+        title: localTask.title,
+        description: localTask.description,
+        totalMinutes: localTask.totalMinutes,
+        status: localTask.status,
       };
       await dispatch(
-        updateTaskById({ id: editedTask.id, data: updateData })
+        updateTaskById({ id: localTask.id, data: updateData })
       ).unwrap();
       apiSuccess('Task updated successfully');
       onClose();
@@ -95,226 +94,240 @@ const TaskDetailsModal = ({ task, isOpen, onClose }: TaskDetailsModalProps) => {
     field: keyof Task,
     value: string | number | any
   ) => {
-    setEditedTask(prev => (prev ? { ...prev, [field]: value } : null));
+    setLocalTask(prev => ({ ...prev, [field]: value }));
   };
+
+  return (
+    <>
+      {/* Header */}
+      <div className='flex p-6 items-center space-x-4'>
+        <Button
+          variant='ghost'
+          size='sm'
+          onClick={onClose}
+          className='p-2 hover:bg-gray-100'
+        >
+          <X className='h-5 w-5' />
+        </Button>
+        <DialogTitle className='text-2xl font-bold text-gray-900'>
+          Task Details
+        </DialogTitle>
+      </div>
+
+      <div className='p-6 space-y-6'>
+        <div
+          className='text-2xl font-bold text-gray-900 focus:outline-none hover:bg-gray-200 p-2 rounded-md'
+          contentEditable
+          suppressContentEditableWarning={true}
+          onBlur={e => handleInputChange('title', e.currentTarget.innerHTML)}
+          dangerouslySetInnerHTML={{ __html: localTask.title }}
+        />
+        {/* Task Metadata Grid */}
+        <div className='grid grid-cols-2 md:grid-cols-3 gap-4'>
+          {/* Created Time */}
+          <div className='flex items-center space-x-3'>
+            <Clock className='h-5 w-5 text-gray-500' />
+            <div>
+              <p className='text-sm text-gray-500'>Created</p>
+              <p className='text-sm font-medium text-gray-900'>
+                {formatDate(task.createdAt)}
+              </p>
+            </div>
+          </div>
+
+          {/* Status */}
+          <div className='flex items-center space-x-3'>
+            <div className='w-5 h-5 rounded-full bg-yellow-400 flex items-center justify-center'>
+              <div className='w-2 h-2 bg-white rounded-full'></div>
+            </div>
+            <div>
+              <p className='text-sm text-gray-500'>Status</p>
+              <Badge
+                className={cn('text-sm', getStatusColor(localTask.status))}
+              >
+                {getStatusLabel(localTask.status)}
+              </Badge>
+            </div>
+          </div>
+
+          {/* Due Date */}
+          <div className='flex items-center space-x-3'>
+            <Calendar className='h-5 w-5 text-gray-500' />
+            <div>
+              <p className='text-sm text-gray-500'>Last Updated</p>
+              <p className='text-sm font-medium text-gray-900'>
+                {formatDate(task.updatedAt)}
+              </p>
+            </div>
+          </div>
+
+          {/* Assignees */}
+          <div className='flex items-center space-x-3 relative'>
+            <div>
+              <p className='text-sm text-gray-500'>Assignee</p>
+              <div className='flex items-center space-x-2 mt-1'>
+                {localTask.assignedTo ? (
+                  <>
+                    <div
+                      className={`w-8 h-8 rounded-full bg-blue-100 border-2 border-blue-200 flex items-center justify-center transition-colors ${
+                        isAdmin
+                          ? 'cursor-pointer hover:border-blue-300'
+                          : 'cursor-not-allowed opacity-60'
+                      }`}
+                      onClick={() => {
+                        if (isAdmin) {
+                          setShowAssigneeDropdown(!showAssigneeDropdown);
+                        }
+                      }}
+                    >
+                      <span className='text-sm font-bold text-blue-700'>
+                        {localTask.assignedTo.firstName.charAt(0)}
+                        {localTask.assignedTo.lastName.charAt(0)}
+                      </span>
+                    </div>
+                    <span className='text-sm font-medium text-gray-900'>
+                      {localTask.assignedTo.firstName}{' '}
+                      {localTask.assignedTo.lastName}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <div
+                      className={`w-8 h-8 rounded-full bg-gray-100 border-2 border-gray-200 flex items-center justify-center transition-colors ${
+                        isAdmin
+                          ? 'cursor-pointer hover:border-gray-300'
+                          : 'cursor-not-allowed opacity-60'
+                      }`}
+                      onClick={() => {
+                        if (isAdmin) {
+                          setShowAssigneeDropdown(!showAssigneeDropdown);
+                        }
+                      }}
+                    >
+                      <User className='h-4 w-4 text-gray-400' />
+                    </div>
+                    <span className='text-sm text-gray-500'>
+                      {isAdmin ? 'Unassigned' : 'Unassigned (Admin only)'}
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Assignee Dropdown - Positioned relative to this section */}
+            {showAssigneeDropdown && isAdmin && (
+              <div className='absolute top-full left-0 mt-2 z-50'>
+                <AssigneeDropdown
+                  taskId={localTask.id}
+                  currentAssignee={localTask.assignedTo}
+                  onClose={() => setShowAssigneeDropdown(false)}
+                  onAssigneeChange={user => {
+                    handleInputChange('assignedTo', user ?? null);
+                    setShowAssigneeDropdown(false);
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Description Section */}
+        <div>
+          <h4 className='font-semibold text-gray-900 mb-3 text-lg'>
+            Description
+          </h4>
+          <div
+            contentEditable
+            suppressContentEditableWarning={true}
+            onBlur={e =>
+              handleInputChange('description', e.currentTarget.innerHTML)
+            }
+            className='min-h-[250px] focus:outline-none p-2 resize-none hover:bg-gray-200 rounded-md'
+            dangerouslySetInnerHTML={{ __html: localTask.description }}
+          />
+        </div>
+
+        {/* Additional Fields */}
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+          {/* Status */}
+          <div className='space-y-2'>
+            <h4 className='font-semibold text-gray-900'>Status</h4>
+            <Select
+              value={localTask.status}
+              onValueChange={value => handleInputChange('status', value)}
+            >
+              <SelectTrigger className='bg-white border-gray-200 shadow-sm'>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className='bg-white border-gray-200 shadow-lg'>
+                <SelectItem value='BACKLOG' className='hover:bg-gray-100'>
+                  Backlog
+                </SelectItem>
+                <SelectItem value='TODO' className='hover:bg-gray-100'>
+                  To Do
+                </SelectItem>
+                <SelectItem value='IN_PROGRESS' className='hover:bg-gray-100'>
+                  In Progress
+                </SelectItem>
+                <SelectItem value='DONE' className='hover:bg-gray-100'>
+                  Done
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Estimated Time - Hidden as requested */}
+          <div className='space-y-2 hidden'>
+            <h4 className='font-semibold text-gray-900'>Estimated Time</h4>
+            <div className='flex items-center space-x-3'>
+              <Clock className='h-5 w-5 text-gray-600' />
+              <Input
+                type='number'
+                value={localTask.totalMinutes}
+                onChange={e =>
+                  handleInputChange(
+                    'totalMinutes',
+                    parseInt(e.target.value) || 0
+                  )
+                }
+                className='w-24 bg-white border-gray-200'
+                min='0'
+              />
+              <span className='text-gray-600 font-medium'>minutes</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className='flex justify-end pt-4 border-t border-gray-200'>
+          <Button
+            onClick={handleSaveTask}
+            className='px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white'
+          >
+            <Save className='h-4 w-4 mr-2' />
+            Save Changes
+          </Button>
+        </div>
+      </div>
+    </>
+  );
+};
+
+const TaskDetailsModal = ({ task, isOpen, onClose }: TaskDetailsModalProps) => {
+  const currentUser = useAppSelector(selectUser);
+  const isAdmin = currentUser?.isAdmin || false;
+
+  if (!task) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className='sm:max-w-[900px] max-h-[95vh] overflow-y-auto p-0'>
-        {/* Header */}
-        <div className='flex p-6 items-center space-x-4'>
-          <Button
-            variant='ghost'
-            size='sm'
-            onClick={onClose}
-            className='p-2 hover:bg-gray-100'
-          >
-            <X className='h-5 w-5' />
-          </Button>
-          <DialogTitle className='text-2xl font-bold text-gray-900'>
-            Task Details
-          </DialogTitle>
-        </div>
-
-        <div className='p-6 space-y-6'>
-          <div
-            className='text-2xl font-bold text-gray-900 focus:outline-none hover:bg-gray-200 p-2 rounded-md'
-            contentEditable
-            suppressContentEditableWarning={true}
-            onBlur={e => handleInputChange('title', e.currentTarget.innerHTML)}
-            dangerouslySetInnerHTML={{ __html: editedTask.title }}
-          />
-          {/* Task Metadata Grid */}
-          <div className='grid grid-cols-2 md:grid-cols-3 gap-4'>
-            {/* Created Time */}
-            <div className='flex items-center space-x-3'>
-              <Clock className='h-5 w-5 text-gray-500' />
-              <div>
-                <p className='text-sm text-gray-500'>Created</p>
-                <p className='text-sm font-medium text-gray-900'>
-                  {formatDate(task.createdAt)}
-                </p>
-              </div>
-            </div>
-
-            {/* Status */}
-            <div className='flex items-center space-x-3'>
-              <div className='w-5 h-5 rounded-full bg-yellow-400 flex items-center justify-center'>
-                <div className='w-2 h-2 bg-white rounded-full'></div>
-              </div>
-              <div>
-                <p className='text-sm text-gray-500'>Status</p>
-                <Badge
-                  className={cn('text-sm', getStatusColor(editedTask.status))}
-                >
-                  {getStatusLabel(editedTask.status)}
-                </Badge>
-              </div>
-            </div>
-
-            {/* Due Date */}
-            <div className='flex items-center space-x-3'>
-              <Calendar className='h-5 w-5 text-gray-500' />
-              <div>
-                <p className='text-sm text-gray-500'>Last Updated</p>
-                <p className='text-sm font-medium text-gray-900'>
-                  {formatDate(task.updatedAt)}
-                </p>
-              </div>
-            </div>
-
-            {/* Assignees */}
-            <div className='flex items-center space-x-3 relative'>
-              <div>
-                <p className='text-sm text-gray-500'>Assignee</p>
-                <div className='flex items-center space-x-2 mt-1'>
-                  {editedTask.assignedTo ? (
-                    <>
-                      <div
-                        className={`w-8 h-8 rounded-full bg-blue-100 border-2 border-blue-200 flex items-center justify-center transition-colors ${
-                          isAdmin
-                            ? 'cursor-pointer hover:border-blue-300'
-                            : 'cursor-not-allowed opacity-60'
-                        }`}
-                        onClick={() => {
-                          if (isAdmin) {
-                            setShowAssigneeDropdown(!showAssigneeDropdown);
-                          }
-                        }}
-                      >
-                        <span className='text-sm font-bold text-blue-700'>
-                          {editedTask.assignedTo.firstName.charAt(0)}
-                          {editedTask.assignedTo.lastName.charAt(0)}
-                        </span>
-                      </div>
-                      <span className='text-sm font-medium text-gray-900'>
-                        {editedTask.assignedTo.firstName}{' '}
-                        {editedTask.assignedTo.lastName}
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <div
-                        className={`w-8 h-8 rounded-full bg-gray-100 border-2 border-gray-200 flex items-center justify-center transition-colors ${
-                          isAdmin
-                            ? 'cursor-pointer hover:border-gray-300'
-                            : 'cursor-not-allowed opacity-60'
-                        }`}
-                        onClick={() => {
-                          if (isAdmin) {
-                            setShowAssigneeDropdown(!showAssigneeDropdown);
-                          }
-                        }}
-                      >
-                        <User className='h-4 w-4 text-gray-400' />
-                      </div>
-                      <span className='text-sm text-gray-500'>
-                        {isAdmin ? 'Unassigned' : 'Unassigned (Admin only)'}
-                      </span>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Assignee Dropdown - Positioned relative to this section */}
-              {showAssigneeDropdown && isAdmin && (
-                <div className='absolute top-full left-0 mt-2 z-50'>
-                  <AssigneeDropdown
-                    taskId={editedTask.id}
-                    currentAssignee={editedTask.assignedTo}
-                    onClose={() => setShowAssigneeDropdown(false)}
-                    onAssigneeChange={user => {
-                      if (user) {
-                        handleInputChange('assignedTo', user);
-                      } else {
-                        handleInputChange('assignedTo', null);
-                      }
-                      setShowAssigneeDropdown(false);
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Description Section */}
-          <div>
-            <h4 className='font-semibold text-gray-900 mb-3 text-lg'>
-              Description
-            </h4>
-            <div
-              contentEditable
-              suppressContentEditableWarning={true}
-              onBlur={e =>
-                handleInputChange('description', e.currentTarget.innerHTML)
-              }
-              className='min-h-[250px] focus:outline-none p-2 resize-none hover:bg-gray-200 rounded-md'
-              dangerouslySetInnerHTML={{ __html: editedTask.description }}
-            />
-          </div>
-
-          {/* Additional Fields */}
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-            {/* Status */}
-            <div className='space-y-2'>
-              <h4 className='font-semibold text-gray-900'>Status</h4>
-              <Select
-                value={editedTask.status}
-                onValueChange={value => handleInputChange('status', value)}
-              >
-                <SelectTrigger className='bg-white border-gray-200 shadow-sm'>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className='bg-white border-gray-200 shadow-lg'>
-                  <SelectItem value='BACKLOG' className='hover:bg-gray-100'>
-                    Backlog
-                  </SelectItem>
-                  <SelectItem value='TODO' className='hover:bg-gray-100'>
-                    To Do
-                  </SelectItem>
-                  <SelectItem value='IN_PROGRESS' className='hover:bg-gray-100'>
-                    In Progress
-                  </SelectItem>
-                  <SelectItem value='DONE' className='hover:bg-gray-100'>
-                    Done
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Estimated Time - Hidden as requested */}
-            <div className='space-y-2 hidden'>
-              <h4 className='font-semibold text-gray-900'>Estimated Time</h4>
-              <div className='flex items-center space-x-3'>
-                <Clock className='h-5 w-5 text-gray-600' />
-                <Input
-                  type='number'
-                  value={editedTask.totalMinutes}
-                  onChange={e =>
-                    handleInputChange(
-                      'totalMinutes',
-                      parseInt(e.target.value) || 0
-                    )
-                  }
-                  className='w-24 bg-white border-gray-200'
-                  min='0'
-                />
-                <span className='text-gray-600 font-medium'>minutes</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className='flex justify-end pt-4 border-t border-gray-200'>
-            <Button
-              onClick={handleSaveTask}
-              className='px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white'
-            >
-              <Save className='h-4 w-4 mr-2' />
-              Save Changes
-            </Button>
-          </div>
-        </div>
+        <TaskDetailsContent
+          key={task.id}
+          task={task}
+          isAdmin={isAdmin}
+          onClose={onClose}
+        />
       </DialogContent>
     </Dialog>
   );

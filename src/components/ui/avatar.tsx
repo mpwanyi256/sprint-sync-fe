@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -23,15 +24,20 @@ const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
 );
 Avatar.displayName = 'Avatar';
 
-interface AvatarImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {}
+interface AvatarImageProps
+  extends Omit<React.ComponentProps<typeof Image>, 'fill'> {}
 
-const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImageProps>(
-  ({ className, ...props }, ref) => (
-    <img
-      ref={ref}
-      className={cn('aspect-square h-full w-full', className)}
-      {...props}
-    />
+const AvatarImage = React.forwardRef<HTMLSpanElement, AvatarImageProps>(
+  ({ className, alt, sizes = '40px', ...props }, ref) => (
+    <span ref={ref} className='absolute inset-0'>
+      <Image
+        fill
+        sizes={sizes}
+        alt={alt ?? ''}
+        className={cn('object-cover', className)}
+        {...props}
+      />
+    </span>
   )
 );
 AvatarImage.displayName = 'AvatarImage';

@@ -1,20 +1,15 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/Providers';
 import { ToastContainer } from 'react-toastify';
-
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-});
 
 export const metadata: Metadata = {
   title: {
     template: '%s | Sprint Sync',
     default: 'Sprint Sync - Premium Project Management & Task Tracking',
   },
-  description: 'Boost your team\'s productivity with Sprint Sync. A modern, fast, and agile Kanban board for seamless project management and task tracking.',
+  description:
+    "Boost your team's productivity with Sprint Sync. A modern, fast, and agile Kanban board for seamless project management and task tracking.",
   keywords: [
     'project management',
     'kanban board',
@@ -22,7 +17,7 @@ export const metadata: Metadata = {
     'agile workflow',
     'sprint management',
     'productivity tool',
-    'jira alternative'
+    'jira alternative',
   ],
   authors: [{ name: 'Sprint Sync Team' }],
   creator: 'Sprint Sync',
@@ -30,7 +25,8 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://sprintsync.com'), // Replace with actual production URL if available
   openGraph: {
     title: 'Sprint Sync - Premium Project Management',
-    description: 'Boost your team\'s productivity with Sprint Sync. A modern, fast, and agile Kanban board for seamless project management.',
+    description:
+      "Boost your team's productivity with Sprint Sync. A modern, fast, and agile Kanban board for seamless project management.",
     url: '/',
     siteName: 'Sprint Sync',
     type: 'website',
@@ -47,7 +43,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Sprint Sync - Premium Project Management',
-    description: 'Boost your team\'s productivity with Sprint Sync. A modern, fast, and agile Kanban board for seamless project management.',
+    description:
+      "Boost your team's productivity with Sprint Sync. A modern, fast, and agile Kanban board for seamless project management.",
     images: ['/icon/logo.svg'],
     creator: '@sprintsync',
   },
@@ -63,9 +60,7 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: [
-      { url: '/icon/logo.svg', type: 'image/svg+xml' },
-    ],
+    icon: [{ url: '/icon/logo.svg', type: 'image/svg+xml' }],
     shortcut: ['/icon/logo.svg'],
     apple: [
       { url: '/icon/logo.svg', type: 'image/svg+xml' }, // SVG can be used, though PNG is typical for apple, SVG is a good fallback
@@ -84,7 +79,7 @@ export default function RootLayout({
       <head>
         <meta name='viewport' content='width=device-width, initial-scale=1' />
       </head>
-      <body className={`${inter.className} font-sans antialiased`}>
+      <body className='font-sans antialiased'>
         <Providers>{children}</Providers>
         <ToastContainer />
       </body>

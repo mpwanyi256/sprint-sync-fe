@@ -6,7 +6,6 @@ import {
   selectBulkUserLoading,
   selectLastBulkUserResult,
 } from '@/store/slices/admin';
-import { fetchUsers } from '@/store/slices/users';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Plus, Trash2, Users, AlertCircle, CheckCircle } from 'lucide-react';
 import { apiError, apiSuccess } from '@/util/toast';
 
@@ -114,7 +113,7 @@ const AddUserModal = ({ open, onOpenChange }: AddUserModalProps) => {
       if (result.data.failed.length > 0) {
         apiError(`Some users failed to create. Check the results below.`);
       }
-    } catch (error) {
+    } catch {
       apiError('Failed to create users');
     }
   };

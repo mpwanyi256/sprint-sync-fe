@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Loader2, Search, X } from 'lucide-react';
@@ -34,7 +34,6 @@ export const AssigneeDropdown = ({
   const loading = useAppSelector(selectUsersLoading);
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
-  const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
   const searchTimeoutRef = useRef<NodeJS.Timeout>(null);
 
   const fetchUsersData = useCallback(
@@ -52,27 +51,26 @@ export const AssigneeDropdown = ({
 
   useEffect(() => {
     fetchUsersData('', 1);
-    setPage(1);
   }, [fetchUsersData]);
 
-  useEffect(() => {
+  const filteredUsers = useMemo(() => {
     if (searchQuery.trim() === '') {
-      setFilteredUsers(users);
-    } else {
-      const query = searchQuery.toLowerCase();
-      const filtered = users.filter(
-        user =>
-          user.firstName.toLowerCase().includes(query) ||
-          user.lastName.toLowerCase().includes(query) ||
-          user.email.toLowerCase().includes(query)
-      );
-      setFilteredUsers(filtered);
+      return users;
     }
+
+    const query = searchQuery.toLowerCase();
+    return users.filter(
+      user =>
+        user.firstName.toLowerCase().includes(query) ||
+        user.lastName.toLowerCase().includes(query) ||
+        user.email.toLowerCase().includes(query)
+    );
   }, [users, searchQuery]);
 
   // Debounced search with API call
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
+    setPage(1);
 
     // Clear previous timeout
     if (searchTimeoutRef.current) {
@@ -80,7 +78,6 @@ export const AssigneeDropdown = ({
     }
 
     searchTimeoutRef.current = setTimeout(() => {
-      setPage(1);
       fetchUsersData(value, 1);
     }, 500);
   };

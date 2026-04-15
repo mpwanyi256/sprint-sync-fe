@@ -1,18 +1,12 @@
 #!/usr/bin/env sh
+set -e
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 
 echo "Running pre-commit checks..."
-
-# Auto-correct code formatting
-echo "Auto-correcting code formatting..."
-yarn format
 
 # Check code formatting
 echo "🎨 Checking code formatting..."
 yarn format:check
-
-# Auto-fix linting issues
-echo "Auto-fixing code style issues..."
-yarn lint:fix
 
 # Run linting check
 echo "Checking code style..."

@@ -112,13 +112,9 @@ const TaskColumn = ({ status, title, onViewTaskDetails }: TaskColumnProps) => {
     }
   };
 
-  const getColumnColor = (status: TaskStatus) => {
-    return 'border-transparent bg-[#F4F5F7]';
-  };
+  const getColumnColor = () => 'border-transparent bg-[#F4F5F7]';
 
-  const getColumnHeaderColor = (status: TaskStatus) => {
-    return 'bg-transparent border-transparent';
-  };
+  const getColumnHeaderColor = () => 'bg-transparent border-transparent';
 
   return (
     <div
@@ -127,7 +123,7 @@ const TaskColumn = ({ status, title, onViewTaskDetails }: TaskColumnProps) => {
       onDrop={handleDrop}
       className={cn(
         'flex flex-col h-[calc(100vh-112px)] border-2 rounded-lg transition-all duration-200',
-        getColumnColor(status),
+        getColumnColor(),
         isDragOver && 'border-blue-400 bg-blue-50/50 shadow-lg'
       )}
     >
@@ -135,7 +131,7 @@ const TaskColumn = ({ status, title, onViewTaskDetails }: TaskColumnProps) => {
       <div
         className={cn(
           'p-4 border-b rounded-t-lg flex-shrink-0 transition-colors duration-200',
-          getColumnHeaderColor(status),
+          getColumnHeaderColor(),
           isDragOver && 'bg-blue-100 border-blue-300'
         )}
       >
