@@ -43,15 +43,17 @@ const TaskCard = ({ task, onClick, className }: TaskCardProps) => {
       </div>
 
       {/* Task Title */}
-      <h3 className='font-semibold text-lg text-gray-900 mb-3 line-clamp-2 leading-tight'>
-        {task.title}
-      </h3>
+      <h3
+        className='font-semibold text-lg text-gray-900 mb-3 line-clamp-2 leading-tight'
+        dangerouslySetInnerHTML={{ __html: task.title }}
+      />
 
       {/* Task Description */}
       <div className='mb-4'>
-        <p className='text-gray-600 line-clamp-3 leading-relaxed'>
-          {task.description}
-        </p>
+        <div
+          className='text-gray-600 line-clamp-3 leading-relaxed text-sm'
+          dangerouslySetInnerHTML={{ __html: task.description }}
+        />
       </div>
 
       {/* Task Metadata */}

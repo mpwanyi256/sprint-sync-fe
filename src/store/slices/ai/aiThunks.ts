@@ -4,6 +4,7 @@ import { streamHandler } from '@/lib/streamHandler';
 
 interface AiSuggestionRequest {
   title: string;
+  description: string;
 }
 
 interface AiSuggestionResponse {
@@ -19,9 +20,10 @@ export const generateTaskDescription = createAsyncThunk<
   }
 >(
   'ai/generateTaskDescription',
-  async ({ title }, { rejectWithValue, dispatch }) => {
+  async ({ title, description }, { rejectWithValue, dispatch }) => {
     try {
       console.log('Starting AI suggestion for title:', title);
+      console.log('Starting AI suggestion for description:', description);
 
       // Use fetch for streaming support since axios doesn't support streaming
       const apiUrl = `${api.defaults.baseURL}/ai/suggest/`;
@@ -33,7 +35,7 @@ export const generateTaskDescription = createAsyncThunk<
           'x-api-key': api.defaults.headers['x-api-key'] as string,
           Authorization: api.defaults.headers['Authorization'] as string,
         },
-        body: JSON.stringify({ title }),
+        body: JSON.stringify({ title, description }),
       });
 
       if (!response.ok) {

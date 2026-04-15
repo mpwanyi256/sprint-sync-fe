@@ -121,10 +121,9 @@ const TaskDetailsModal = ({ task, isOpen, onClose }: TaskDetailsModalProps) => {
             className='text-2xl font-bold text-gray-900 focus:outline-none hover:bg-gray-200 p-2 rounded-md'
             contentEditable
             suppressContentEditableWarning={true}
-            onBlur={e => handleInputChange('title', e.target.innerText)}
-          >
-            {editedTask.title}
-          </div>
+            onBlur={e => handleInputChange('title', e.currentTarget.innerHTML)}
+            dangerouslySetInnerHTML={{ __html: editedTask.title }}
+          />
           {/* Task Metadata Grid */}
           <div className='grid grid-cols-2 md:grid-cols-3 gap-4'>
             {/* Created Time */}
@@ -246,11 +245,12 @@ const TaskDetailsModal = ({ task, isOpen, onClose }: TaskDetailsModalProps) => {
             <div
               contentEditable
               suppressContentEditableWarning={true}
-              onBlur={e => handleInputChange('description', e.target.innerText)}
+              onBlur={e =>
+                handleInputChange('description', e.currentTarget.innerHTML)
+              }
               className='min-h-[250px] focus:outline-none p-2 resize-none hover:bg-gray-200 rounded-md'
-            >
-              {editedTask.description}
-            </div>
+              dangerouslySetInnerHTML={{ __html: editedTask.description }}
+            />
           </div>
 
           {/* Additional Fields */}

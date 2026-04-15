@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { createTask } from '@/store/slices/task';
 import {
@@ -14,9 +14,8 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 import { apiError, apiSuccess } from '@/util/toast';
 import { Sparkles, Loader2 } from 'lucide-react';
 
@@ -39,9 +38,12 @@ const CreateTaskModal = ({
   const [formData, setFormData] = useState<CreateTaskData>({
     title: '',
     description: '',
-    totalMinutes: 0,
+    totalMinutes: 5,
     status: 'BACKLOG',
   });
+
+  const titleRef = useRef<HTMLDivElement>(null);
+  const descRef = useRef<HTMLDivElement>(null);
 
   // Update description when streaming content changes
   useEffect(() => {
@@ -63,23 +65,40 @@ const CreateTaskModal = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (
-      !formData.title.trim() ||
-      !formData.description.trim() ||
-      formData.totalMinutes <= 0
-    ) {
+    console.log('Creating task');
+
+    // Get latest from refs in case onBlur hasn't fired yet
+    const finalTitle = titleRef.current?.innerHTML || formData.title;
+    const finalDesc = descRef.current?.innerHTML || formData.description;
+
+    const plainTitle = finalTitle.replace(/<[^>]*>?/gm, '').trim();
+    const plainDesc = finalDesc.replace(/<[^>]*>?/gm, '').trim();
+
+    if (!plainTitle || !plainDesc) {
+      console.log('Missing input...');
+      apiError('Please enter a task title and description');
       return;
     }
 
     try {
       setFormLoading(true);
-      await dispatch(createTask(formData)).unwrap();
+      await dispatch(
+        createTask({
+          ...formData,
+          title: finalTitle,
+          description: finalDesc,
+        })
+      ).unwrap();
 
       // Reset form
+      if (titleRef.current) titleRef.current.innerHTML = '';
+      if (descRef.current) descRef.current.innerHTML = '';
+
       setFormData({
         title: '',
         description: '',
-        totalMinutes: 0,
+        totalMinutes: 5,
+        status: 'BACKLOG',
       });
 
       onSuccess?.();
@@ -104,14 +123,23 @@ const CreateTaskModal = ({
   };
 
   const handleAiSuggest = async () => {
-    if (!formData.title.trim()) {
+    const plainTitle =
+      titleRef.current?.innerText || formData.title.replace(/<[^>]*>?/gm, '');
+    const plainDesc =
+      descRef.current?.innerText ||
+      formData.description.replace(/<[^>]*>?/gm, '');
+
+    if (!plainTitle.trim()) {
       apiError('Please enter a task title first');
       return;
     }
 
     try {
       const result = await dispatch(
-        generateTaskDescription({ title: formData.title })
+        generateTaskDescription({
+          title: plainTitle.trim(),
+          description: plainDesc.trim(),
+        })
       ).unwrap();
 
       // The description is already updated via streaming, but we can set it here as a fallback
@@ -143,12 +171,17 @@ const CreateTaskModal = ({
         <form onSubmit={handleSubmit} className='space-y-4'>
           <div className='space-y-2'>
             <Label htmlFor='title'>Title *</Label>
-            <Input
+            <div
               id='title'
-              value={formData.title}
-              onChange={e => handleInputChange('title', e.target.value)}
-              placeholder='Enter task title'
-              required
+              ref={titleRef}
+              contentEditable
+              suppressContentEditableWarning={true}
+              onBlur={e =>
+                handleInputChange('title', e.currentTarget.innerHTML)
+              }
+              className='flex min-h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 empty:before:content-[attr(data-placeholder)] empty:before:text-gray-400'
+              data-placeholder='Enter task title'
+              dangerouslySetInnerHTML={{ __html: formData.title }}
             />
           </div>
 
@@ -171,16 +204,20 @@ const CreateTaskModal = ({
                 {generatingDescription ? 'Generating...' : 'AI Suggest'}
               </Button>
             </div>
-            <Textarea
+            <div
               id='description'
-              value={formData.description}
-              onChange={e => handleInputChange('description', e.target.value)}
-              placeholder='Enter task description or use AI to generate one'
-              rows={3}
-              required
-              className={
-                generatingDescription ? 'border-blue-300 bg-blue-50' : ''
+              ref={descRef}
+              contentEditable
+              suppressContentEditableWarning={true}
+              onBlur={e =>
+                handleInputChange('description', e.currentTarget.innerHTML)
               }
+              data-placeholder='Enter task description or use AI to generate one'
+              className={cn(
+                'flex flex-col min-h-[120px] max-h-[500px] overflow-y-auto w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 empty:before:content-[attr(data-placeholder)] empty:before:text-gray-400',
+                generatingDescription ? 'border-blue-300 bg-blue-50' : ''
+              )}
+              dangerouslySetInnerHTML={{ __html: formData.description }}
             />
             {generatingDescription && streamingContent && (
               <div className='text-sm text-blue-600 bg-blue-50 p-2 rounded border border-blue-200'>
@@ -198,23 +235,6 @@ const CreateTaskModal = ({
             )}
           </div>
 
-          <div className='grid grid-cols-2 gap-4'>
-            <div className='space-y-2'>
-              <Label htmlFor='totalMinutes'>Estimated Time (minutes) *</Label>
-              <Input
-                id='totalMinutes'
-                type='number'
-                min='1'
-                value={formData.totalMinutes}
-                onChange={e =>
-                  handleInputChange('totalMinutes', e.target.value)
-                }
-                placeholder='30'
-                required
-              />
-            </div>
-          </div>
-
           <DialogFooter>
             <Button
               type='button'
@@ -224,15 +244,7 @@ const CreateTaskModal = ({
             >
               Cancel
             </Button>
-            <Button
-              type='submit'
-              disabled={
-                formLoading ||
-                !formData.title.trim() ||
-                !formData.description.trim() ||
-                formData.totalMinutes <= 0
-              }
-            >
+            <Button type='submit' disabled={formLoading}>
               {formLoading ? 'Creating...' : 'Create Task'}
             </Button>
           </DialogFooter>
