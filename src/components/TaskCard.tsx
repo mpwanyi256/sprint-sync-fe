@@ -56,10 +56,11 @@ const TaskCard = ({ task, onClick, className }: TaskCardProps) => {
 
       {/* Task Metadata */}
       <div className='space-y-3 pt-2 border-t border-gray-100'>
+        {/* Hidden Estimated Time
         <div className='flex items-center text-sm text-gray-500'>
           <Clock className='h-4 w-4 mr-2' />
           <span className='font-medium'>{task.totalMinutes} minutes</span>
-        </div>
+        </div> */}
 
         <div className='flex items-center text-sm text-gray-500'>
           <Calendar className='h-4 w-4 mr-2' />

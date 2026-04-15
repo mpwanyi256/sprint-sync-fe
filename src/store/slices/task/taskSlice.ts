@@ -30,6 +30,7 @@ const initialColumnState = {
 
 const initialState: TaskState = {
   columns: {
+    BACKLOG: initialColumnState,
     TODO: initialColumnState,
     IN_PROGRESS: initialColumnState,
     DONE: initialColumnState,
@@ -55,6 +56,26 @@ const taskSlice = createSlice({
     clearSearchResults: state => {
       state.searchResults = [];
       state.searchTerm = '';
+    },
+    setInitialTasks: (state, action: PayloadAction<Task[]>) => {
+      if (!action.payload) return;
+      const tasks = action.payload;
+      tasks.forEach(task => {
+        const status = (task.status || 'BACKLOG') as TaskStatus;
+        if (state.columns[status] && state.columns[status].tasks.length === 0) {
+          const exists = state.columns[status].tasks.find(
+            t => t.id === task.id
+          );
+          if (!exists) {
+            state.columns[status].tasks.push(task);
+          }
+        }
+      });
+      // also recount total Items.
+      Object.keys(state.columns).forEach(status => {
+        state.columns[status as TaskStatus].pagination.totalItems =
+          state.columns[status as TaskStatus].tasks.length;
+      });
     },
   },
   extraReducers: builder => {
@@ -93,8 +114,8 @@ const taskSlice = createSlice({
 
       .addCase(createTask.fulfilled, (state, action) => {
         const newTask = action.payload.data;
-        const status = newTask.status as TaskStatus;
-        if (status && state.columns['TODO']) {
+        const status = (newTask.status || 'BACKLOG') as TaskStatus;
+        if (state.columns[status]) {
           state.columns[status].tasks.unshift(newTask);
           state.columns[status].pagination.totalItems += 1;
         }
@@ -232,6 +253,10 @@ const taskSlice = createSlice({
   },
 });
 
-export const { setSelectedTask, clearTaskError, clearSearchResults } =
-  taskSlice.actions;
+export const {
+  setSelectedTask,
+  clearTaskError,
+  clearSearchResults,
+  setInitialTasks,
+} = taskSlice.actions;
 export default taskSlice.reducer;

@@ -1,16 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Task } from '@/types/task';
 import BoardView from '@/components/BoardView';
 import CreateTaskModal from '@/components/CreateTaskModal';
 import TaskDetailsModal from '@/components/TaskDetailsModal';
+import { useAppDispatch } from '@/store/hooks';
+import { setInitialTasks } from '@/store/slices/task';
 
-const Dashboard = () => {
+interface DashboardProps {
+  initialTasks?: Task[];
+}
+
+const Dashboard = ({ initialTasks }: DashboardProps) => {
+  const dispatch = useAppDispatch();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (initialTasks && initialTasks.length > 0) {
+      dispatch(setInitialTasks(initialTasks));
+    }
+  }, [initialTasks, dispatch]);
 
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);

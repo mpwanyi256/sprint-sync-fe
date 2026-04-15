@@ -28,10 +28,12 @@ interface TaskDetailsModalProps {
 
 const getStatusColor = (status: Task['status']) => {
   switch (status) {
-    case 'TODO':
+    case 'BACKLOG':
       return 'bg-gray-100 text-gray-800 border-gray-200';
-    case 'IN_PROGRESS':
+    case 'TODO':
       return 'bg-blue-100 text-blue-800 border-blue-200';
+    case 'IN_PROGRESS':
+      return 'bg-yellow-100 text-yellow-800 border-yellow-200';
     case 'DONE':
       return 'bg-green-100 text-green-800 border-green-200';
     default:
@@ -41,6 +43,8 @@ const getStatusColor = (status: Task['status']) => {
 
 const getStatusLabel = (status: Task['status']) => {
   switch (status) {
+    case 'BACKLOG':
+      return 'Backlog';
     case 'TODO':
       return 'To Do';
     case 'IN_PROGRESS':
@@ -262,6 +266,9 @@ const TaskDetailsModal = ({ task, isOpen, onClose }: TaskDetailsModalProps) => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className='bg-white border-gray-200 shadow-lg'>
+                  <SelectItem value='BACKLOG' className='hover:bg-gray-100'>
+                    Backlog
+                  </SelectItem>
                   <SelectItem value='TODO' className='hover:bg-gray-100'>
                     To Do
                   </SelectItem>
@@ -275,8 +282,8 @@ const TaskDetailsModal = ({ task, isOpen, onClose }: TaskDetailsModalProps) => {
               </Select>
             </div>
 
-            {/* Estimated Time */}
-            <div className='space-y-2'>
+            {/* Estimated Time - Hidden as requested */}
+            <div className='space-y-2 hidden'>
               <h4 className='font-semibold text-gray-900'>Estimated Time</h4>
               <div className='flex items-center space-x-3'>
                 <Clock className='h-5 w-5 text-gray-600' />

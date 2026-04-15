@@ -25,6 +25,7 @@ const TaskListView = ({ onViewTaskDetails }: TaskListViewProps) => {
   const [collapsedSections, setCollapsedSections] = useState<
     Record<TaskStatus, boolean>
   >({
+    BACKLOG: false,
     TODO: false,
     IN_PROGRESS: false,
     DONE: false,

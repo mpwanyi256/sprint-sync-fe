@@ -1,6 +1,6 @@
 import { APIResponse } from './api';
 
-export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE';
+export type TaskStatus = 'BACKLOG' | 'TODO' | 'IN_PROGRESS' | 'DONE';
 
 export interface Assignee {
   firstName: string;
@@ -25,6 +25,7 @@ export interface CreateTaskData {
   title: string;
   description: string;
   totalMinutes: number;
+  status?: TaskStatus;
 }
 
 export interface UpdateTaskData {
@@ -49,6 +50,7 @@ export interface ColumnTasks {
 
 export interface TaskState {
   columns: {
+    BACKLOG: ColumnTasks;
     TODO: ColumnTasks;
     IN_PROGRESS: ColumnTasks;
     DONE: ColumnTasks;

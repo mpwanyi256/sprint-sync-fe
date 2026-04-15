@@ -113,27 +113,11 @@ const TaskColumn = ({ status, title, onViewTaskDetails }: TaskColumnProps) => {
   };
 
   const getColumnColor = (status: TaskStatus) => {
-    switch (status) {
-      case 'TODO':
-        return 'border-gray-200 bg-white';
-      case 'IN_PROGRESS':
-        return 'border-blue-200 bg-blue-50';
-      case 'DONE':
-        return 'border-green-200 bg-green-50';
-      default:
-        return 'border-gray-200 bg-white';
-    }
+    return 'border-transparent bg-[#F4F5F7]';
   };
 
   const getColumnHeaderColor = (status: TaskStatus) => {
-    switch (status) {
-      case 'TODO':
-        return 'bg-white border-gray-200';
-      case 'IN_PROGRESS':
-        return 'bg-blue-50 border-blue-200';
-      default:
-        return 'bg-green-50 border-green-200';
-    }
+    return 'bg-transparent border-transparent';
   };
 
   return (

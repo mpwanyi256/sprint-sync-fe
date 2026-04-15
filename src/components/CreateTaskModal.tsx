@@ -40,6 +40,7 @@ const CreateTaskModal = ({
     title: '',
     description: '',
     totalMinutes: 0,
+    status: 'BACKLOG',
   });
 
   // Update description when streaming content changes
