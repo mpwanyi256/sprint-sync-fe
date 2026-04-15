@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Loader2, Search, X } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { assignTaskToUser, unAssignTask } from '@/store/slices/task';
 import {
   fetchUsers,
   selectUsers,
@@ -14,6 +13,7 @@ import {
 } from '@/store/slices/users';
 import { apiSuccess, apiError } from '@/util/toast';
 import { User as UserType } from '@/types/auth';
+import { useOptimisticTaskUpdates } from '@/hooks/useOptimisticTaskUpdates';
 
 interface AssigneeDropdownProps {
   taskId: string;
@@ -29,6 +29,7 @@ export const AssigneeDropdown = ({
   onAssigneeChange,
 }: AssigneeDropdownProps) => {
   const dispatch = useAppDispatch();
+  const { assignTask, unassignTask } = useOptimisticTaskUpdates();
   const users = useAppSelector(selectUsers);
   const pagination = useAppSelector(selectUsersPagination);
   const loading = useAppSelector(selectUsersLoading);
@@ -92,8 +93,8 @@ export const AssigneeDropdown = ({
 
   const handleUserSelect = async (user: UserType) => {
     try {
-      await dispatch(assignTaskToUser({ taskId, user })).unwrap();
-      onAssigneeChange(user);
+      const updatedTask = await assignTask(taskId, user);
+      onAssigneeChange(updatedTask.assignedTo);
       apiSuccess('Task assigned successfully');
       onClose();
     } catch (error) {
@@ -104,7 +105,7 @@ export const AssigneeDropdown = ({
 
   const handleRemoveAssignee = async () => {
     try {
-      await dispatch(unAssignTask({ taskId })).unwrap();
+      await unassignTask(taskId);
       onAssigneeChange(null);
       apiSuccess('Assignee removed successfully');
       onClose();

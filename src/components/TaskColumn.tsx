@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { Task, TaskStatus } from '@/types/task';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { fetchTasks, updateTaskById } from '@/store/slices/task';
+import { fetchTasks } from '@/store/slices/task';
 import {
   selectTasksByStatus,
   selectColumnPagination,
@@ -13,6 +13,8 @@ import TaskCard from './TaskCard';
 import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import { apiError } from '@/util/toast';
+import { useOptimisticTaskUpdates } from '@/hooks/useOptimisticTaskUpdates';
 
 interface TaskColumnProps {
   status: TaskStatus;
@@ -22,6 +24,7 @@ interface TaskColumnProps {
 
 const TaskColumn = ({ status, title, onViewTaskDetails }: TaskColumnProps) => {
   const dispatch = useAppDispatch();
+  const { moveTask } = useOptimisticTaskUpdates();
   const tasks = useAppSelector(state => selectTasksByStatus(state, status));
   const allTasks = useAppSelector(selectTasks);
   const pagination = useAppSelector(state =>
@@ -53,9 +56,9 @@ const TaskColumn = ({ status, title, onViewTaskDetails }: TaskColumnProps) => {
     if (!loading && pagination.hasNextPage) {
       const nextPage = page + 1;
       setPage(nextPage);
-      loadTasks();
+      dispatch(fetchTasks({ status, page: nextPage }));
     }
-  }, [loading, pagination.hasNextPage, page, loadTasks]);
+  }, [dispatch, loading, pagination.hasNextPage, page, status]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -101,14 +104,10 @@ const TaskColumn = ({ status, title, onViewTaskDetails }: TaskColumnProps) => {
     }
 
     try {
-      await dispatch(
-        updateTaskById({
-          id: taskId,
-          data: { status },
-        })
-      ).unwrap();
+      await moveTask(taskId, status);
     } catch (error) {
       console.error('Failed to move task:', error);
+      apiError('Failed to move task. The card has been restored.');
     }
   };
 

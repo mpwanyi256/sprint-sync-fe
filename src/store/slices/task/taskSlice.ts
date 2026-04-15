@@ -14,6 +14,7 @@ import {
   findTaskInColumns,
   removeTaskFromColumn,
   addTaskToColumn,
+  upsertTaskInColumns,
 } from '@/lib/utils';
 
 const initialColumnState = {
@@ -56,6 +57,20 @@ const taskSlice = createSlice({
     clearSearchResults: state => {
       state.searchResults = [];
       state.searchTerm = '';
+    },
+    upsertTaskSnapshot: (
+      state,
+      action: PayloadAction<{ task: Task; index?: number }>
+    ) => {
+      upsertTaskInColumns(
+        state.columns,
+        action.payload.task,
+        action.payload.index
+      );
+
+      if (state.selectedTask?.id === action.payload.task.id) {
+        state.selectedTask = action.payload.task;
+      }
     },
     setInitialTasks: (state, action: PayloadAction<Task[]>) => {
       if (!action.payload) return;
@@ -126,19 +141,19 @@ const taskSlice = createSlice({
 
       .addCase(updateTaskById.fulfilled, (state, action) => {
         const updatedTask = action.payload.data;
-        const newStatus = updatedTask.status as TaskStatus;
-
         const { columnStatus, taskIndex } = findTaskInColumns(
           state.columns,
           updatedTask.id
         );
 
-        if (columnStatus && taskIndex !== -1) {
-          removeTaskFromColumn(state.columns, columnStatus, taskIndex);
-        }
+        upsertTaskInColumns(
+          state.columns,
+          updatedTask,
+          columnStatus === updatedTask.status ? taskIndex : undefined
+        );
 
-        if (newStatus && state.columns[newStatus]) {
-          addTaskToColumn(state.columns, newStatus, updatedTask);
+        if (state.selectedTask?.id === updatedTask.id) {
+          state.selectedTask = updatedTask;
         }
       })
       .addCase(updateTaskById.rejected, (state, action) => {
@@ -257,6 +272,7 @@ export const {
   setSelectedTask,
   clearTaskError,
   clearSearchResults,
+  upsertTaskSnapshot,
   setInitialTasks,
 } = taskSlice.actions;
 export default taskSlice.reducer;

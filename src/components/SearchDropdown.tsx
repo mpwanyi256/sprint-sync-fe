@@ -1,7 +1,7 @@
 import { Task } from '@/types/task';
 import { Badge } from '@/components/ui/badge';
 import { Clock, User } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, extractTaskTextContent } from '@/lib/utils';
 
 interface SearchDropdownProps {
   searchResults: Task[];
@@ -70,10 +70,10 @@ const SearchDropdown = ({
               <div className='flex items-start justify-between'>
                 <div className='flex-1 min-w-0'>
                   <h4 className='text-sm font-medium text-gray-900 truncate'>
-                    {task.title}
+                    {extractTaskTextContent(task.title)}
                   </h4>
                   <p className='text-xs text-gray-500 mt-1 line-clamp-2'>
-                    {task.description}
+                    {extractTaskTextContent(task.description)}
                   </p>
                   <div className='flex items-center space-x-4 mt-2'>
                     <Badge

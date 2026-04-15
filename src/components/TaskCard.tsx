@@ -2,7 +2,7 @@
 
 import { Task } from '@/types/task';
 import { Calendar, User } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, extractTaskTextContent, renderTaskContentHtml } from '@/lib/utils';
 
 interface TaskCardProps {
   task: Task;
@@ -25,6 +25,22 @@ const TaskCard = ({ task, onClick, className }: TaskCardProps) => {
     e.currentTarget.classList.remove('opacity-50', 'scale-105', 'shadow-lg');
   };
 
+  const handleContentClick = (event: React.MouseEvent<HTMLElement>) => {
+    const link = (event.target as HTMLElement).closest('a');
+
+    if (!link) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    window.open(
+      link.getAttribute('href') || '',
+      '_blank',
+      'noopener,noreferrer'
+    );
+  };
+
   return (
     <div
       draggable
@@ -45,14 +61,22 @@ const TaskCard = ({ task, onClick, className }: TaskCardProps) => {
       {/* Task Title */}
       <h3
         className='font-semibold text-lg text-gray-900 mb-3 line-clamp-2 leading-tight'
-        dangerouslySetInnerHTML={{ __html: task.title }}
+        onClick={handleContentClick}
+        dangerouslySetInnerHTML={{
+          __html: renderTaskContentHtml(task.title, {
+            preserveLineBreaks: false,
+          }),
+        }}
       />
 
       {/* Task Description */}
       <div className='mb-4'>
         <div
           className='text-gray-600 line-clamp-3 leading-relaxed text-sm'
-          dangerouslySetInnerHTML={{ __html: task.description }}
+          onClick={handleContentClick}
+          dangerouslySetInnerHTML={{
+            __html: renderTaskContentHtml(task.description),
+          }}
         />
       </div>
 
@@ -85,7 +109,9 @@ const TaskCard = ({ task, onClick, className }: TaskCardProps) => {
               </span>
             </div>
             <span className='text-sm font-medium text-gray-700'>
-              {task.assignedTo.firstName} {task.assignedTo.lastName}
+              {extractTaskTextContent(
+                `${task.assignedTo.firstName} ${task.assignedTo.lastName}`
+              )}
             </span>
           </div>
         ) : (

@@ -10,10 +10,12 @@ import { Loader2, Plus, ChevronDown, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useState, useCallback } from 'react';
-import { fetchTasks, updateTaskById } from '@/store/slices/task';
+import { fetchTasks } from '@/store/slices/task';
 import { useAppDispatch } from '@/store/hooks';
 import { TaskStatus } from '@/types/task';
 import { Badge } from '@/components/ui/badge';
+import { useOptimisticTaskUpdates } from '@/hooks/useOptimisticTaskUpdates';
+import { apiError } from '@/util/toast';
 
 interface TaskListViewProps {
   onViewTaskDetails: (task: any) => void;
@@ -21,6 +23,7 @@ interface TaskListViewProps {
 
 const TaskListView = ({ onViewTaskDetails }: TaskListViewProps) => {
   const dispatch = useAppDispatch();
+  const { moveTask } = useOptimisticTaskUpdates();
   const [loading, setLoading] = useState(false);
   const [collapsedSections, setCollapsedSections] = useState<
     Record<TaskStatus, boolean>
@@ -104,14 +107,10 @@ const TaskListView = ({ onViewTaskDetails }: TaskListViewProps) => {
     if (!taskId) return;
 
     try {
-      await dispatch(
-        updateTaskById({
-          id: taskId,
-          data: { status },
-        })
-      ).unwrap();
+      await moveTask(taskId, status);
     } catch (error) {
       console.error('Failed to move task:', error);
+      apiError('Failed to move task. The task has been restored.');
     }
   };
 
