@@ -42,9 +42,8 @@ export const createTask = createAsyncThunk<TaskResponse, CreateTaskData>(
 export const updateTaskById = createAsyncThunk<
   TaskResponse,
   { id: string; data: UpdateTaskData }
->('tasks/updateTaskById', async ({ id, data }, { dispatch }) => {
+>('tasks/updateTaskById', async ({ id, data }) => {
   const response = await api.patch<TaskResponse>(`/tasks/${id}`, data);
-  dispatch(fetchTasks({ status: data.status }));
   return response.data;
 });
 
@@ -59,7 +58,7 @@ export const updateTaskStatusById = createAsyncThunk<
   void,
   { id: string; status: TaskStatus }
 >('tasks/updateTaskStatusById', async ({ id, status }) => {
-  await api.patch(`/tasks/${id}/status`, { status });
+  await api.patch(`/tasks/${id}`, { status });
 });
 
 export const assignTaskToUser = createAsyncThunk<

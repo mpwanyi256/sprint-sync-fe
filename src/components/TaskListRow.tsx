@@ -2,7 +2,7 @@
 
 import { Task } from '@/types/task';
 import { Clock, User } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, extractTaskTextContent } from '@/lib/utils';
 import { useState } from 'react';
 
 interface TaskListRowProps {
@@ -61,9 +61,9 @@ const TaskListRow = ({ task, onClick, className }: TaskListRowProps) => {
       <div className='col-span-1 min-w-0'>
         <h4
           className='text-sm font-medium text-gray-900 truncate'
-          title={task.title}
+          title={extractTaskTextContent(task.title)}
         >
-          {task.title}
+          {extractTaskTextContent(task.title)}
         </h4>
       </div>
 
@@ -71,9 +71,9 @@ const TaskListRow = ({ task, onClick, className }: TaskListRowProps) => {
       <div className='col-span-1 min-w-0'>
         <p
           className='text-sm text-gray-600 truncate'
-          title={task.description || 'No description'}
+          title={extractTaskTextContent(task.description) || 'No description'}
         >
-          {task.description || 'No description'}
+          {extractTaskTextContent(task.description) || 'No description'}
         </p>
       </div>
 

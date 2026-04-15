@@ -41,6 +41,13 @@ const BoardView = ({ onViewTaskDetails }: BoardViewProps) => {
           onViewTaskDetails={onViewTaskDetails}
         />
       </div>
+      <div id='IN_REVIEW' className='min-w-[320px] max-w-[320px]'>
+        <TaskColumn
+          title='In Review'
+          status='IN_REVIEW'
+          onViewTaskDetails={onViewTaskDetails}
+        />
+      </div>
       <div id='DONE' className='min-w-[320px] max-w-[320px]'>
         <TaskColumn
           title='Done'

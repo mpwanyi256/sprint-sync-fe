@@ -5,4 +5,4 @@ export const app = {
 
 export const isDev = process.env.NODE_ENV === 'development';
 
-export const publicRoutes: string[] = ['/'];
+export const publicRoutes: string[] = ['/', '/sign-in'];

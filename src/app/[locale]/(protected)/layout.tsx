@@ -14,19 +14,6 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const user = useAppSelector(selectUser);
 
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
-
-  const closeSidebar = () => {
-    setSidebarOpen(false);
-  };
-
-  const handleSearch = (query: string) => {
-    // TODO: Implement search functionality
-    console.log('Search query:', query);
-  };
-
   if (!user) {
     return null;
   }
@@ -34,12 +21,11 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
   return (
     <div className='min-h-screen bg-gray-50'>
       <Navbar
-        onSidebarToggle={toggleSidebar}
+        onSidebarToggle={() => setSidebarOpen(prev => !prev)}
         sidebarOpen={sidebarOpen}
-        onSearch={handleSearch}
       />
-      <Sidebar isOpen={sidebarOpen} onClose={closeSidebar} />
-      <main className='lg:ml-64 pt-16'>{children}</main>
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <main className='pt-16 lg:ml-64'>{children}</main>
     </div>
   );
 }

@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
+import { cn, normalizeTaskContentLinks } from '@/lib/utils';
 import { apiError, apiSuccess } from '@/util/toast';
 import { Sparkles, Loader2 } from 'lucide-react';
 
@@ -68,8 +68,12 @@ const CreateTaskModal = ({
     console.log('Creating task');
 
     // Get latest from refs in case onBlur hasn't fired yet
-    const finalTitle = titleRef.current?.innerHTML || formData.title;
-    const finalDesc = descRef.current?.innerHTML || formData.description;
+    const finalTitle = normalizeTaskContentLinks(
+      titleRef.current?.innerHTML || formData.title
+    );
+    const finalDesc = normalizeTaskContentLinks(
+      descRef.current?.innerHTML || formData.description
+    );
 
     const plainTitle = finalTitle.replace(/<[^>]*>?/gm, '').trim();
     const plainDesc = finalDesc.replace(/<[^>]*>?/gm, '').trim();
