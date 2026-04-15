@@ -29,7 +29,7 @@ interface AvatarImageProps
 
 const AvatarImage = React.forwardRef<HTMLSpanElement, AvatarImageProps>(
   ({ className, alt, sizes = '40px', ...props }, ref) => (
-    <span ref={ref} className='absolute inset-0'>
+    <span ref={ref} className='relative block h-full w-full'>
       <Image
         fill
         sizes={sizes}

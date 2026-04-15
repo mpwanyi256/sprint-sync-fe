@@ -8,6 +8,8 @@ export const AppIcon = () => {
         alt='SprintSync Logo'
         width={30}
         height={30}
+        className='h-auto w-[30px]'
+        priority
       />
       <span className='text-xl font-bold text-gray-900'>SprintSync</span>
     </div>

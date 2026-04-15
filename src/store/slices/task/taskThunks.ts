@@ -58,7 +58,7 @@ export const updateTaskStatusById = createAsyncThunk<
   void,
   { id: string; status: TaskStatus }
 >('tasks/updateTaskStatusById', async ({ id, status }) => {
-  await api.patch(`/tasks/${id}/status`, { status });
+  await api.patch(`/tasks/${id}`, { status });
 });
 
 export const assignTaskToUser = createAsyncThunk<

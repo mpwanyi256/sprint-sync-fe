@@ -17,21 +17,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const router = useRouter();
   const pathname = usePathname();
 
+  const normalizedPathname =
+    pathname?.replace(/^\/[a-z]{2}(?=\/|$)/, '') || '/';
+  const isPublicRoute = publicRoutes.includes(normalizedPathname);
+
   // Handle navigation based on auth state
   useEffect(() => {
     const authToken = getAuthToken();
 
-    if (
-      isAuthenticated &&
-      user &&
-      authToken &&
-      publicRoutes.includes(pathname ?? '')
-    ) {
+    if (isAuthenticated && user && authToken && isPublicRoute) {
       router.push('/dashboard');
-    } else if (!isAuthenticated && !publicRoutes.includes(pathname ?? '')) {
-      router.push('/');
+    } else if (!isAuthenticated && !isPublicRoute) {
+      router.push('/sign-in');
     }
-  }, [isAuthenticated, user, pathname, router]);
+  }, [isAuthenticated, isPublicRoute, router, user]);
 
   return <>{children}</>;
 }

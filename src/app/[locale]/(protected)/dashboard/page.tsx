@@ -1,16 +1,24 @@
 import type { Metadata } from 'next';
-import Dashboard from '@/components/Dashboard';
 import { cookies } from 'next/headers';
+import { setRequestLocale } from 'next-intl/server';
+import Dashboard from '@/components/Dashboard';
 import { app } from '@/lib/constants';
-import { Task, TasksResponseData } from '@/types/task';
-import { APIResponse } from '@/types/api';
+import type { APIResponse } from '@/types/api';
+import type { Task, TasksResponseData } from '@/types/task';
+
+type DashboardPageProps = {
+  params: Promise<{ locale: string }>;
+};
 
 export const metadata: Metadata = {
   title: 'Dashboard',
   description: 'Dashboard',
 };
 
-export default async function DashboardPage() {
+export default async function DashboardPage(props: DashboardPageProps) {
+  const { locale } = await props.params;
+  setRequestLocale(locale);
+
   const cookieStore = await cookies();
   const token = cookieStore.get('accessToken')?.value;
 
@@ -24,7 +32,7 @@ export default async function DashboardPage() {
         'x-api-key': app.apiKey,
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
-      next: { revalidate: 0 }, // no-store equivalent to always fetch fresh data
+      next: { revalidate: 0 },
     });
 
     if (res.ok) {
