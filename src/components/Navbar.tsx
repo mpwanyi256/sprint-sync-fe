@@ -21,6 +21,7 @@ import SearchDropdown from '@/components/SearchDropdown';
 import TaskDetailsModal from '@/components/TaskDetailsModal';
 import Image from 'next/image';
 import { Task } from '@/types/task';
+import { AppIcon } from './AppIcon';
 
 interface NavbarProps {
   onSidebarToggle: () => void;
@@ -140,17 +141,7 @@ const Navbar = ({ onSidebarToggle, sidebarOpen }: NavbarProps) => {
                 <Menu className='h-5 w-5' />
               )}
             </Button>
-            <div className='flex items-center space-x-3'>
-              <div className='p-2 bg-blue-100 rounded-lg flex items-center justify-center overflow-hidden'>
-                <Image
-                  src='/assets/logo.svg'
-                  alt='SprintSync Logo'
-                  width={30}
-                  height={30}
-                />
-              </div>
-              <h1 className='text-xl font-bold text-gray-900'>SprintSync</h1>
-            </div>
+            <AppIcon />
           </div>
 
           {/* Center - Search and controls */}
