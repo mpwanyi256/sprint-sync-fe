@@ -15,8 +15,8 @@ export const metadata: Metadata = {
   description:
     "Boost your team's productivity with Sprint Sync. A modern, fast, and agile Kanban board for seamless project management and task tracking.",
   icons: {
-    icon: [{ url: '/favicon.ico' }],
-    shortcut: ['/favicon.ico'],
+    icon: [{ url: '/icon/logo.svg' }],
+    shortcut: ['/icon/logo.svg'],
     apple: [{ url: '/icon/logo.svg', type: 'image/svg+xml' }],
   },
 };

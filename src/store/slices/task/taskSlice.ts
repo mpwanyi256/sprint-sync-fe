@@ -35,6 +35,7 @@ const initialState: TaskState = {
     TODO: initialColumnState,
     IN_PROGRESS: initialColumnState,
     DONE: initialColumnState,
+    IN_REVIEW: initialColumnState,
   },
   loading: false,
   error: null,

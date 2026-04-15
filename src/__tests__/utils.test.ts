@@ -34,6 +34,17 @@ describe('Utility Functions', () => {
 
   describe('findTaskInColumns function', () => {
     const mockColumns: TaskState['columns'] = {
+      IN_REVIEW: {
+        tasks: [],
+        pagination: {
+          currentPage: 1,
+          hasNextPage: false,
+          hasPreviousPage: false,
+          itemsPerPage: 10,
+          totalItems: 0,
+          totalPages: 1,
+        },
+      },
       BACKLOG: {
         tasks: [],
         pagination: {

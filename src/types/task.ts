@@ -1,6 +1,11 @@
 import { APIResponse } from './api';
 
-export type TaskStatus = 'BACKLOG' | 'TODO' | 'IN_PROGRESS' | 'DONE';
+export type TaskStatus =
+  | 'BACKLOG'
+  | 'TODO'
+  | 'IN_PROGRESS'
+  | 'DONE'
+  | 'IN_REVIEW';
 
 export interface Assignee {
   firstName: string;
@@ -54,6 +59,7 @@ export interface TaskState {
     TODO: ColumnTasks;
     IN_PROGRESS: ColumnTasks;
     DONE: ColumnTasks;
+    IN_REVIEW: ColumnTasks;
   };
   loading: boolean;
   error: string | null;

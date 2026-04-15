@@ -32,6 +32,7 @@ const TaskListView = ({ onViewTaskDetails }: TaskListViewProps) => {
     TODO: false,
     IN_PROGRESS: false,
     DONE: false,
+    IN_REVIEW: false,
   });
   const [dragOverSection, setDragOverSection] = useState<TaskStatus | null>(
     null

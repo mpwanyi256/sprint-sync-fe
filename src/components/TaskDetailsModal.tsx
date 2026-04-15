@@ -9,7 +9,7 @@ import {
   SelectItem,
   SelectTrigger,
 } from '@/components/ui/select';
-import { Clock, User, Calendar, Save, X, Loader2 } from 'lucide-react';
+import { Clock, User, Save, X, Loader2 } from 'lucide-react';
 import {
   cn,
   extractTaskTextContent,
@@ -23,44 +23,13 @@ import { apiError, apiSuccess } from '@/util/toast';
 import { AssigneeDropdown } from './AssigneeDropdown';
 import { DialogTitle } from '@radix-ui/react-dialog';
 import { useOptimisticTaskUpdates } from '@/hooks/useOptimisticTaskUpdates';
+import { STATUS_OPTIONS, getStatusColor, getStatusLabel } from '@/lib/utils';
 
 interface TaskDetailsModalProps {
   task: Task | null;
   isOpen: boolean;
   onClose: () => void;
 }
-
-const getStatusColor = (status: Task['status']) => {
-  switch (status) {
-    case 'BACKLOG':
-      return 'bg-gray-100 text-gray-800 border-gray-200';
-    case 'TODO':
-      return 'bg-blue-100 text-blue-800 border-blue-200';
-    case 'IN_PROGRESS':
-      return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-    case 'DONE':
-      return 'bg-green-100 text-green-800 border-green-200';
-    default:
-      return 'bg-gray-100 text-gray-800 border-gray-200';
-  }
-};
-
-const getStatusLabel = (status: Task['status']) => {
-  switch (status) {
-    case 'BACKLOG':
-      return 'Backlog';
-    case 'TODO':
-      return 'To Do';
-    case 'IN_PROGRESS':
-      return 'In Progress';
-    case 'DONE':
-      return 'Done';
-    default:
-      return status;
-  }
-};
-
-const STATUS_OPTIONS: TaskStatus[] = ['BACKLOG', 'TODO', 'IN_PROGRESS', 'DONE'];
 
 interface TaskDetailsContentProps {
   task: Task;
@@ -218,14 +187,16 @@ const TaskDetailsContent = ({
             <Clock className='h-5 w-5 text-gray-500' />
             <div>
               <p className='text-sm text-gray-500'>Created</p>
-              <p className='text-sm font-medium text-gray-900'>
+              <p className='text-xs font-medium text-gray-900'>
                 {formatDate(localTask.createdAt)}
               </p>
             </div>
           </div>
 
           <div className='flex items-center space-x-3'>
-            <div className='w-5 h-5 rounded-full bg-yellow-400 flex items-center justify-center'>
+            <div
+              className={`w-5 h-5 rounded-full ${getStatusColor(localTask.status)} flex items-center justify-center`}
+            >
               <div className='w-2 h-2 bg-white rounded-full'></div>
             </div>
             <div>
@@ -261,7 +232,7 @@ const TaskDetailsContent = ({
             </div>
           </div>
 
-          <div className='flex items-center space-x-3'>
+          {/* <div className='flex items-center space-x-3'>
             <Calendar className='h-5 w-5 text-gray-500' />
             <div>
               <p className='text-sm text-gray-500'>Last Updated</p>
@@ -269,7 +240,7 @@ const TaskDetailsContent = ({
                 {formatDate(localTask.updatedAt)}
               </p>
             </div>
-          </div>
+          </div> */}
 
           <div className='flex items-center space-x-3 relative'>
             <div>
@@ -290,7 +261,7 @@ const TaskDetailsContent = ({
                         }
                       }}
                     >
-                      <span className='text-sm font-bold text-blue-700'>
+                      <span className='text-sm font-bold text-blue-700 cursor-pointer'>
                         {localTask.assignedTo.firstName.charAt(0)}
                         {localTask.assignedTo.lastName.charAt(0)}
                       </span>
@@ -360,7 +331,7 @@ const TaskDetailsContent = ({
                 normalizeTaskContentLinks(e.currentTarget.innerHTML)
               )
             }
-            className='min-h-[240px] rounded-md p-2 text-gray-700 focus:outline-none hover:bg-gray-100'
+            className='h-[240px] overflow-y-auto rounded-md p-2 text-black focus:outline-none hover:bg-gray-100/50'
             dangerouslySetInnerHTML={{
               __html: renderTaskContentHtml(localTask.description),
             }}
