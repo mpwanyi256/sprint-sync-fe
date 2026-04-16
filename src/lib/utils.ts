@@ -255,7 +255,7 @@ export const getStatusColor = (status: Task['status']) => {
   }
 };
 
-export const getStatusLabel = (status: Task['status']) => {
+export const getStatusLabel = (status: TaskStatus) => {
   switch (status) {
     case 'BACKLOG':
       return 'Backlog';
@@ -263,6 +263,8 @@ export const getStatusLabel = (status: Task['status']) => {
       return 'To Do';
     case 'IN_PROGRESS':
       return 'In Progress';
+    case 'IN_REVIEW':
+      return 'In Review';
     case 'DONE':
       return 'Done';
     default:
