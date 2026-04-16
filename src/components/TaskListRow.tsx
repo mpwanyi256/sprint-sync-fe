@@ -107,14 +107,14 @@ const TaskListRow = ({ task, onClick, className }: TaskListRowProps) => {
 
       {/* Estimate */}
       <div className='col-span-1'>
-        <div className='flex items-center text-sm text-gray-500'>
+        {/* <div className='flex items-center text-sm text-gray-500'>
           <Clock className='h-4 w-4 mr-2' />
           <span>{task.totalMinutes} min</span>
-        </div>
+        </div> */}
       </div>
 
       {/* Last Updated */}
-      <div className='col-span-1'>
+      <div className='col-span-2'>
         <div className='text-sm text-gray-500'>
           {formatDate(task.updatedAt || task.createdAt)}
         </div>

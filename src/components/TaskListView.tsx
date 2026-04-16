@@ -16,6 +16,10 @@ import { TaskStatus } from '@/types/task';
 import { Badge } from '@/components/ui/badge';
 import { useOptimisticTaskUpdates } from '@/hooks/useOptimisticTaskUpdates';
 import { apiError } from '@/util/toast';
+import {
+  getStatusColor,
+  getStatusLabel as getStatusDisplayName,
+} from '@/lib/utils';
 
 interface TaskListViewProps {
   onViewTaskDetails: (task: any) => void;
@@ -39,6 +43,20 @@ const TaskListView = ({ onViewTaskDetails }: TaskListViewProps) => {
   );
 
   // Get tasks and pagination for each status
+  const inReviewTasks = useAppSelector(state =>
+    selectTasksByStatus(state, 'IN_REVIEW')
+  );
+  const inReviewPagination = useAppSelector(state =>
+    selectColumnPagination(state, 'IN_REVIEW')
+  );
+
+  const backlogTasks = useAppSelector(state =>
+    selectTasksByStatus(state, 'BACKLOG')
+  );
+  const backlogPagination = useAppSelector(state =>
+    selectColumnPagination(state, 'BACKLOG')
+  );
+
   const todoTasks = useAppSelector(state => selectTasksByStatus(state, 'TODO'));
   const inProgressTasks = useAppSelector(state =>
     selectTasksByStatus(state, 'IN_PROGRESS')
@@ -115,32 +133,6 @@ const TaskListView = ({ onViewTaskDetails }: TaskListViewProps) => {
     }
   };
 
-  const getStatusDisplayName = (status: TaskStatus) => {
-    switch (status) {
-      case 'TODO':
-        return 'To Do';
-      case 'IN_PROGRESS':
-        return 'In Progress';
-      case 'DONE':
-        return 'Done';
-      default:
-        return status;
-    }
-  };
-
-  const getStatusColor = (status: TaskStatus) => {
-    switch (status) {
-      case 'TODO':
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-      case 'IN_PROGRESS':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'DONE':
-        return 'bg-green-100 text-green-800 border-green-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
   const renderSection = (status: TaskStatus, tasks: any[], pagination: any) => {
     const isCollapsed = collapsedSections[status];
     const hasMoreTasks = pagination.hasNextPage;
@@ -194,8 +186,8 @@ const TaskListView = ({ onViewTaskDetails }: TaskListViewProps) => {
                 <div>Title</div>
                 <div>Description</div>
                 <div>Assignee</div>
-                <div>Estimate</div>
-                <div>Last Updated</div>
+                <div>&nbsp;</div>
+                <div>&nbsp;</div>
               </div>
             </div>
 
@@ -257,8 +249,10 @@ const TaskListView = ({ onViewTaskDetails }: TaskListViewProps) => {
 
   return (
     <div className='h-[calc(100vh-112px)] overflow-y-auto max-w-7xl mx-auto flex flex-col gap-4'>
+      {renderSection('BACKLOG', backlogTasks, backlogPagination)}
       {renderSection('TODO', todoTasks, todoPagination)}
       {renderSection('IN_PROGRESS', inProgressTasks, inProgressPagination)}
+      {renderSection('IN_REVIEW', inReviewTasks, inReviewPagination)}
       {renderSection('DONE', doneTasks, donePagination)}
     </div>
   );
