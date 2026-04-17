@@ -114,6 +114,14 @@ export const TaskDetailsContent = ({
     }));
   };
 
+  const handleCopyLink = () => {
+    const url = `${window.location.origin}/dashboard?task=${task.id}`;
+    navigator.clipboard
+      .writeText(url)
+      .then(() => apiSuccess('Task link copied to clipboard'))
+      .catch(() => apiError('Failed to copy task link'));
+  };
+
   return (
     <div className='flex flex-col h-full max-h-[95vh] bg-white'>
       {/* Header matching Jira */}
@@ -124,9 +132,13 @@ export const TaskDetailsContent = ({
             <span>Add topic</span>
           </button>
           <span>/</span>
-          <button className='flex items-center gap-1 hover:underline hover:bg-gray-100 px-2 py-1 rounded transition-colors'>
+          <button
+            onClick={handleCopyLink}
+            title='Copy link to task'
+            className='flex items-center gap-1 hover:underline hover:bg-gray-100 px-2 py-1 rounded transition-colors'
+          >
             <LinkIcon className='w-4 h-4 text-green-600' />
-            <span>{task.id.slice(0, 8).toUpperCase()}</span>
+            <span>{task?.id?.slice(0, 8).toUpperCase()}</span>
           </button>
         </div>
 

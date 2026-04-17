@@ -1,16 +1,17 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import {
-  CreateTaskData,
-  UpdateTaskData,
-  TaskStatus,
-  TasksResponse,
-  TaskResponse,
-  TasksResponseData,
-  Task,
-} from '@/types/task';
-import { User } from '@/types/auth';
 import api from '@/services/api';
 import { APIResponse } from '@/types';
+import { User } from '@/types/auth';
+import {
+  CreateTaskData,
+  Task,
+  TaskDetailsResponse,
+  TaskResponse,
+  TaskStatus,
+  TasksResponse,
+  TasksResponseData,
+  UpdateTaskData,
+} from '@/types/task';
+import { createAsyncThunk } from '@reduxjs/toolkit';
 
 export const fetchTasks = createAsyncThunk<
   TasksResponse,
@@ -30,6 +31,14 @@ export const fetchTasks = createAsyncThunk<
   });
   return response.data;
 });
+
+export const fetchTaskById = createAsyncThunk<TaskDetailsResponse, string>(
+  'tasks/fetchTaskById',
+  async id => {
+    const response = await api.get<TaskDetailsResponse>(`/tasks/${id}`);
+    return response.data;
+  }
+);
 
 export const createTask = createAsyncThunk<TaskResponse, CreateTaskData>(
   'tasks/createTask',

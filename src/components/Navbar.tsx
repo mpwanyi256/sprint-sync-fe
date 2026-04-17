@@ -110,12 +110,6 @@ const Navbar = ({ onSidebarToggle, sidebarOpen }: NavbarProps) => {
       }
     };
   }, []);
-  const getUserDisplayName = () => {
-    if (user) {
-      return `${user.firstName} ${user.lastName}`;
-    }
-    return 'User';
-  };
 
   return (
     <nav className='bg-white shadow-sm border-b fixed top-0 left-0 right-0 z-50'>
@@ -191,14 +185,11 @@ const Navbar = ({ onSidebarToggle, sidebarOpen }: NavbarProps) => {
           </div>
 
           {/* Right side - User info and logout */}
-          <div
-            suppressHydrationWarning
-            className='flex items-center space-x-4 min-w-[150px] justify-end'
-          >
+          <div className='flex items-center space-x-4 min-w-[150px] justify-end'>
             {isAuthenticated && user && (
               <>
                 <span className='text-gray-700 hidden sm:block'>
-                  Welcome, {getUserDisplayName()}
+                  {`${user.firstName} ${user.lastName}`}
                 </span>
                 <Button onClick={handleLogout} variant='outline' size='sm'>
                   Logout
@@ -213,7 +204,7 @@ const Navbar = ({ onSidebarToggle, sidebarOpen }: NavbarProps) => {
         onClose={() => setIsCreateModalOpen(false)}
       />
       <TaskDetailsModal
-        task={selectedTaskForModal}
+        taskId={selectedTaskForModal?.id || null}
         isOpen={!!selectedTaskForModal}
         onClose={() => setSelectedTaskForModal(null)}
       />

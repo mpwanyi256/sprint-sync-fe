@@ -1,23 +1,24 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { TaskState, Task, TaskStatus } from '@/types/task';
 import {
-  fetchTasks,
-  createTask,
-  updateTaskDetails,
-  updateTaskTitle,
-  updateTaskDescription,
-  deleteTaskById,
-  updateTaskStatusById,
-  assignTaskToUser,
-  unAssignTask,
-  searchTasks,
-} from './taskThunks';
-import {
+  addTaskToColumn,
   findTaskInColumns,
   removeTaskFromColumn,
-  addTaskToColumn,
   upsertTaskInColumns,
 } from '@/lib/utils';
+import { Task, TaskState, TaskStatus } from '@/types/task';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import {
+  assignTaskToUser,
+  createTask,
+  deleteTaskById,
+  fetchTaskById,
+  fetchTasks,
+  searchTasks,
+  unAssignTask,
+  updateTaskDescription,
+  updateTaskDetails,
+  updateTaskStatusById,
+  updateTaskTitle,
+} from './taskThunks';
 
 const initialColumnState = {
   tasks: [],
@@ -128,6 +129,19 @@ const taskSlice = createSlice({
       .addCase(fetchTasks.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch tasks';
+      })
+
+      .addCase(fetchTaskById.pending, state => {
+        state.loading = true;
+      })
+      .addCase(fetchTaskById.fulfilled, (state, action) => {
+        state.loading = false;
+        // payload logic check: action.payload is TaskResponse, so action.payload.data contains the Task.
+        state.selectedTask = action.payload.data.task;
+      })
+      .addCase(fetchTaskById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch task';
       })
 
       .addCase(createTask.fulfilled, (state, action) => {
