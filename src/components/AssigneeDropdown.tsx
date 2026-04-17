@@ -1,19 +1,20 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, Search, X } from 'lucide-react';
+import { useOptimisticTaskUpdates } from '@/hooks/useOptimisticTaskUpdates';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { selectUser } from '@/store/slices/auth';
 import {
   fetchUsers,
   selectUsers,
-  selectUsersPagination,
   selectUsersLoading,
+  selectUsersPagination,
 } from '@/store/slices/users';
-import { apiSuccess, apiError } from '@/util/toast';
 import { User as UserType } from '@/types/auth';
-import { useOptimisticTaskUpdates } from '@/hooks/useOptimisticTaskUpdates';
+import { apiError, apiSuccess } from '@/util/toast';
+import { Loader2, Search } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 interface AssigneeDropdownProps {
   taskId: string;
@@ -33,6 +34,7 @@ export const AssigneeDropdown = ({
   const users = useAppSelector(selectUsers);
   const pagination = useAppSelector(selectUsersPagination);
   const loading = useAppSelector(selectUsersLoading);
+  const currentUser = useAppSelector(selectUser);
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
   const searchTimeoutRef = useRef<NodeJS.Timeout>(null);
@@ -129,90 +131,73 @@ export const AssigneeDropdown = ({
   }, []);
 
   return (
-    <div className='w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50'>
-      {/* Header */}
-      <div className='p-4 border-b border-gray-200'>
-        <div className='flex items-center justify-between mb-3'>
-          <h3 className='font-semibold text-gray-900'>Select Assignee</h3>
-          <Button
-            variant='ghost'
-            size='sm'
-            onClick={onClose}
-            className='h-6 w-6 p-0'
-          >
-            <X className='h-4 w-4' />
-          </Button>
-        </div>
-
-        {/* Search */}
+    <div className='w-fit bg-white border border-gray-200 rounded-md shadow-md'>
+      {/* Search */}
+      <div className='p-1.5 border-b border-gray-100'>
         <div className='relative'>
-          <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400' />
+          <Search className='absolute left-2.5 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-gray-400' />
           <Input
-            placeholder='Search users...'
+            placeholder='Unassigned'
             value={searchQuery}
             onChange={e => handleSearchChange(e.target.value)}
-            className='pl-10'
+            className='h-[32px] pl-8 text-[13px] focus-visible:ring-1 focus-visible:ring-blue-500 rounded border-gray-200 bg-gray-50 focus:bg-white'
+            autoFocus
           />
         </div>
       </div>
 
-      {/* Current Assignee */}
-      {currentAssignee && (
-        <div className='p-4 border-b border-gray-200'>
-          <h4 className='text-sm font-medium text-gray-700 mb-2'>
-            Current Assignee
-          </h4>
-          <div className='flex items-center justify-between'>
-            <div className='flex items-center space-x-3'>
-              <div className='w-8 h-8 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center'>
-                <span className='text-sm font-semibold text-blue-700'>
-                  {getInitials(
-                    currentAssignee.firstName,
-                    currentAssignee.lastName
-                  )}
-                </span>
-              </div>
-              <div>
-                <p className='text-sm font-medium text-gray-900'>
-                  {currentAssignee.firstName} {currentAssignee.lastName}
-                </p>
-                <p className='text-xs text-gray-500'>{currentAssignee.email}</p>
-              </div>
-            </div>
-            <Button
-              variant='ghost'
-              size='sm'
-              onClick={handleRemoveAssignee}
-              className='h-6 w-6 p-0 text-red-600 hover:bg-red-50'
-              title='Remove assignee'
-            >
-              <X className='h-4 w-4' />
-            </Button>
+      {/* Users List */}
+      <div className='max-h-[240px] overflow-y-auto py-1'>
+        {/* Unassigned Option */}
+        <div
+          className='px-3 py-1.5 hover:bg-gray-100 cursor-pointer flex items-center space-x-3'
+          onClick={handleRemoveAssignee}
+        >
+          <div className='w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center border border-dashed border-gray-300'>
+            <span className='text-[10px] text-gray-400'>?</span>
+          </div>
+          <div className='flex-1'>
+            <p className='text-[13px] text-gray-900'>Unassigned</p>
           </div>
         </div>
-      )}
 
-      {/* Users List - Fixed height for better UX */}
-      <div className='h-64 overflow-y-auto'>
+        {/* Assign to me */}
+        {currentUser &&
+          currentAssignee?.id !== currentUser.id &&
+          searchQuery.trim() === '' && (
+            <div
+              className='px-3 py-1.5 hover:bg-gray-100 cursor-pointer flex items-center space-x-3'
+              onClick={() => handleUserSelect(currentUser)}
+            >
+              <div className='w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center'>
+                <span className='text-[10px] font-semibold text-blue-700'>
+                  {getInitials(currentUser.firstName, currentUser.lastName)}
+                </span>
+              </div>
+              <div className='flex-1'>
+                <p className='text-[13px] text-primary'>
+                  <span className='text-gray-500'>Assign to me</span>
+                </p>
+              </div>
+            </div>
+          )}
+
         {filteredUsers.length > 0 ? (
           filteredUsers.map(user => (
             <div
               key={user.id}
-              className='p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0'
+              className='px-3 py-1.5 hover:bg-gray-100 cursor-pointer flex items-center space-x-3'
               onClick={() => handleUserSelect(user)}
             >
-              <div className='flex items-center space-x-3'>
-                <div className='w-8 h-8 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center'>
-                  <span className='text-sm font-semibold text-gray-700'>
-                    {getInitials(user.firstName, user.lastName)}
-                  </span>
-                </div>
-                <div className='flex-1'>
-                  <p className='text-sm font-medium text-gray-900'>
-                    {user.firstName} {user.lastName}
-                  </p>
-                  <p className='text-xs text-gray-500'>{user.email}</p>
-                </div>
+              <div className='w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden'>
+                <span className='text-[10px] font-semibold text-gray-600'>
+                  {getInitials(user.firstName, user.lastName)}
+                </span>
+              </div>
+              <div className='flex-1 truncate'>
+                <p className='text-[13px] text-gray-900 truncate'>
+                  {user.firstName} {user.lastName}
+                </p>
               </div>
             </div>
           ))

@@ -88,3 +88,5 @@ export interface TasksResponse extends APIResponse<TasksResponseData> {
 export interface TaskResponse extends APIResponse<Task> {
   // Extends APIResponse with Task
 }
+
+export interface TaskDetailsResponse extends APIResponse<{ task: Task }> {}

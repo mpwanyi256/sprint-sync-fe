@@ -1,5 +1,5 @@
 import { RootState } from '@/store';
-import { TaskStatus, ColumnTasks } from '@/types/task';
+import { ColumnTasks, TaskStatus } from '@/types/task';
 
 export const selectTasks = (state: RootState) => {
   const allTasks: import('@/types/task').Task[] = [];

@@ -1,23 +1,31 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Task } from '@/types/task';
 import BoardView from '@/components/BoardView';
 import CreateTaskModal from '@/components/CreateTaskModal';
 import TaskDetailsModal from '@/components/TaskDetailsModal';
 import { useAppDispatch } from '@/store/hooks';
 import { setInitialTasks } from '@/store/slices/task';
+import { Task } from '@/types/task';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 interface DashboardProps {
   initialTasks?: Task[];
+  initialTaskId?: string | null;
 }
 
-const Dashboard = ({ initialTasks }: DashboardProps) => {
+const Dashboard = ({ initialTasks, initialTaskId }: DashboardProps) => {
   const dispatch = useAppDispatch();
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(
+    initialTaskId || null
+  );
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  console.log('Initial task ID', initialTaskId);
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (initialTasks && initialTasks.length > 0) {
@@ -26,8 +34,15 @@ const Dashboard = ({ initialTasks }: DashboardProps) => {
   }, [initialTasks, dispatch]);
 
   const handleTaskClick = (task: Task) => {
-    setSelectedTask(task);
-    setIsDetailsModalOpen(true);
+    setSelectedTaskId(task.id);
+    router.replace(`${pathname}?task=${task.id}`, { scroll: false });
+  };
+
+  const handleCloseDetails = () => {
+    setSelectedTaskId(null);
+    if (searchParams.has('task')) {
+      router.replace(pathname, { scroll: false });
+    }
   };
 
   return (
@@ -43,14 +58,11 @@ const Dashboard = ({ initialTasks }: DashboardProps) => {
         onClose={() => setIsCreateModalOpen(false)}
       />
 
-      {selectedTask && (
+      {selectedTaskId && (
         <TaskDetailsModal
-          task={selectedTask}
-          isOpen={isDetailsModalOpen}
-          onClose={() => {
-            setIsDetailsModalOpen(false);
-            setSelectedTask(null);
-          }}
+          taskId={selectedTaskId}
+          isOpen={!!selectedTaskId}
+          onClose={handleCloseDetails}
         />
       )}
     </div>

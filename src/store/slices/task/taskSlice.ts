@@ -1,21 +1,24 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { TaskState, Task, TaskStatus } from '@/types/task';
 import {
-  fetchTasks,
-  createTask,
-  updateTaskById,
-  deleteTaskById,
-  updateTaskStatusById,
-  assignTaskToUser,
-  unAssignTask,
-  searchTasks,
-} from './taskThunks';
-import {
+  addTaskToColumn,
   findTaskInColumns,
   removeTaskFromColumn,
-  addTaskToColumn,
   upsertTaskInColumns,
 } from '@/lib/utils';
+import { Task, TaskState, TaskStatus } from '@/types/task';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import {
+  assignTaskToUser,
+  createTask,
+  deleteTaskById,
+  fetchTaskById,
+  fetchTasks,
+  searchTasks,
+  unAssignTask,
+  updateTaskDescription,
+  updateTaskDetails,
+  updateTaskStatusById,
+  updateTaskTitle,
+} from './taskThunks';
 
 const initialColumnState = {
   tasks: [],
@@ -128,6 +131,19 @@ const taskSlice = createSlice({
         state.error = action.error.message || 'Failed to fetch tasks';
       })
 
+      .addCase(fetchTaskById.pending, state => {
+        state.loading = true;
+      })
+      .addCase(fetchTaskById.fulfilled, (state, action) => {
+        state.loading = false;
+        // payload logic check: action.payload is TaskResponse, so action.payload.data contains the Task.
+        state.selectedTask = action.payload.data.task;
+      })
+      .addCase(fetchTaskById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch task';
+      })
+
       .addCase(createTask.fulfilled, (state, action) => {
         const newTask = action.payload.data;
         const status = (newTask.status || 'BACKLOG') as TaskStatus;
@@ -140,25 +156,80 @@ const taskSlice = createSlice({
         state.error = action.error.message || 'Failed to create task';
       })
 
-      .addCase(updateTaskById.fulfilled, (state, action) => {
-        const updatedTask = action.payload.data;
-        const { columnStatus, taskIndex } = findTaskInColumns(
-          state.columns,
-          updatedTask.id
-        );
+      .addCase(updateTaskDetails.fulfilled, (state, action) => {
+        const updatedTaskPayload = action.payload.data;
+        const {
+          task: oldTask,
+          columnStatus,
+          taskIndex,
+        } = findTaskInColumns(state.columns, updatedTaskPayload.id);
 
-        upsertTaskInColumns(
-          state.columns,
-          updatedTask,
-          columnStatus === updatedTask.status ? taskIndex : undefined
-        );
+        if (oldTask) {
+          const mergedTask = { ...oldTask, ...updatedTaskPayload };
+          upsertTaskInColumns(
+            state.columns,
+            mergedTask,
+            columnStatus === mergedTask.status ? taskIndex : undefined
+          );
 
-        if (state.selectedTask?.id === updatedTask.id) {
-          state.selectedTask = updatedTask;
+          if (state.selectedTask?.id === mergedTask.id) {
+            state.selectedTask = mergedTask;
+          }
         }
       })
-      .addCase(updateTaskById.rejected, (state, action) => {
-        state.error = action.error.message || 'Failed to update task';
+      .addCase(updateTaskDetails.rejected, (state, action) => {
+        state.error = action.error.message || 'Failed to update task details';
+      })
+
+      .addCase(updateTaskTitle.fulfilled, (state, action) => {
+        const updatedTaskPayload = action.payload.data;
+        const {
+          task: oldTask,
+          columnStatus,
+          taskIndex,
+        } = findTaskInColumns(state.columns, updatedTaskPayload.id);
+
+        if (oldTask) {
+          const mergedTask = { ...oldTask, ...updatedTaskPayload };
+          upsertTaskInColumns(
+            state.columns,
+            mergedTask,
+            columnStatus === mergedTask.status ? taskIndex : undefined
+          );
+
+          if (state.selectedTask?.id === mergedTask.id) {
+            state.selectedTask = mergedTask;
+          }
+        }
+      })
+      .addCase(updateTaskTitle.rejected, (state, action) => {
+        state.error = action.error.message || 'Failed to update task title';
+      })
+
+      .addCase(updateTaskDescription.fulfilled, (state, action) => {
+        const updatedTaskPayload = action.payload.data;
+        const {
+          task: oldTask,
+          columnStatus,
+          taskIndex,
+        } = findTaskInColumns(state.columns, updatedTaskPayload.id);
+
+        if (oldTask) {
+          const mergedTask = { ...oldTask, ...updatedTaskPayload };
+          upsertTaskInColumns(
+            state.columns,
+            mergedTask,
+            columnStatus === mergedTask.status ? taskIndex : undefined
+          );
+
+          if (state.selectedTask?.id === mergedTask.id) {
+            state.selectedTask = mergedTask;
+          }
+        }
+      })
+      .addCase(updateTaskDescription.rejected, (state, action) => {
+        state.error =
+          action.error.message || 'Failed to update task description';
       })
 
       .addCase(deleteTaskById.fulfilled, (state, action) => {

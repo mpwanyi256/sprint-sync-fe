@@ -1,13 +1,14 @@
-import type { Metadata } from 'next';
-import { cookies } from 'next/headers';
-import { setRequestLocale } from 'next-intl/server';
 import Dashboard from '@/components/Dashboard';
 import { app } from '@/lib/constants';
 import type { APIResponse } from '@/types/api';
 import type { Task, TasksResponseData } from '@/types/task';
+import type { Metadata } from 'next';
+import { setRequestLocale } from 'next-intl/server';
+import { cookies } from 'next/headers';
 
 type DashboardPageProps = {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ task: string }>;
 };
 
 export const metadata: Metadata = {
@@ -17,6 +18,7 @@ export const metadata: Metadata = {
 
 export default async function DashboardPage(props: DashboardPageProps) {
   const { locale } = await props.params;
+  const { task } = await props.searchParams;
   setRequestLocale(locale);
 
   const cookieStore = await cookies();
@@ -43,5 +45,5 @@ export default async function DashboardPage(props: DashboardPageProps) {
     console.error('Failed to fetch initial tasks on server:', error);
   }
 
-  return <Dashboard initialTasks={initialTasks} />;
+  return <Dashboard initialTasks={initialTasks} initialTaskId={task} />;
 }

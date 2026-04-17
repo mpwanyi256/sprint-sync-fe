@@ -1,8 +1,8 @@
 'use client';
 
-import { Task } from '@/types/task';
-import { Clock, User } from 'lucide-react';
 import { cn, extractTaskTextContent } from '@/lib/utils';
+import { Task } from '@/types/task';
+import { User } from 'lucide-react';
 import { useState } from 'react';
 
 interface TaskListRowProps {

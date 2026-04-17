@@ -1,16 +1,17 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import {
-  CreateTaskData,
-  UpdateTaskData,
-  TaskStatus,
-  TasksResponse,
-  TaskResponse,
-  TasksResponseData,
-  Task,
-} from '@/types/task';
-import { User } from '@/types/auth';
 import api from '@/services/api';
 import { APIResponse } from '@/types';
+import { User } from '@/types/auth';
+import {
+  CreateTaskData,
+  Task,
+  TaskDetailsResponse,
+  TaskResponse,
+  TaskStatus,
+  TasksResponse,
+  TasksResponseData,
+  UpdateTaskData,
+} from '@/types/task';
+import { createAsyncThunk } from '@reduxjs/toolkit';
 
 export const fetchTasks = createAsyncThunk<
   TasksResponse,
@@ -31,6 +32,14 @@ export const fetchTasks = createAsyncThunk<
   return response.data;
 });
 
+export const fetchTaskById = createAsyncThunk<TaskDetailsResponse, string>(
+  'tasks/fetchTaskById',
+  async id => {
+    const response = await api.get<TaskDetailsResponse>(`/tasks/${id}`);
+    return response.data;
+  }
+);
+
 export const createTask = createAsyncThunk<TaskResponse, CreateTaskData>(
   'tasks/createTask',
   async taskData => {
@@ -39,11 +48,29 @@ export const createTask = createAsyncThunk<TaskResponse, CreateTaskData>(
   }
 );
 
-export const updateTaskById = createAsyncThunk<
+export const updateTaskDetails = createAsyncThunk<
   TaskResponse,
   { id: string; data: UpdateTaskData }
->('tasks/updateTaskById', async ({ id, data }) => {
+>('tasks/updateTaskDetails', async ({ id, data }) => {
   const response = await api.patch<TaskResponse>(`/tasks/${id}`, data);
+  return response.data;
+});
+
+export const updateTaskTitle = createAsyncThunk<
+  TaskResponse,
+  { id: string; title: string }
+>('tasks/updateTaskTitle', async ({ id, title }) => {
+  const response = await api.patch<TaskResponse>(`/tasks/${id}`, { title });
+  return response.data;
+});
+
+export const updateTaskDescription = createAsyncThunk<
+  TaskResponse,
+  { id: string; description: string }
+>('tasks/updateTaskDescription', async ({ id, description }) => {
+  const response = await api.patch<TaskResponse>(`/tasks/${id}`, {
+    description,
+  });
   return response.data;
 });
 
