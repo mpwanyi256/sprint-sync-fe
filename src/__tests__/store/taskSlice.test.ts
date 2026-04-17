@@ -1,9 +1,9 @@
-import { configureStore } from '@reduxjs/toolkit';
 import taskReducer, {
-  setSelectedTask,
   clearSearchResults,
+  setSelectedTask,
 } from '@/store/slices/task/taskSlice';
-import { TaskState, Task } from '@/types/task';
+import { Task, TaskState } from '@/types/task';
+import { configureStore } from '@reduxjs/toolkit';
 
 describe('Task Slice', () => {
   let store: ReturnType<typeof configureStore<{ task: any }>>;
@@ -16,6 +16,12 @@ describe('Task Slice', () => {
     totalMinutes: 60,
     totalTimeSpent: 3,
     assignedTo: null,
+    createdBy: {
+      _id: 'user-1',
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john@example.com',
+    },
     createdAt: '2023-12-25T10:30:00Z',
     updatedAt: '2023-12-25T10:30:00Z',
   };

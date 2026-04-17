@@ -1,6 +1,6 @@
+import { Task, TaskState, TaskStatus } from '@/types/task';
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { Task, TaskState, TaskStatus } from '@/types/task';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

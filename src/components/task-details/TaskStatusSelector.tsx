@@ -6,7 +6,12 @@ import {
   SelectItem,
   SelectTrigger,
 } from '@/components/ui/select';
-import { cn, getStatusLabel, STATUS_OPTIONS } from '@/lib/utils';
+import {
+  cn,
+  getStatusColor,
+  getStatusLabel,
+  STATUS_OPTIONS,
+} from '@/lib/utils';
 import { TaskStatus } from '@/types/task';
 import { Loader2 } from 'lucide-react';
 
@@ -25,10 +30,8 @@ export const TaskStatusSelector = ({
     <Select value={status} onValueChange={onStatusChange} disabled={isLoading}>
       <SelectTrigger
         className={cn(
-          'h-[32px] px-3 font-medium text-[13px] border-0 outline-none w-auto focus:ring-0 rounded bg-[#0c66e4] text-white hover:bg-[#0052cc] transition-colors',
-          status !== 'IN_PROGRESS' &&
-            status !== 'TODO' &&
-            'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          'h-[32px] px-3 font-medium text-[13px] border-0 outline-none w-auto focus:ring-0 rounded transition-colors',
+          getStatusColor(status)
         )}
       >
         <div className='flex items-center gap-1.5'>
