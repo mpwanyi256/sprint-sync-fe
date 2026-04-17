@@ -39,11 +39,29 @@ export const createTask = createAsyncThunk<TaskResponse, CreateTaskData>(
   }
 );
 
-export const updateTaskById = createAsyncThunk<
+export const updateTaskDetails = createAsyncThunk<
   TaskResponse,
   { id: string; data: UpdateTaskData }
->('tasks/updateTaskById', async ({ id, data }) => {
+>('tasks/updateTaskDetails', async ({ id, data }) => {
   const response = await api.patch<TaskResponse>(`/tasks/${id}`, data);
+  return response.data;
+});
+
+export const updateTaskTitle = createAsyncThunk<
+  TaskResponse,
+  { id: string; title: string }
+>('tasks/updateTaskTitle', async ({ id, title }) => {
+  const response = await api.patch<TaskResponse>(`/tasks/${id}`, { title });
+  return response.data;
+});
+
+export const updateTaskDescription = createAsyncThunk<
+  TaskResponse,
+  { id: string; description: string }
+>('tasks/updateTaskDescription', async ({ id, description }) => {
+  const response = await api.patch<TaskResponse>(`/tasks/${id}`, {
+    description,
+  });
   return response.data;
 });
 

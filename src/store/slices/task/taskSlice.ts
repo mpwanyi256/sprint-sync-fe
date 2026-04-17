@@ -3,7 +3,9 @@ import { TaskState, Task, TaskStatus } from '@/types/task';
 import {
   fetchTasks,
   createTask,
-  updateTaskById,
+  updateTaskDetails,
+  updateTaskTitle,
+  updateTaskDescription,
   deleteTaskById,
   updateTaskStatusById,
   assignTaskToUser,
@@ -140,7 +142,7 @@ const taskSlice = createSlice({
         state.error = action.error.message || 'Failed to create task';
       })
 
-      .addCase(updateTaskById.fulfilled, (state, action) => {
+      .addCase(updateTaskDetails.fulfilled, (state, action) => {
         const updatedTask = action.payload.data;
         const { columnStatus, taskIndex } = findTaskInColumns(
           state.columns,
@@ -157,8 +159,51 @@ const taskSlice = createSlice({
           state.selectedTask = updatedTask;
         }
       })
-      .addCase(updateTaskById.rejected, (state, action) => {
-        state.error = action.error.message || 'Failed to update task';
+      .addCase(updateTaskDetails.rejected, (state, action) => {
+        state.error = action.error.message || 'Failed to update task details';
+      })
+
+      .addCase(updateTaskTitle.fulfilled, (state, action) => {
+        const updatedTask = action.payload.data;
+        const { columnStatus, taskIndex } = findTaskInColumns(
+          state.columns,
+          updatedTask.id
+        );
+
+        upsertTaskInColumns(
+          state.columns,
+          updatedTask,
+          columnStatus === updatedTask.status ? taskIndex : undefined
+        );
+
+        if (state.selectedTask?.id === updatedTask.id) {
+          state.selectedTask = updatedTask;
+        }
+      })
+      .addCase(updateTaskTitle.rejected, (state, action) => {
+        state.error = action.error.message || 'Failed to update task title';
+      })
+
+      .addCase(updateTaskDescription.fulfilled, (state, action) => {
+        const updatedTask = action.payload.data;
+        const { columnStatus, taskIndex } = findTaskInColumns(
+          state.columns,
+          updatedTask.id
+        );
+
+        upsertTaskInColumns(
+          state.columns,
+          updatedTask,
+          columnStatus === updatedTask.status ? taskIndex : undefined
+        );
+
+        if (state.selectedTask?.id === updatedTask.id) {
+          state.selectedTask = updatedTask;
+        }
+      })
+      .addCase(updateTaskDescription.rejected, (state, action) => {
+        state.error =
+          action.error.message || 'Failed to update task description';
       })
 
       .addCase(deleteTaskById.fulfilled, (state, action) => {

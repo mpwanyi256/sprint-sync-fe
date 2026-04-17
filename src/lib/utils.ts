@@ -87,11 +87,16 @@ export const upsertTaskInColumns = (
 ) => {
   const { columnStatus, taskIndex } = findTaskInColumns(columns, task.id);
 
-  if (columnStatus && taskIndex !== -1) {
-    removeTaskFromColumn(columns, columnStatus, taskIndex);
+  // If task is in the same column, update it in place (preserve position)
+  if (columnStatus === task.status && columnStatus && taskIndex !== -1) {
+    columns[columnStatus].tasks[taskIndex] = task;
+  } else {
+    // Task moved to a different column or is new
+    if (columnStatus && taskIndex !== -1) {
+      removeTaskFromColumn(columns, columnStatus, taskIndex);
+    }
+    insertTaskIntoColumn(columns, task.status, task, index ?? 0);
   }
-
-  insertTaskIntoColumn(columns, task.status, task, index ?? 0);
 };
 
 const URL_OR_MARKDOWN_LINK_REGEX =

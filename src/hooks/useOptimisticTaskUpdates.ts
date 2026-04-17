@@ -6,7 +6,9 @@ import {
   assignTaskToUser,
   upsertTaskSnapshot,
   unAssignTask,
-  updateTaskById,
+  updateTaskDetails,
+  updateTaskTitle,
+  updateTaskDescription,
   updateTaskStatusById,
 } from '@/store/slices/task';
 import { User } from '@/types/auth';
@@ -69,39 +71,91 @@ export const useOptimisticTaskUpdates = () => {
     [dispatch, getTaskSnapshot, restoreTask]
   );
 
-  const saveTask = useCallback(
+  const updateDetails = useCallback(
     async (taskId: string, data: UpdateTaskData) => {
       const snapshot = getTaskSnapshot(taskId);
+      const originalStatus = snapshot.task.status;
+      const newStatus = (data.status ?? originalStatus) as TaskStatus;
+
       const optimisticTask: Task = {
         ...snapshot.task,
         ...data,
-        status: (data.status ?? snapshot.task.status) as TaskStatus,
+        status: newStatus,
+        updatedAt: OPTIMISTIC_TIMESTAMP(),
+      };
+
+      if (newStatus !== originalStatus) {
+        dispatch(
+          upsertTaskSnapshot({
+            task: optimisticTask,
+            index: undefined,
+          })
+        );
+      }
+
+      try {
+        const response = await dispatch(
+          updateTaskDetails({ id: taskId, data })
+        ).unwrap();
+
+        return response.data;
+      } catch (error) {
+        restoreTask(snapshot);
+        throw error;
+      }
+    },
+    [dispatch, getTaskSnapshot, restoreTask]
+  );
+
+  const updateTitle = useCallback(
+    async (taskId: string, title: string) => {
+      const snapshot = getTaskSnapshot(taskId);
+      const optimisticTask: Task = {
+        ...snapshot.task,
+        title,
         updatedAt: OPTIMISTIC_TIMESTAMP(),
       };
 
       dispatch(
         upsertTaskSnapshot({
           task: optimisticTask,
-          index:
-            optimisticTask.status === snapshot.task.status
-              ? snapshot.index
-              : undefined,
+          index: snapshot.index,
         })
       );
 
       try {
         const response = await dispatch(
-          updateTaskById({ id: taskId, data })
+          updateTaskTitle({ id: taskId, title })
         ).unwrap();
-        dispatch(
-          upsertTaskSnapshot({
-            task: response.data,
-            index:
-              response.data.status === snapshot.task.status
-                ? snapshot.index
-                : undefined,
-          })
-        );
+        return response.data;
+      } catch (error) {
+        restoreTask(snapshot);
+        throw error;
+      }
+    },
+    [dispatch, getTaskSnapshot, restoreTask]
+  );
+
+  const updateDescription = useCallback(
+    async (taskId: string, description: string) => {
+      const snapshot = getTaskSnapshot(taskId);
+      const optimisticTask: Task = {
+        ...snapshot.task,
+        description,
+        updatedAt: OPTIMISTIC_TIMESTAMP(),
+      };
+
+      dispatch(
+        upsertTaskSnapshot({
+          task: optimisticTask,
+          index: snapshot.index,
+        })
+      );
+
+      try {
+        const response = await dispatch(
+          updateTaskDescription({ id: taskId, description })
+        ).unwrap();
         return response.data;
       } catch (error) {
         restoreTask(snapshot);
@@ -172,7 +226,9 @@ export const useOptimisticTaskUpdates = () => {
 
   return {
     moveTask,
-    saveTask,
+    updateDetails,
+    updateTitle,
+    updateDescription,
     assignTask,
     unassignTask,
   };

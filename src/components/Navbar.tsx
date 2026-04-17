@@ -1,25 +1,28 @@
-import { useState, useRef, useEffect } from 'react';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { logoutUser } from '@/store/slices/auth';
-import { selectUser, selectIsAuthenticated } from '@/store/slices/auth';
-import { selectViewFormat, setViewFormat } from '@/store/slices/ui';
-import {
-  selectSearchResults,
-  selectSearchLoading,
-  selectSearchTerm,
-} from '@/store/slices/task/taskSelectors';
-import {
-  searchTasks,
-  clearSearchResults,
-  setSelectedTask,
-} from '@/store/slices/task';
-import { Menu, X, Search, Grid3X3, List, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import CreateTaskModal from '@/components/CreateTaskModal';
 import SearchDropdown from '@/components/SearchDropdown';
 import TaskDetailsModal from '@/components/TaskDetailsModal';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import {
+  logoutUser,
+  selectIsAuthenticated,
+  selectUser,
+} from '@/store/slices/auth';
+import {
+  clearSearchResults,
+  searchTasks,
+  setSelectedTask,
+} from '@/store/slices/task';
+import {
+  selectSearchLoading,
+  selectSearchResults,
+  selectSearchTerm,
+} from '@/store/slices/task/taskSelectors';
+import { selectViewFormat, setViewFormat } from '@/store/slices/ui';
 import { Task } from '@/types/task';
+import { Grid3X3, List, Menu, Plus, Search, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { AppIcon } from './AppIcon';
 
 interface NavbarProps {
@@ -45,6 +48,11 @@ const Navbar = ({ onSidebarToggle, sidebarOpen }: NavbarProps) => {
   );
   const searchRef = useRef<HTMLDivElement>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // const [mounted, setMounted] = useState(false);
+
+  // useEffect(() => {
+  //   setMounted(true);
+  // }, []);
 
   const handleLogout = () => {
     dispatch(logoutUser());
@@ -180,7 +188,7 @@ const Navbar = ({ onSidebarToggle, sidebarOpen }: NavbarProps) => {
             {/* Create task button */}
             <Button
               onClick={() => setIsCreateModalOpen(true)}
-              className='bg-blue-600 hover:bg-blue-700 text-white'
+              className='text-white'
             >
               <Plus className='h-4 w-4 mr-2' />
               Create Task

@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { useAppSelector } from '@/store/hooks';
-import { selectUser } from '@/store/slices/auth';
 import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
+import { useAppSelector } from '@/store/hooks';
+import { selectUser } from '@/store/slices/auth';
+import { useState } from 'react';
 
 interface ProtectedLayoutProps {
   children: React.ReactNode;
@@ -12,11 +12,7 @@ interface ProtectedLayoutProps {
 
 export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const user = useAppSelector(selectUser);
-
-  if (!user) {
-    return null;
-  }
+  useAppSelector(selectUser);
 
   return (
     <div className='min-h-screen bg-gray-50'>

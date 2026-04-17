@@ -1,11 +1,11 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
 import { useAppSelector } from '@/store/hooks';
 import { selectUser } from '@/store/slices/auth';
-import { LayoutDashboard, BarChart3, Users } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { BarChart3, LayoutDashboard, Users } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -59,14 +59,14 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                   className={cn(
                     'flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
                     isActive
-                      ? 'bg-indigo-100 text-indigo-700'
+                      ? 'bg-primary/10 text-primary'
                       : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
                   )}
                 >
                   <item.icon
                     className={cn(
                       'h-5 w-5',
-                      isActive ? 'text-indigo-700' : 'text-gray-400'
+                      isActive ? 'text-primary' : 'text-gray-400'
                     )}
                   />
                   <span>{item.name}</span>
