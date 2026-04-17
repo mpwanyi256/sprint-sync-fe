@@ -1,11 +1,12 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import { formatDate } from '@/lib/utils';
 import { Assignee, Task } from '@/types/task';
 import { ChevronDown, Settings, Zap } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { TaskAssignee } from './TaskAssignee';
 import { TaskMetadataField } from './TaskMetadataField';
+import { TaskReporter } from './TaskReporter';
 import { TaskStatusSelector } from './TaskStatusSelector';
 
 interface TaskDetailsPanelProps {
@@ -78,16 +79,7 @@ export const TaskDetailsPanel = ({
             />
             <TaskMetadataField label='Story point estimate' value='None' />
 
-            {/* Reporter uses TaskAssignee format roughly, or just text */}
-            <div className='text-[13px] font-medium text-gray-600'>
-              Reporter
-            </div>
-            <div className='flex items-center gap-2 text-[14px]'>
-              <div className='flex h-6 w-6 items-center justify-center rounded-full bg-[#5E6C84] text-white'>
-                <span className='text-[10px] font-bold'>SM</span>
-              </div>
-              <span className='text-gray-900'>Samuel Mpwanyi</span>
-            </div>
+            <TaskReporter creator={task.createdBy} />
           </div>
         </div>
       </div>

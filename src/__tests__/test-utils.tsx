@@ -1,13 +1,13 @@
-import React, { ReactElement } from 'react';
-import { render, RenderOptions } from '@testing-library/react';
-import { Provider } from 'react-redux';
-import { configureStore } from '@reduxjs/toolkit';
+import { RootState } from '@/store';
+import { aiReducer } from '@/store/slices/ai';
 import { authReducer } from '@/store/slices/auth';
 import { taskReducer } from '@/store/slices/task';
 import { uiReducer } from '@/store/slices/ui';
 import { usersReducer } from '@/store/slices/users';
-import { aiReducer } from '@/store/slices/ai';
-import { RootState } from '@/store';
+import { configureStore } from '@reduxjs/toolkit';
+import { render, RenderOptions } from '@testing-library/react';
+import React, { ReactElement } from 'react';
+import { Provider } from 'react-redux';
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   preloadedState?: any;
@@ -178,6 +178,12 @@ export const mockTask = {
   totalMinutes: 60,
   totalTimeSpent: 3,
   assignedTo: null,
+  createdBy: {
+    _id: 'user-1',
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'john@example.com',
+  },
   createdAt: '2023-12-25T10:30:00Z',
   updatedAt: '2023-12-25T10:30:00Z',
 };
@@ -259,7 +265,7 @@ export const mockFetchError = (error = 'Network error') => {
 
 // re-export everything
 export * from '@testing-library/react';
-export { screen, fireEvent, waitFor, act } from '@testing-library/react';
+export { act, fireEvent, screen, waitFor } from '@testing-library/react';
 
 // This file is a utility file, not a test file
 // It doesn't need any tests itself

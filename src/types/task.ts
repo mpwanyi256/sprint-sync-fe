@@ -22,6 +22,12 @@ export interface Task {
   totalMinutes: number;
   totalTimeSpent: number;
   assignedTo: Assignee | null;
+  createdBy: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
   createdAt: string;
   updatedAt: string;
 }
