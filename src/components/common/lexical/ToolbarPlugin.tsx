@@ -100,6 +100,7 @@ export function ToolbarPlugin() {
       {/* Undo/Redo */}
       <div className='flex items-center gap-1 mr-2'>
         <Button
+          type='button'
           variant='ghost'
           size='sm'
           onClick={() => editor.dispatchCommand(UNDO_COMMAND, undefined)}
@@ -108,6 +109,7 @@ export function ToolbarPlugin() {
           <Undo className='h-4 w-4' />
         </Button>
         <Button
+          type='button'
           variant='ghost'
           size='sm'
           onClick={() => editor.dispatchCommand(REDO_COMMAND, undefined)}
@@ -122,6 +124,7 @@ export function ToolbarPlugin() {
       {/* Headings */}
       <div className='flex items-center gap-1 mr-2'>
         <Button
+          type='button'
           variant='ghost'
           size='sm'
           onClick={() => formatHeading(1)}
@@ -131,6 +134,7 @@ export function ToolbarPlugin() {
           H1
         </Button>
         <Button
+          type='button'
           variant='ghost'
           size='sm'
           onClick={() => formatHeading(2)}
@@ -140,6 +144,7 @@ export function ToolbarPlugin() {
           H2
         </Button>
         <Button
+          type='button'
           variant='ghost'
           size='sm'
           onClick={() => formatHeading(3)}
@@ -155,6 +160,7 @@ export function ToolbarPlugin() {
       {/* Text Formatting */}
       <div className='flex items-center gap-1 mr-2'>
         <Button
+          type='button'
           variant={isBold ? 'default' : 'ghost'}
           size='sm'
           onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold')}
@@ -163,6 +169,7 @@ export function ToolbarPlugin() {
           <Bold className='h-4 w-4' />
         </Button>
         <Button
+          type='button'
           variant={isItalic ? 'default' : 'ghost'}
           size='sm'
           onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic')}
@@ -171,6 +178,7 @@ export function ToolbarPlugin() {
           <Italic className='h-4 w-4' />
         </Button>
         <Button
+          type='button'
           variant={isUnderline ? 'default' : 'ghost'}
           size='sm'
           onClick={() =>
@@ -181,6 +189,7 @@ export function ToolbarPlugin() {
           <Underline className='h-4 w-4' />
         </Button>
         <Button
+          type='button'
           variant={isStrikethrough ? 'default' : 'ghost'}
           size='sm'
           onClick={() =>
@@ -197,6 +206,7 @@ export function ToolbarPlugin() {
       {/* Block Formatting */}
       <div className='flex items-center gap-1 mr-2'>
         <Button
+          type='button'
           variant='ghost'
           size='sm'
           onClick={formatQuote}
@@ -205,6 +215,7 @@ export function ToolbarPlugin() {
           <Quote className='h-4 w-4' />
         </Button>
         <Button
+          type='button'
           variant={isCode ? 'default' : 'ghost'}
           size='sm'
           onClick={formatCode}
@@ -219,6 +230,7 @@ export function ToolbarPlugin() {
       {/* Lists */}
       <div className='flex items-center gap-1 mr-2'>
         <Button
+          type='button'
           variant='ghost'
           size='sm'
           onClick={() =>
@@ -229,6 +241,7 @@ export function ToolbarPlugin() {
           <List className='h-4 w-4' />
         </Button>
         <Button
+          type='button'
           variant='ghost'
           size='sm'
           onClick={() =>
@@ -244,6 +257,7 @@ export function ToolbarPlugin() {
 
       {/* Links */}
       <Button
+        type='button'
         variant='ghost'
         size='sm'
         onClick={() => editor.dispatchCommand(TOGGLE_LINK_COMMAND, 'https://')}

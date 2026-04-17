@@ -14,6 +14,8 @@ import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
+import { TRANSFORMERS } from '@lexical/markdown';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
@@ -60,6 +62,7 @@ interface RichTextEditorProps {
   className?: string;
   minHeight?: string;
   showToolbar?: boolean;
+  hideActionButtons?: boolean;
 }
 
 const theme = {
@@ -155,6 +158,7 @@ export const RichTextEditor = ({
   className,
   minHeight = '400px',
   showToolbar = true,
+  hideActionButtons = false,
 }: RichTextEditorProps) => {
   const [isEditing, setIsEditing] = useState(initialMode === 'edit');
   const [htmlContent, setHtmlContent] = useState<string>(value);
@@ -185,6 +189,29 @@ export const RichTextEditor = ({
     setIsEditing(false);
   }, [value]);
 
+  const handleViewModeClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    const link = target.closest('a');
+    if (link) {
+      e.stopPropagation();
+      e.preventDefault();
+      window.open(link.href, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    if (!readOnly) {
+      setIsEditing(true);
+    }
+  };
+
+  const convertLegacyMarkdownLinks = (text: string) => {
+    if (!text) return '';
+    return text.replace(
+      /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/gi,
+      '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">$1</a>'
+    );
+  };
+
   if (!isEditing && readOnly) {
     return (
       <div
@@ -192,7 +219,8 @@ export const RichTextEditor = ({
           'prose prose-sm max-w-none rounded-lg bg-white p-4 text-gray-900',
           className
         )}
-        dangerouslySetInnerHTML={{ __html: value }}
+        onClick={handleViewModeClick}
+        dangerouslySetInnerHTML={{ __html: convertLegacyMarkdownLinks(value) }}
       />
     );
   }
@@ -204,13 +232,14 @@ export const RichTextEditor = ({
           'group relative bg-white hover:bg-gray-100/50 hover:cursor-pointer rounded-lg py-2',
           className
         )}
-        onClick={() => setIsEditing(true)}
+        onClick={handleViewModeClick}
       >
         <div
           className='prose prose-sm max-w-none text-gray-900'
           dangerouslySetInnerHTML={{
-            __html:
-              htmlContent || `<p class="text-gray-400">${placeholder}</p>`,
+            __html: htmlContent
+              ? convertLegacyMarkdownLinks(htmlContent)
+              : `<p class="text-gray-400">${placeholder}</p>`,
           }}
         />
       </div>
@@ -225,7 +254,7 @@ export const RichTextEditor = ({
             ...editorConfig,
           }}
         >
-          <HtmlPlugin initialHtml={htmlContent} />
+          <HtmlPlugin initialHtml={convertLegacyMarkdownLinks(htmlContent)} />
           {showToolbar && <ToolbarPlugin />}
           <div className='relative'>
             <RichTextPlugin
@@ -248,24 +277,33 @@ export const RichTextEditor = ({
           <ListPlugin />
           <CheckListPlugin />
           <LinkPlugin />
+          <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
           <OnChangePlugin onChange={handleEditorChange} />
         </LexicalComposer>
       </div>
-      <div className='flex justify-end gap-2'>
-        <Button
-          variant='outline'
-          size='sm'
-          onClick={handleCancel}
-          className='hover:bg-gray-50'
-        >
-          <X className='mr-1 h-4 w-4' />
-          Cancel
-        </Button>
-        <Button size='sm' onClick={handleSave} className='text-white'>
-          <Check className='mr-1 h-4 w-4' />
-          Save
-        </Button>
-      </div>
+      {!hideActionButtons && (
+        <div className='flex justify-end gap-2'>
+          <Button
+            type='button'
+            variant='outline'
+            size='sm'
+            onClick={handleCancel}
+            className='hover:bg-gray-50'
+          >
+            <X className='mr-1 h-4 w-4' />
+            Cancel
+          </Button>
+          <Button
+            type='button'
+            size='sm'
+            onClick={handleSave}
+            className='text-white'
+          >
+            <Check className='mr-1 h-4 w-4' />
+            Save
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

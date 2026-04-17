@@ -1,23 +1,24 @@
-import { useState, useEffect, useRef } from 'react';
+import { RichTextEditor } from '@/components/common/RichTextEditor';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { cn, normalizeTaskContentLinks } from '@/lib/utils';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { createTask } from '@/store/slices/task';
 import {
   clearStreamingContent,
   generateTaskDescription,
 } from '@/store/slices/ai';
+import { createTask } from '@/store/slices/task';
 import { CreateTaskData } from '@/types/task';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { cn, normalizeTaskContentLinks } from '@/lib/utils';
 import { apiError, apiSuccess } from '@/util/toast';
-import { Sparkles, Loader2 } from 'lucide-react';
+import { Loader2, Sparkles } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 interface CreateTaskModalProps {
   isOpen: boolean;
@@ -71,15 +72,13 @@ const CreateTaskModal = ({
     const finalTitle = normalizeTaskContentLinks(
       titleRef.current?.innerHTML || formData.title
     );
-    const finalDesc = normalizeTaskContentLinks(
-      descRef.current?.innerHTML || formData.description
-    );
+    const finalDesc = formData.description;
 
+    // Check missing input (strip HTML first to see empty text)
     const plainTitle = finalTitle.replace(/<[^>]*>?/gm, '').trim();
     const plainDesc = finalDesc.replace(/<[^>]*>?/gm, '').trim();
 
     if (!plainTitle || !plainDesc) {
-      console.log('Missing input...');
       apiError('Please enter a task title and description');
       return;
     }
@@ -129,9 +128,7 @@ const CreateTaskModal = ({
   const handleAiSuggest = async () => {
     const plainTitle =
       titleRef.current?.innerText || formData.title.replace(/<[^>]*>?/gm, '');
-    const plainDesc =
-      descRef.current?.innerText ||
-      formData.description.replace(/<[^>]*>?/gm, '');
+    const plainDesc = formData.description.replace(/<[^>]*>?/gm, '');
 
     if (!plainTitle.trim()) {
       apiError('Please enter a task title first');
@@ -167,7 +164,7 @@ const CreateTaskModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className='sm:max-w-[500px]'>
+      <DialogContent className='sm:max-w-[800px]'>
         <DialogHeader>
           <DialogTitle>Create New Task</DialogTitle>
         </DialogHeader>
@@ -183,7 +180,7 @@ const CreateTaskModal = ({
               onBlur={e =>
                 handleInputChange('title', e.currentTarget.innerHTML)
               }
-              className='flex min-h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 empty:before:content-[attr(data-placeholder)] empty:before:text-gray-400'
+              className='flex min-h-10 w-full rounded-md border border-gray-100 bg-background px-3 py-2 text-sm ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 empty:before:content-[attr(data-placeholder)] empty:before:text-gray-400'
               data-placeholder='Enter task title'
               dangerouslySetInnerHTML={{ __html: formData.title }}
             />
@@ -209,20 +206,22 @@ const CreateTaskModal = ({
               </Button>
             </div>
             <div
-              id='description'
-              ref={descRef}
-              contentEditable
-              suppressContentEditableWarning={true}
-              onBlur={e =>
-                handleInputChange('description', e.currentTarget.innerHTML)
-              }
-              data-placeholder='Enter task description or use AI to generate one'
               className={cn(
-                'flex flex-col min-h-[120px] max-h-[500px] overflow-y-auto w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 empty:before:content-[attr(data-placeholder)] empty:before:text-gray-400',
-                generatingDescription ? 'border-blue-300 bg-blue-50' : ''
+                'w-full border rounded-md',
+                generatingDescription ? 'border-blue-300' : 'border-input'
               )}
-              dangerouslySetInnerHTML={{ __html: formData.description }}
-            />
+            >
+              <RichTextEditor
+                key={generatingDescription ? 'generating' : 'idle'}
+                value={formData.description}
+                onChange={html => handleInputChange('description', html)}
+                placeholder='Enter task description or use AI to generate one'
+                minHeight='200px'
+                showToolbar
+                mode='edit'
+                hideActionButtons={true}
+              />
+            </div>
             {generatingDescription && streamingContent && (
               <div className='text-sm text-blue-600 bg-blue-50 p-2 rounded border border-blue-200'>
                 <div className='flex items-center gap-2 mb-1'>

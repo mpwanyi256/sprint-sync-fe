@@ -143,20 +143,24 @@ const taskSlice = createSlice({
       })
 
       .addCase(updateTaskDetails.fulfilled, (state, action) => {
-        const updatedTask = action.payload.data;
-        const { columnStatus, taskIndex } = findTaskInColumns(
-          state.columns,
-          updatedTask.id
-        );
+        const updatedTaskPayload = action.payload.data;
+        const {
+          task: oldTask,
+          columnStatus,
+          taskIndex,
+        } = findTaskInColumns(state.columns, updatedTaskPayload.id);
 
-        upsertTaskInColumns(
-          state.columns,
-          updatedTask,
-          columnStatus === updatedTask.status ? taskIndex : undefined
-        );
+        if (oldTask) {
+          const mergedTask = { ...oldTask, ...updatedTaskPayload };
+          upsertTaskInColumns(
+            state.columns,
+            mergedTask,
+            columnStatus === mergedTask.status ? taskIndex : undefined
+          );
 
-        if (state.selectedTask?.id === updatedTask.id) {
-          state.selectedTask = updatedTask;
+          if (state.selectedTask?.id === mergedTask.id) {
+            state.selectedTask = mergedTask;
+          }
         }
       })
       .addCase(updateTaskDetails.rejected, (state, action) => {
@@ -164,20 +168,24 @@ const taskSlice = createSlice({
       })
 
       .addCase(updateTaskTitle.fulfilled, (state, action) => {
-        const updatedTask = action.payload.data;
-        const { columnStatus, taskIndex } = findTaskInColumns(
-          state.columns,
-          updatedTask.id
-        );
+        const updatedTaskPayload = action.payload.data;
+        const {
+          task: oldTask,
+          columnStatus,
+          taskIndex,
+        } = findTaskInColumns(state.columns, updatedTaskPayload.id);
 
-        upsertTaskInColumns(
-          state.columns,
-          updatedTask,
-          columnStatus === updatedTask.status ? taskIndex : undefined
-        );
+        if (oldTask) {
+          const mergedTask = { ...oldTask, ...updatedTaskPayload };
+          upsertTaskInColumns(
+            state.columns,
+            mergedTask,
+            columnStatus === mergedTask.status ? taskIndex : undefined
+          );
 
-        if (state.selectedTask?.id === updatedTask.id) {
-          state.selectedTask = updatedTask;
+          if (state.selectedTask?.id === mergedTask.id) {
+            state.selectedTask = mergedTask;
+          }
         }
       })
       .addCase(updateTaskTitle.rejected, (state, action) => {
@@ -185,20 +193,24 @@ const taskSlice = createSlice({
       })
 
       .addCase(updateTaskDescription.fulfilled, (state, action) => {
-        const updatedTask = action.payload.data;
-        const { columnStatus, taskIndex } = findTaskInColumns(
-          state.columns,
-          updatedTask.id
-        );
+        const updatedTaskPayload = action.payload.data;
+        const {
+          task: oldTask,
+          columnStatus,
+          taskIndex,
+        } = findTaskInColumns(state.columns, updatedTaskPayload.id);
 
-        upsertTaskInColumns(
-          state.columns,
-          updatedTask,
-          columnStatus === updatedTask.status ? taskIndex : undefined
-        );
+        if (oldTask) {
+          const mergedTask = { ...oldTask, ...updatedTaskPayload };
+          upsertTaskInColumns(
+            state.columns,
+            mergedTask,
+            columnStatus === mergedTask.status ? taskIndex : undefined
+          );
 
-        if (state.selectedTask?.id === updatedTask.id) {
-          state.selectedTask = updatedTask;
+          if (state.selectedTask?.id === mergedTask.id) {
+            state.selectedTask = mergedTask;
+          }
         }
       })
       .addCase(updateTaskDescription.rejected, (state, action) => {

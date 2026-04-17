@@ -63,15 +63,13 @@ export const TaskDetailsContent = ({
   };
 
   const handleDescriptionSave = async (html: string) => {
-    const normalized = normalizeTaskContentLinks(html);
-
-    if (!extractTaskTextContent(normalized)) {
+    if (!html.replace(/<[^>]*>?/gm, '').trim()) {
       apiError('Task description is required');
       return;
     }
 
     try {
-      const updatedTask = await updateDescription(localTask.id, normalized);
+      const updatedTask = await updateDescription(localTask.id, html);
 
       setLocalTask(updatedTask);
       apiSuccess('Task description updated');
