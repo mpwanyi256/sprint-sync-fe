@@ -48,11 +48,6 @@ const Navbar = ({ onSidebarToggle, sidebarOpen }: NavbarProps) => {
   );
   const searchRef = useRef<HTMLDivElement>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  // const [mounted, setMounted] = useState(false);
-
-  // useEffect(() => {
-  //   setMounted(true);
-  // }, []);
 
   const handleLogout = () => {
     dispatch(logoutUser());
@@ -196,16 +191,21 @@ const Navbar = ({ onSidebarToggle, sidebarOpen }: NavbarProps) => {
           </div>
 
           {/* Right side - User info and logout */}
-          {isAuthenticated && user && (
-            <div className='flex items-center space-x-4'>
-              <span className='text-gray-700 hidden sm:block'>
-                Welcome, {getUserDisplayName()}
-              </span>
-              <Button onClick={handleLogout} variant='outline' size='sm'>
-                Logout
-              </Button>
-            </div>
-          )}
+          <div
+            suppressHydrationWarning
+            className='flex items-center space-x-4 min-w-[150px] justify-end'
+          >
+            {isAuthenticated && user && (
+              <>
+                <span className='text-gray-700 hidden sm:block'>
+                  Welcome, {getUserDisplayName()}
+                </span>
+                <Button onClick={handleLogout} variant='outline' size='sm'>
+                  Logout
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </div>
       <CreateTaskModal

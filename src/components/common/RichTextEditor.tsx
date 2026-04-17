@@ -27,13 +27,13 @@ import { ToolbarPlugin } from './lexical/ToolbarPlugin';
 
 function HtmlPlugin({ initialHtml }: { initialHtml: string }) {
   const [editor] = useLexicalComposerContext();
-  // const [isFirstRender, setIsFirstRender] = useState(true);
-  // const isFirstRender = useMemo(() => )
+  const [isFirstRender, setIsFirstRender] = useState(true);
 
   useEffect(() => {
-    if (!initialHtml) return;
+    if (!initialHtml || !isFirstRender) return;
 
-    // setIsFirstRender(false);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsFirstRender(false);
 
     editor.update(() => {
       const parser = new DOMParser();
@@ -45,7 +45,7 @@ function HtmlPlugin({ initialHtml }: { initialHtml: string }) {
       root.select();
       $insertNodes(nodes);
     });
-  }, [editor, initialHtml]);
+  }, [editor, initialHtml, isFirstRender]);
 
   return null;
 }

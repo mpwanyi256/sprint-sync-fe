@@ -1,6 +1,5 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -9,7 +8,7 @@ import {
 } from '@/components/ui/select';
 import { cn, getStatusLabel, STATUS_OPTIONS } from '@/lib/utils';
 import { TaskStatus } from '@/types/task';
-import { ChevronDown, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 interface TaskStatusSelectorProps {
   status: TaskStatus;

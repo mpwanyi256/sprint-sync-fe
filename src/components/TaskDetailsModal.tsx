@@ -2,6 +2,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useAppSelector } from '@/store/hooks';
 import { selectUser } from '@/store/slices/auth';
 import { Task } from '@/types/task';
+import { DialogTitle } from '@radix-ui/react-dialog';
 import { TaskDetailsContent } from './task-details/TaskDetailsContent';
 interface TaskDetailsModalProps {
   task: Task | null;
@@ -20,6 +21,7 @@ const TaskDetailsModal = ({ task, isOpen, onClose }: TaskDetailsModalProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className='max-h-[95vh] overflow-y-auto overflow-x-visible p-0 sm:max-w-[1040px]'>
+        <DialogTitle className='sr-only'>Task Details</DialogTitle>
         <TaskDetailsContent
           key={`${task.id}-${task.updatedAt}`}
           task={task}
