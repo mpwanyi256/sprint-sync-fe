@@ -252,20 +252,20 @@ export const TaskDetailsContent = ({
                 onSave={handleDescriptionSave}
                 showToolbar
                 minHeight='150px'
+                maxWidth='630px'
                 className='text-sm'
               />
             </div>
 
             {/* Child Issues placeholder */}
-            <div className='space-y-3 pt-2'>
+            {/* <div className='space-y-3 pt-2'>
               <p className='text-[15px] font-semibold text-gray-900'>
                 Subtasks
               </p>
-              {/* placeholder space */}
-            </div>
+            </div> */}
 
             {/* Activity Section */}
-            <div className='space-y-4 pt-6'>
+            <div className='space-y-4'>
               <div className='flex items-center justify-between'>
                 <p className='text-[15px] font-semibold text-gray-900'>
                   Activity
@@ -273,18 +273,18 @@ export const TaskDetailsContent = ({
               </div>
 
               <div className='flex items-center gap-4 text-sm font-medium border-b border-gray-200'>
-                <button className='py-2 px-1 text-gray-500 hover:text-gray-900'>
+                {/* <button className='py-2 px-1 text-gray-500 hover:text-gray-900'>
                   All
-                </button>
+                </button> */}
                 <button className='py-2 px-1 text-blue-600 border-b-2 border-blue-600'>
                   Comments
                 </button>
-                <button className='py-2 px-1 text-gray-500 hover:text-gray-900'>
+                {/* <button className='py-2 px-1 text-gray-500 hover:text-gray-900'>
                   History
                 </button>
                 <button className='py-2 px-1 text-gray-500 hover:text-gray-900'>
                   Work log
-                </button>
+                </button> */}
               </div>
 
               <TaskComments

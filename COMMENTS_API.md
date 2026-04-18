@@ -21,6 +21,7 @@ The Task Comments API allows users to add, view, edit, and delete comments on ta
 **Authentication:** Required (Bearer Token)
 
 **Request Body:**
+
 ```json
 {
   "message": "This is a comment about the task"
@@ -28,10 +29,12 @@ The Task Comments API allows users to add, view, edit, and delete comments on ta
 ```
 
 **Parameters:**
+
 - `taskId` (URL param, required): The ID of the task
 - `message` (body, required): Comment text (1-5000 characters)
 
 **Response (201 Created):**
+
 ```json
 {
   "statusCode": "10000",
@@ -53,20 +56,22 @@ The Task Comments API allows users to add, view, edit, and delete comments on ta
 ```
 
 **Error Responses:**
+
 - `400 Bad Request`: Invalid message format or missing required fields
 - `401 Unauthorized`: Missing or invalid authentication token
 - `404 Not Found`: Task does not exist
 
 **Example (JavaScript/Fetch):**
+
 ```javascript
 async function createComment(taskId, message, accessToken) {
   const response = await fetch(`/api/tasks/${taskId}/comments`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${accessToken}`
+      Authorization: `Bearer ${accessToken}`,
     },
-    body: JSON.stringify({ message })
+    body: JSON.stringify({ message }),
   });
 
   if (!response.ok) {
@@ -86,10 +91,12 @@ async function createComment(taskId, message, accessToken) {
 **Authentication:** Required (Bearer Token)
 
 **Query Parameters:**
+
 - `page` (optional, default: 1): Page number for pagination
 - `limit` (optional, default: 10): Number of comments per page
 
 **Response (200 OK):**
+
 ```json
 {
   "statusCode": "10000",
@@ -136,18 +143,20 @@ async function createComment(taskId, message, accessToken) {
 **Important:** Comments are sorted by `createdAt` in **descending order** (newest first).
 
 **Error Responses:**
+
 - `401 Unauthorized`: Missing or invalid authentication token
 - `404 Not Found`: Task does not exist
 
 **Example (JavaScript/Fetch):**
+
 ```javascript
 async function getTaskComments(taskId, page = 1, limit = 10, accessToken) {
   const queryParams = new URLSearchParams({ page, limit });
   const response = await fetch(`/api/tasks/${taskId}/comments?${queryParams}`, {
     method: 'GET',
     headers: {
-      'Authorization': `Bearer ${accessToken}`
-    }
+      Authorization: `Bearer ${accessToken}`,
+    },
   });
 
   if (!response.ok) {
@@ -167,6 +176,7 @@ async function getTaskComments(taskId, page = 1, limit = 10, accessToken) {
 **Authentication:** Required (Bearer Token)
 
 **Response (200 OK):**
+
 ```json
 {
   "statusCode": "10000",
@@ -188,6 +198,7 @@ async function getTaskComments(taskId, page = 1, limit = 10, accessToken) {
 ```
 
 **Error Responses:**
+
 - `401 Unauthorized`: Missing or invalid authentication token
 - `404 Not Found`: Comment does not exist
 
@@ -202,6 +213,7 @@ async function getTaskComments(taskId, page = 1, limit = 10, accessToken) {
 **Authorization:** Only the comment author can update
 
 **Request Body:**
+
 ```json
 {
   "message": "Updated comment text"
@@ -209,6 +221,7 @@ async function getTaskComments(taskId, page = 1, limit = 10, accessToken) {
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "statusCode": "10000",
@@ -230,25 +243,24 @@ async function getTaskComments(taskId, page = 1, limit = 10, accessToken) {
 ```
 
 **Error Responses:**
+
 - `400 Bad Request`: Invalid message format
 - `401 Unauthorized`: Missing or invalid authentication token
 - `403 Forbidden`: User is not the comment author
 - `404 Not Found`: Comment does not exist
 
 **Example (JavaScript/Fetch):**
+
 ```javascript
 async function updateComment(taskId, commentId, newMessage, accessToken) {
-  const response = await fetch(
-    `/api/tasks/${taskId}/comments/${commentId}`,
-    {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
-      },
-      body: JSON.stringify({ message: newMessage })
-    }
-  );
+  const response = await fetch(`/api/tasks/${taskId}/comments/${commentId}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({ message: newMessage }),
+  });
 
   if (!response.ok) {
     if (response.status === 403) {
@@ -272,6 +284,7 @@ async function updateComment(taskId, commentId, newMessage, accessToken) {
 **Authorization:** Only the comment author can delete
 
 **Response (200 OK):**
+
 ```json
 {
   "statusCode": "10000",
@@ -283,22 +296,21 @@ async function updateComment(taskId, commentId, newMessage, accessToken) {
 ```
 
 **Error Responses:**
+
 - `401 Unauthorized`: Missing or invalid authentication token
 - `403 Forbidden`: User is not the comment author
 - `404 Not Found`: Comment does not exist
 
 **Example (JavaScript/Fetch):**
+
 ```javascript
 async function deleteComment(taskId, commentId, accessToken) {
-  const response = await fetch(
-    `/api/tasks/${taskId}/comments/${commentId}`,
-    {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`
-      }
-    }
-  );
+  const response = await fetch(`/api/tasks/${taskId}/comments/${commentId}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
 
   if (!response.ok) {
     if (response.status === 403) {
@@ -552,26 +564,31 @@ export default TaskComments;
 ## Key Features for Frontend Developers
 
 ### ✅ Comment Ordering
+
 - Comments are **always sorted by creation time (newest first)**
 - When you fetch comments, the latest comment appears at the top
 - No need to reverse arrays on the frontend
 
 ### ✅ Ownership Restrictions
+
 - Users can only **edit their own comments** (403 Forbidden error if not)
 - Users can only **delete their own comments** (403 Forbidden error if not)
 - Display edit/delete buttons conditionally based on `currentUserId === comment.user.id`
 
 ### ✅ Pagination
+
 - Default: 10 comments per page
 - Response includes `totalCount`, `totalPages`, `page`, and `limit`
 - Implement pagination controls for better UX with many comments
 
 ### ✅ Timestamps
+
 - `createdAt`: When comment was created (immutable)
 - `updatedAt`: When comment was last modified (changes on edit)
 - Use these for sorting and display purposes
 
 ### ✅ Error Handling
+
 - `400 Bad Request`: Invalid input (empty message, too long, etc.)
 - `401 Unauthorized`: Missing/invalid token
 - `403 Forbidden`: Permission denied (not comment owner)
@@ -594,11 +611,10 @@ export default TaskComments;
 
 ## Validation Rules
 
-| Field | Rules |
-|-------|-------|
-| `message` | 1-5000 characters, required |
-| `taskId` | Valid MongoDB ObjectId |
-| `commentId` | Valid MongoDB ObjectId |
-| `page` | Positive integer, optional (default: 1) |
-| `limit` | Positive integer, optional (default: 10) |
-
+| Field       | Rules                                    |
+| ----------- | ---------------------------------------- |
+| `message`   | 1-5000 characters, required              |
+| `taskId`    | Valid MongoDB ObjectId                   |
+| `commentId` | Valid MongoDB ObjectId                   |
+| `page`      | Positive integer, optional (default: 1)  |
+| `limit`     | Positive integer, optional (default: 10) |

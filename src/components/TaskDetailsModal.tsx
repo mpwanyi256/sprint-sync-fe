@@ -130,20 +130,22 @@ const TaskDetailsModal = ({
             <p className='text-gray-500'>Task not found</p>
           </div>
         ) : (
-          <TaskDetailsContent
-            key={`${taskId}-${task.updatedAt}`}
-            task={task}
-            isAdmin={isAdmin}
-            onClose={onClose}
-            comments={comments}
-            commentsPagination={commentsPagination}
-            commentsLoading={isLoadingComments}
-            commentsPage={commentsPage}
-            onLoadComments={handleLoadComments}
-            onAddComment={handleAddComment}
-            onDeleteComment={handleDeleteComment}
-            currentUserName={`${currentUser?.firstName || ''} ${currentUser?.lastName || ''}`.trim()}
-          />
+          <div className='flex flex-col h-full max-h-[95vh] bg-white'>
+            <TaskDetailsContent
+              key={`${taskId}-${task.updatedAt}`}
+              task={task}
+              isAdmin={isAdmin}
+              onClose={onClose}
+              comments={comments}
+              commentsPagination={commentsPagination}
+              commentsLoading={isLoadingComments}
+              commentsPage={commentsPage}
+              onLoadComments={handleLoadComments}
+              onAddComment={handleAddComment}
+              onDeleteComment={handleDeleteComment}
+              currentUserName={`${currentUser?.firstName || ''} ${currentUser?.lastName || ''}`.trim()}
+            />
+          </div>
         )}
       </DialogContent>
     </Dialog>

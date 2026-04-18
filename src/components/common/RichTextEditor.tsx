@@ -62,6 +62,7 @@ interface RichTextEditorProps {
   className?: string;
   minHeight?: string;
   maxHeight?: string;
+  maxWidth?: string;
   showToolbar?: boolean;
   hideActionButtons?: boolean;
 }
@@ -159,6 +160,7 @@ export const RichTextEditor = ({
   className,
   minHeight = '400px',
   maxHeight = '500px',
+  maxWidth = '100%',
   showToolbar = true,
   hideActionButtons = false,
 }: RichTextEditorProps) => {
@@ -223,7 +225,7 @@ export const RichTextEditor = ({
         )}
         onClick={handleViewModeClick}
         dangerouslySetInnerHTML={{ __html: convertLegacyMarkdownLinks(value) }}
-        style={{ maxHeight, overflowY: 'auto' }}
+        style={{ maxHeight, maxWidth, overflowY: 'auto' }}
       />
     );
   }
@@ -244,7 +246,7 @@ export const RichTextEditor = ({
               ? convertLegacyMarkdownLinks(htmlContent)
               : `<p class="text-gray-400">${placeholder}</p>`,
           }}
-          style={{ maxHeight, overflowY: 'auto' }}
+          style={{ maxHeight, maxWidth, overflowY: 'auto' }}
         />
       </div>
     );
@@ -265,7 +267,7 @@ export const RichTextEditor = ({
               contentEditable={
                 <ContentEditable
                   className='min-h-[200px] p-4 outline-none'
-                  style={{ minHeight, maxHeight, overflowY: 'auto' }}
+                  style={{ minHeight, maxHeight, maxWidth, overflowY: 'auto' }}
                 />
               }
               placeholder={
