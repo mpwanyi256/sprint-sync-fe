@@ -1,13 +1,14 @@
-import { configureStore, combineReducers } from '@reduxjs/toolkit';
-import { authReducer } from './slices/auth';
-import { taskReducer } from './slices/task';
+import { isDev } from '@/lib/constants';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import { persistReducer, persistStore } from 'redux-persist';
+import { adminReducer } from './slices/admin';
 import { aiReducer } from './slices/ai';
+import { analyticsReducer } from './slices/analytics';
+import { authReducer } from './slices/auth';
+import { selectedTaskReducer } from './slices/selectedTask';
+import { taskReducer } from './slices/task';
 import { uiReducer } from './slices/ui';
 import { usersReducer } from './slices/users';
-import { analyticsReducer } from './slices/analytics';
-import { adminReducer } from './slices/admin';
-import { persistReducer, persistStore } from 'redux-persist';
-import { isDev } from '@/lib/constants';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
   users: usersReducer,
   analytics: analyticsReducer,
   admin: adminReducer,
+  selectedTask: selectedTaskReducer,
 });
 
 // Create store factory for SSR compatibility

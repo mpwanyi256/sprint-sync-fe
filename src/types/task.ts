@@ -37,7 +37,6 @@ export interface TaskCommentUser {
   firstName: string;
   lastName: string;
   email: string;
-  avatar?: string;
 }
 
 export interface TaskComment {
@@ -129,3 +128,20 @@ export interface TaskResponse extends APIResponse<Task> {
 }
 
 export interface TaskDetailsResponse extends APIResponse<{ task: Task }> {}
+
+// Selected task
+export interface SelectedTaskState {
+  task: Task | null;
+  comments: CommentsResponseData;
+}
+
+export interface GetTaskCommentsPayload {
+  taskId: string;
+  page: number;
+  limit: number;
+}
+
+export interface CreateCommentPayload {
+  taskId: string;
+  message: string;
+}

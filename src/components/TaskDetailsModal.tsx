@@ -1,10 +1,15 @@
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { commentsApi } from '@/services/comments';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectUser } from '@/store/slices/auth';
+import {
+  createComment,
+  deleteComment,
+  fetchTaskComments,
+  selectSelectedTaskComments,
+  selectSelectedTaskCommentsPagination,
+} from '@/store/slices/selectedTask';
 import { selectSelectedTask } from '@/store/slices/task';
 import { fetchTaskById } from '@/store/slices/task/taskThunks';
-import { CommentsPagination, TaskComment } from '@/types/task';
 import { apiError } from '@/util/toast';
 import { DialogTitle } from '@radix-ui/react-dialog';
 import { Loader2 } from 'lucide-react';
@@ -26,10 +31,10 @@ const TaskDetailsModal = ({
   const currentUser = useAppSelector(selectUser);
   const isAdmin = currentUser?.isAdmin || false;
   const task = useAppSelector(selectSelectedTask);
-  const [comments, setComments] = useState<TaskComment[]>([]);
-  const [commentsPagination, setCommentsPagination] =
-    useState<CommentsPagination | null>(null);
-  const [commentsPage, setCommentsPage] = useState(1);
+  const comments = useAppSelector(selectSelectedTaskComments);
+  const commentsPagination = useAppSelector(
+    selectSelectedTaskCommentsPagination
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingComments, setIsLoadingComments] = useState(true);
 
@@ -37,13 +42,16 @@ const TaskDetailsModal = ({
     if (taskId && isOpen) {
       const getTaskDetails = async () => {
         try {
-          const [, commentsResponse] = await Promise.all([
+          await Promise.all([
             dispatch(fetchTaskById(taskId)).unwrap(),
-            commentsApi.getComments(taskId, 1, 10),
+            dispatch(
+              fetchTaskComments({ taskId, page: 1, limit: 10 })
+            ).unwrap(),
+            // commentsApi.getComments(taskId, 1, 10),
           ]);
-          setComments(commentsResponse.comments);
-          setCommentsPagination(commentsResponse.pagination);
-          setCommentsPage(1);
+          // setComments(commentsResponse.comments);
+          // setCommentsPagination(commentsResponse.pagination);
+          // setCommentsPage(1);
         } catch (error) {
           apiError(
             error instanceof Error
@@ -63,10 +71,7 @@ const TaskDetailsModal = ({
     if (!taskId) return;
     setIsLoadingComments(true);
     try {
-      const commentsResponse = await commentsApi.getComments(taskId, page, 10);
-      setComments(commentsResponse.comments);
-      setCommentsPagination(commentsResponse.pagination);
-      setCommentsPage(page);
+      dispatch(fetchTaskComments({ taskId, page, limit: 10 })).unwrap();
     } catch (error) {
       apiError(
         error instanceof Error ? error.message : 'Failed to load comments'
@@ -79,15 +84,7 @@ const TaskDetailsModal = ({
   const handleAddComment = async (message: string) => {
     if (!taskId || !message.trim()) return;
     try {
-      const { comment } = await commentsApi.createComment(taskId, message);
-      if (commentsPage !== 1) {
-        await handleLoadComments(1);
-        return;
-      }
-      setComments(prev => [comment, ...prev]);
-      setCommentsPagination(prev =>
-        prev ? { ...prev, totalCount: prev.totalCount + 1 } : prev
-      );
+      dispatch(createComment({ taskId, message })).unwrap();
     } catch (error) {
       apiError(
         error instanceof Error ? error.message : 'Failed to post comment'
@@ -97,15 +94,9 @@ const TaskDetailsModal = ({
 
   const handleDeleteComment = async (commentId: string) => {
     if (!taskId) return;
-    const previousComments = comments;
-    setComments(prev => prev.filter(comment => comment.id !== commentId));
     try {
-      await commentsApi.deleteComment(taskId, commentId);
-      setCommentsPagination(prev =>
-        prev ? { ...prev, totalCount: Math.max(prev.totalCount - 1, 0) } : prev
-      );
+      dispatch(deleteComment({ taskId, commentId })).unwrap();
     } catch (error) {
-      setComments(previousComments);
       apiError(
         error instanceof Error ? error.message : 'Failed to delete comment'
       );
@@ -139,7 +130,7 @@ const TaskDetailsModal = ({
               comments={comments}
               commentsPagination={commentsPagination}
               commentsLoading={isLoadingComments}
-              commentsPage={commentsPage}
+              commentsPage={commentsPagination.page}
               onLoadComments={handleLoadComments}
               onAddComment={handleAddComment}
               onDeleteComment={handleDeleteComment}
