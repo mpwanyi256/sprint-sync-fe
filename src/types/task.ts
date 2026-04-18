@@ -32,6 +32,39 @@ export interface Task {
   updatedAt: string;
 }
 
+export interface TaskCommentUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  avatar?: string;
+}
+
+export interface TaskComment {
+  id: string;
+  taskId: string;
+  user: TaskCommentUser;
+  message: string;
+  createdAt: string;
+  updatedAt: string;
+  likes?: number;
+  isLiked?: boolean;
+}
+
+export interface CommentsPagination {
+  page: number;
+  limit: number;
+  totalCount: number;
+  totalPages: number;
+}
+
+export interface CommentsResponseData {
+  comments: TaskComment[];
+  pagination: CommentsPagination;
+}
+
+export interface CommentsResponse extends APIResponse<CommentsResponseData> {}
+
 export interface CreateTaskData {
   title: string;
   description: string;

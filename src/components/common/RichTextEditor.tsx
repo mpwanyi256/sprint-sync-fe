@@ -10,16 +10,16 @@ import { CodeHighlightNode, CodeNode } from '@lexical/code';
 import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html';
 import { AutoLinkNode, LinkNode } from '@lexical/link';
 import { ListItemNode, ListNode } from '@lexical/list';
+import { TRANSFORMERS } from '@lexical/markdown';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
-import { TRANSFORMERS } from '@lexical/markdown';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
+import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
@@ -61,6 +61,7 @@ interface RichTextEditorProps {
   mode?: 'view' | 'edit';
   className?: string;
   minHeight?: string;
+  maxHeight?: string;
   showToolbar?: boolean;
   hideActionButtons?: boolean;
 }
@@ -157,6 +158,7 @@ export const RichTextEditor = ({
   mode: initialMode = 'view',
   className,
   minHeight = '400px',
+  maxHeight = '500px',
   showToolbar = true,
   hideActionButtons = false,
 }: RichTextEditorProps) => {
@@ -221,6 +223,7 @@ export const RichTextEditor = ({
         )}
         onClick={handleViewModeClick}
         dangerouslySetInnerHTML={{ __html: convertLegacyMarkdownLinks(value) }}
+        style={{ maxHeight, overflowY: 'auto' }}
       />
     );
   }
@@ -241,6 +244,7 @@ export const RichTextEditor = ({
               ? convertLegacyMarkdownLinks(htmlContent)
               : `<p class="text-gray-400">${placeholder}</p>`,
           }}
+          style={{ maxHeight, overflowY: 'auto' }}
         />
       </div>
     );
@@ -261,7 +265,7 @@ export const RichTextEditor = ({
               contentEditable={
                 <ContentEditable
                   className='min-h-[200px] p-4 outline-none'
-                  style={{ minHeight }}
+                  style={{ minHeight, maxHeight, overflowY: 'auto' }}
                 />
               }
               placeholder={

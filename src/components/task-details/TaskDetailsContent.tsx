@@ -5,7 +5,13 @@ import { RichTextEditor } from '@/components/common/RichTextEditor';
 import { Button } from '@/components/ui/button';
 import { useOptimisticTaskUpdates } from '@/hooks/useOptimisticTaskUpdates';
 import { extractTaskTextContent, normalizeTaskContentLinks } from '@/lib/utils';
-import { Assignee, Task, TaskStatus } from '@/types/task';
+import {
+  Assignee,
+  CommentsPagination,
+  Task,
+  TaskComment,
+  TaskStatus,
+} from '@/types/task';
 import { apiError, apiSuccess } from '@/util/toast';
 import {
   Book,
@@ -24,12 +30,28 @@ interface TaskDetailsContentProps {
   task: Task;
   isAdmin: boolean;
   onClose: () => void;
+  comments: TaskComment[];
+  commentsLoading: boolean;
+  commentsPage: number;
+  commentsPagination: CommentsPagination | null;
+  onLoadComments: (page: number) => void;
+  onAddComment: (content: string) => void;
+  onDeleteComment: (commentId: string) => void;
+  currentUserName: string;
 }
 
 export const TaskDetailsContent = ({
   task,
   isAdmin,
   onClose,
+  comments,
+  commentsLoading,
+  commentsPage,
+  commentsPagination,
+  onLoadComments,
+  onAddComment,
+  onDeleteComment,
+  currentUserName,
 }: TaskDetailsContentProps) => {
   const { moveTask, updateTitle, updateDescription } =
     useOptimisticTaskUpdates();
@@ -266,11 +288,15 @@ export const TaskDetailsContent = ({
               </div>
 
               <TaskComments
-                comments={[]}
-                onAddComment={() => {}}
-                onDeleteComment={() => {}}
+                comments={comments}
+                commentsLoading={commentsLoading}
+                commentsPage={commentsPage}
+                commentsPagination={commentsPagination}
+                onLoadComments={onLoadComments}
+                onAddComment={onAddComment}
+                onDeleteComment={onDeleteComment}
                 onLikeComment={() => {}}
-                currentUserName='Current User'
+                currentUserName={currentUserName}
               />
             </div>
           </div>

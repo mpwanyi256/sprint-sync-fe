@@ -66,8 +66,6 @@ const CreateTaskModal = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log('Creating task');
-
     // Get latest from refs in case onBlur hasn't fired yet
     const finalTitle = normalizeTaskContentLinks(
       titleRef.current?.innerHTML || formData.title
@@ -217,6 +215,7 @@ const CreateTaskModal = ({
                 onChange={html => handleInputChange('description', html)}
                 placeholder='Enter task description or use AI to generate one'
                 minHeight='200px'
+                maxHeight='400px'
                 showToolbar
                 mode='edit'
                 hideActionButtons={true}
