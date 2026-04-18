@@ -225,7 +225,7 @@ export const RichTextEditor = ({
         )}
         onClick={handleViewModeClick}
         dangerouslySetInnerHTML={{ __html: convertLegacyMarkdownLinks(value) }}
-        style={{ maxHeight, maxWidth, overflowY: 'auto' }}
+        style={{ maxHeight, maxWidth, overflowY: 'auto', overflowX: 'hidden' }}
       />
     );
   }
@@ -234,7 +234,7 @@ export const RichTextEditor = ({
     return (
       <div
         className={cn(
-          'group relative bg-white hover:bg-gray-100/50 hover:cursor-pointer rounded-lg py-2',
+          'group relative bg-white hover:bg-gray-100/50 hover:cursor-pointer rounded-lg p-2',
           className
         )}
         onClick={handleViewModeClick}
@@ -246,7 +246,12 @@ export const RichTextEditor = ({
               ? convertLegacyMarkdownLinks(htmlContent)
               : `<p class="text-gray-400">${placeholder}</p>`,
           }}
-          style={{ maxHeight, maxWidth, overflowY: 'auto' }}
+          style={{
+            maxHeight,
+            maxWidth,
+            overflowY: 'auto',
+            overflowX: 'hidden',
+          }}
         />
       </div>
     );
@@ -267,7 +272,13 @@ export const RichTextEditor = ({
               contentEditable={
                 <ContentEditable
                   className='min-h-[200px] p-4 outline-none'
-                  style={{ minHeight, maxHeight, maxWidth, overflowY: 'auto' }}
+                  style={{
+                    minHeight,
+                    maxHeight,
+                    maxWidth,
+                    overflowY: 'auto',
+                    overflowX: 'hidden',
+                  }}
                 />
               }
               placeholder={

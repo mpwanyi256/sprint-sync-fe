@@ -31,3 +31,29 @@ h6 {
 p {
   margin: 0;
 }
+
+/* Global scrollbar styles */
+
+/* Chrome, Safari, Edge */
+::-webkit-scrollbar {
+  width: 4px; /* equivalent to w-2 */
+}
+
+::-webkit-scrollbar-track {
+  background: #f3f4f6; /* gray-100 */
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db; /* gray-300 */
+  border-radius: 0;
+}
+
+/* Dark mode */
+.dark ::-webkit-scrollbar-track {
+  background: #404040; /* neutral-700 */
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #737373; /* neutral-500 */
+}

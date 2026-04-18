@@ -44,10 +44,6 @@ export const TaskDetailsContent = ({
   task,
   isAdmin,
   onClose,
-  comments,
-  commentsLoading,
-  commentsPage,
-  commentsPagination,
   onLoadComments,
   onAddComment,
   onDeleteComment,
@@ -265,7 +261,7 @@ export const TaskDetailsContent = ({
             </div> */}
 
             {/* Activity Section */}
-            <div className='space-y-4'>
+            <div className='space-y-2'>
               <div className='flex items-center justify-between'>
                 <p className='text-[15px] font-semibold text-gray-900'>
                   Activity
@@ -279,23 +275,17 @@ export const TaskDetailsContent = ({
                 <button className='py-2 px-1 text-blue-600 border-b-2 border-blue-600'>
                   Comments
                 </button>
-                {/* <button className='py-2 px-1 text-gray-500 hover:text-gray-900'>
+                <button className='py-2 px-1 text-gray-500 hover:text-gray-900'>
                   History
                 </button>
                 <button className='py-2 px-1 text-gray-500 hover:text-gray-900'>
                   Work log
-                </button> */}
+                </button>
               </div>
 
               <TaskComments
-                comments={comments}
-                commentsLoading={commentsLoading}
-                commentsPage={commentsPage}
-                commentsPagination={commentsPagination}
                 onLoadComments={onLoadComments}
-                onAddComment={onAddComment}
                 onDeleteComment={onDeleteComment}
-                onLikeComment={() => {}}
                 currentUserName={currentUserName}
               />
             </div>

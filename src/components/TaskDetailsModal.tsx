@@ -47,11 +47,7 @@ const TaskDetailsModal = ({
             dispatch(
               fetchTaskComments({ taskId, page: 1, limit: 10 })
             ).unwrap(),
-            // commentsApi.getComments(taskId, 1, 10),
           ]);
-          // setComments(commentsResponse.comments);
-          // setCommentsPagination(commentsResponse.pagination);
-          // setCommentsPage(1);
         } catch (error) {
           apiError(
             error instanceof Error
@@ -109,7 +105,7 @@ const TaskDetailsModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className='max-h-[95vh] overflow-y-auto overflow-x-visible p-0 sm:max-w-[1040px]'>
+      <DialogContent className='max-h-[95vh] overflow-y-auto overflow-hidden p-0 sm:max-w-[1040px]'>
         <DialogTitle className='sr-only'>Task Details</DialogTitle>
 
         {isLoading ? (
@@ -121,7 +117,7 @@ const TaskDetailsModal = ({
             <p className='text-gray-500'>Task not found</p>
           </div>
         ) : (
-          <div className='flex flex-col h-full max-h-[95vh] bg-white'>
+          <div className='flex flex-col h-full max-h-[95vh] bg-white p-2'>
             <TaskDetailsContent
               key={`${taskId}-${task.updatedAt}`}
               task={task}

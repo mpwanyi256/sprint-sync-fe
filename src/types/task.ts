@@ -133,6 +133,10 @@ export interface TaskDetailsResponse extends APIResponse<{ task: Task }> {}
 export interface SelectedTaskState {
   task: Task | null;
   comments: CommentsResponseData;
+  addingComment: boolean;
+  deletingCommentIds: string[]; // Track IDs of comments being deleted
+  loading: boolean;
+  error: string | null;
 }
 
 export interface GetTaskCommentsPayload {
