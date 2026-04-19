@@ -52,6 +52,21 @@ function HtmlPlugin({ initialHtml }: { initialHtml: string }) {
   return null;
 }
 
+function ExternalValueSyncPlugin({ value }: { value: string }) {
+  const [editor] = useLexicalComposerContext();
+
+  useEffect(() => {
+    if (value === '') {
+      editor.update(() => {
+        const root = $getRoot();
+        root.clear();
+      });
+    }
+  }, [editor, value]);
+
+  return null;
+}
+
 interface RichTextEditorProps {
   value: string;
   onChange?: (content: string) => void;
@@ -266,6 +281,7 @@ export const RichTextEditor = ({
           }}
         >
           <HtmlPlugin initialHtml={convertLegacyMarkdownLinks(htmlContent)} />
+          <ExternalValueSyncPlugin value={value} />
           {showToolbar && <ToolbarPlugin />}
           <div className='relative'>
             <RichTextPlugin

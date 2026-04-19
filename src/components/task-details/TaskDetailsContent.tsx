@@ -243,7 +243,7 @@ export const TaskDetailsContent = ({
             </div> */}
 
             {/* Activity Section */}
-            <div className='space-y-2'>
+            <div id='task-comments-section' className='space-y-2'>
               <div className='flex items-center justify-between'>
                 <p className='text-[15px] font-semibold text-gray-900'>
                   Activity
@@ -270,7 +270,7 @@ export const TaskDetailsContent = ({
         </div>
 
         {/* Sidebar Details Panel px-4 py-6 */}
-        <div className='w-full sm:w-[300px] bg-white pr-1'>
+        <div className='w-full sm:w-[300px] bg-white pr-1 pt-2'>
           <TaskDetailsPanel
             task={localTask}
             onStatusChange={handleStatusChange}
