@@ -1,8 +1,9 @@
 'use client';
 
+import { cn, renderTaskContentHtml } from '@/lib/utils';
 import { Task } from '@/types/task';
-import { Calendar, User } from 'lucide-react';
-import { cn, extractTaskTextContent, renderTaskContentHtml } from '@/lib/utils';
+import { User } from 'lucide-react';
+import { UserAvatar } from './common/UserAvatar';
 
 interface TaskCardProps {
   task: Task;
@@ -11,10 +12,6 @@ interface TaskCardProps {
 }
 
 const TaskCard = ({ task, onClick, className }: TaskCardProps) => {
-  const getInitials = (firstName: string, lastName: string) => {
-    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-  };
-
   const handleDragStart = (e: React.DragEvent) => {
     e.dataTransfer.setData('text/plain', task.id);
     e.dataTransfer.effectAllowed = 'move';
@@ -80,39 +77,16 @@ const TaskCard = ({ task, onClick, className }: TaskCardProps) => {
         />
       </div>
 
-      {/* Task Metadata */}
-      <div className='space-y-3 pt-2 border-t border-gray-100'>
-        {/* Hidden Estimated Time
-        <div className='flex items-center text-sm text-gray-500'>
-          <Clock className='h-4 w-4 mr-2' />
-          <span className='font-medium'>{task.totalMinutes} minutes</span>
-        </div> */}
-
-        <div className='flex items-center text-sm text-gray-500'>
-          <Calendar className='h-4 w-4 mr-2' />
-          <span className='font-medium'>
-            {new Date(task.createdAt).toLocaleDateString()}
-          </span>
-        </div>
-      </div>
-
       {/* Assignee Section */}
       <div className='mt-4 pt-3 border-t border-gray-100'>
         {task.assignedTo ? (
           <div className='flex items-center space-x-3'>
-            <div className='w-8 h-8 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center shadow-sm'>
-              <span className='text-sm font-semibold text-blue-700'>
-                {getInitials(
-                  task.assignedTo.firstName,
-                  task.assignedTo.lastName
-                )}
-              </span>
-            </div>
-            <span className='text-sm font-medium text-gray-700'>
-              {extractTaskTextContent(
-                `${task.assignedTo.firstName} ${task.assignedTo.lastName}`
-              )}
-            </span>
+            <UserAvatar
+              firstName={task.assignedTo.firstName}
+              lastName={task.assignedTo.lastName}
+              showName
+              recordTime={task.createdAt}
+            />
           </div>
         ) : (
           <div className='flex items-center space-x-3'>

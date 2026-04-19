@@ -31,8 +31,8 @@ export const TaskComments = () => {
         ) : (
           <TaskCommentsWrapper />
         )}
+        <TaskCommentsPagination />
       </div>
-      <TaskCommentsPagination />
     </div>
   );
 };

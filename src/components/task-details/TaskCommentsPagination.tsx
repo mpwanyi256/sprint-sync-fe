@@ -5,6 +5,7 @@ import {
   selectSelectedTaskLoading,
 } from '@/store/slices/selectedTask';
 import { apiError } from '@/util/toast';
+import { useMemo } from 'react';
 import { Button } from '../ui';
 
 export const TaskCommentsPagination = () => {
@@ -15,6 +16,10 @@ export const TaskCommentsPagination = () => {
   const commentsPage = commentsPagination ? commentsPagination.page : 1;
   const commentsLoading = useAppSelector(selectSelectedTaskLoading);
   const taskId = useAppSelector(state => state.selectedTask.task?.id);
+  const hasMore = useMemo(
+    () => commentsPage < commentsPagination.totalPages && !commentsLoading,
+    [commentsPage, commentsPagination, commentsLoading]
+  );
 
   if (!commentsPagination || commentsPagination.totalPages <= 1 || !taskId) {
     return null;
@@ -29,6 +34,14 @@ export const TaskCommentsPagination = () => {
       );
     }
   };
+
+  if (!hasMore) {
+    return (
+      <div className='flex items-center justify-center'>
+        <p className='p-0 m-0 text-gray-400'>🥳 You&apos;re all caught up!</p>
+      </div>
+    );
+  }
 
   return (
     <div className='mt-4 flex items-center justify-center pt-4 text-sm text-gray-600'>

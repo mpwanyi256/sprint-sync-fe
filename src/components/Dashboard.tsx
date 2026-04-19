@@ -21,7 +21,6 @@ const Dashboard = ({ initialTasks, initialTaskId }: DashboardProps) => {
   );
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  console.log('Initial task ID', initialTaskId);
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -46,7 +45,7 @@ const Dashboard = ({ initialTasks, initialTaskId }: DashboardProps) => {
   };
 
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <div className='min-h-screen bg-white'>
       {/* Task Board */}
       <div className='p-6'>
         <BoardView onViewTaskDetails={handleTaskClick} />
