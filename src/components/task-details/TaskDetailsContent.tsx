@@ -186,7 +186,7 @@ export const TaskDetailsContent = ({
 
       <div className='flex flex-col sm:flex-row flex-1 overflow-y-auto overflow-x-hidden'>
         {/* Main Content */}
-        <div className='flex-1'>
+        <div className='flex-1 w-[650px] max-w-full'>
           {/* Content */}
           <div className='space-y-6 px-6 py-4'>
             {/* Title Editor */}
@@ -230,20 +230,20 @@ export const TaskDetailsContent = ({
                 onSave={handleDescriptionSave}
                 showToolbar
                 minHeight='150px'
+                maxWidth='100%'
                 className='text-sm'
               />
             </div>
 
             {/* Child Issues placeholder */}
-            <div className='space-y-3 pt-2'>
+            {/* <div className='space-y-3 pt-2'>
               <p className='text-[15px] font-semibold text-gray-900'>
                 Subtasks
               </p>
-              {/* placeholder space */}
-            </div>
+            </div> */}
 
             {/* Activity Section */}
-            <div className='space-y-4 pt-6'>
+            <div className='space-y-2'>
               <div className='flex items-center justify-between'>
                 <p className='text-[15px] font-semibold text-gray-900'>
                   Activity
@@ -251,9 +251,9 @@ export const TaskDetailsContent = ({
               </div>
 
               <div className='flex items-center gap-4 text-sm font-medium border-b border-gray-200'>
-                <button className='py-2 px-1 text-gray-500 hover:text-gray-900'>
+                {/* <button className='py-2 px-1 text-gray-500 hover:text-gray-900'>
                   All
-                </button>
+                </button> */}
                 <button className='py-2 px-1 text-blue-600 border-b-2 border-blue-600'>
                   Comments
                 </button>
@@ -264,20 +264,13 @@ export const TaskDetailsContent = ({
                   Work log
                 </button>
               </div>
-
-              <TaskComments
-                comments={[]}
-                onAddComment={() => {}}
-                onDeleteComment={() => {}}
-                onLikeComment={() => {}}
-                currentUserName='Current User'
-              />
+              <TaskComments />
             </div>
           </div>
         </div>
 
-        {/* Sidebar Details Panel */}
-        <div className='w-full sm:w-[360px] bg-white px-6 py-6'>
+        {/* Sidebar Details Panel px-4 py-6 */}
+        <div className='w-full sm:w-[300px] bg-white pr-1'>
           <TaskDetailsPanel
             task={localTask}
             onStatusChange={handleStatusChange}

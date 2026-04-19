@@ -27,6 +27,7 @@ export default async function DashboardPage(props: DashboardPageProps) {
   let initialTasks: Task[] = [];
 
   try {
+    // Refactor this to fetch tasks for all columns in one request to reduce latency and improve performance
     const res = await fetch(`${app.baseUrl}/api/tasks?limit=50`, {
       method: 'GET',
       headers: {

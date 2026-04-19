@@ -1,5 +1,6 @@
 import { Task, TaskState, TaskStatus } from '@/types/task';
 import { type ClassValue, clsx } from 'clsx';
+import { formatDistance } from 'date-fns';
 import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
@@ -15,6 +16,11 @@ export const formatDate = (date: string) => {
     minute: '2-digit',
   });
 };
+
+export const timeElapsed = (from: string, to?: string) =>
+  formatDistance(new Date(from), new Date(to ?? Date.now()), {
+    addSuffix: true,
+  });
 
 export const formatTime = (date: string) => {
   return new Date(date).toLocaleTimeString('en-US', {
@@ -250,13 +256,13 @@ export const getStatusColor = (status: Task['status']) => {
     case 'TODO':
       return 'bg-blue-100 text-blue-800 border-blue-200';
     case 'IN_PROGRESS':
-      return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      return 'bg-orange-100 text-orange-800 border-orange-200';
     case 'IN_REVIEW':
       return 'bg-purple-100 text-purple-800 border-purple-200';
     case 'DONE':
       return 'bg-green-100 text-green-800 border-green-200';
     default:
-      return 'bg-gray-100 text-gray-800 border-gray-200';
+      return '';
   }
 };
 

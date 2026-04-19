@@ -1,6 +1,10 @@
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectUser } from '@/store/slices/auth';
+import {
+  clearSelectedTask,
+  fetchTaskComments,
+} from '@/store/slices/selectedTask';
 import { selectSelectedTask } from '@/store/slices/task';
 import { fetchTaskById } from '@/store/slices/task/taskThunks';
 import { apiError } from '@/util/toast';
@@ -30,7 +34,12 @@ const TaskDetailsModal = ({
     if (taskId && isOpen) {
       const getTaskDetails = async () => {
         try {
-          await dispatch(fetchTaskById(taskId)).unwrap();
+          await Promise.all([
+            dispatch(fetchTaskById(taskId)).unwrap(),
+            dispatch(
+              fetchTaskComments({ taskId, page: 1, limit: 10 })
+            ).unwrap(),
+          ]);
         } catch (error) {
           apiError(
             error instanceof Error
@@ -49,9 +58,14 @@ const TaskDetailsModal = ({
     return null;
   }
 
+  const handleClose = () => {
+    dispatch(clearSelectedTask());
+    onClose();
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className='max-h-[95vh] overflow-y-auto overflow-x-visible p-0 sm:max-w-[1040px]'>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className='max-h-[95vh] overflow-y-auto overflow-hidden p-0 sm:max-w-[1040px]'>
         <DialogTitle className='sr-only'>Task Details</DialogTitle>
 
         {isLoading ? (
@@ -63,12 +77,14 @@ const TaskDetailsModal = ({
             <p className='text-gray-500'>Task not found</p>
           </div>
         ) : (
-          <TaskDetailsContent
-            key={`${taskId}-${task.updatedAt}`}
-            task={task}
-            isAdmin={isAdmin}
-            onClose={onClose}
-          />
+          <div className='flex flex-col h-full max-h-[95vh] bg-white p-2'>
+            <TaskDetailsContent
+              key={`${taskId}-${task.updatedAt}`}
+              task={task}
+              isAdmin={isAdmin}
+              onClose={handleClose}
+            />
+          </div>
         )}
       </DialogContent>
     </Dialog>

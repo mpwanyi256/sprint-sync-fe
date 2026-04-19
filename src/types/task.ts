@@ -32,6 +32,38 @@ export interface Task {
   updatedAt: string;
 }
 
+export interface TaskCommentUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
+export interface TaskComment {
+  id: string;
+  taskId: string;
+  user: TaskCommentUser;
+  message: string;
+  createdAt: string;
+  updatedAt: string;
+  likes?: number;
+  isLiked?: boolean;
+}
+
+export interface CommentsPagination {
+  page: number;
+  limit: number;
+  totalCount: number;
+  totalPages: number;
+}
+
+export interface CommentsResponseData {
+  comments: TaskComment[];
+  pagination: CommentsPagination;
+}
+
+export interface CommentsResponse extends APIResponse<CommentsResponseData> {}
+
 export interface CreateTaskData {
   title: string;
   description: string;
@@ -96,3 +128,24 @@ export interface TaskResponse extends APIResponse<Task> {
 }
 
 export interface TaskDetailsResponse extends APIResponse<{ task: Task }> {}
+
+// Selected task
+export interface SelectedTaskState {
+  task: Task | null;
+  comments: CommentsResponseData;
+  addingComment: boolean;
+  deletingCommentIds: string[]; // Track IDs of comments being deleted
+  loading: boolean;
+  error: string | null;
+}
+
+export interface GetTaskCommentsPayload {
+  taskId: string;
+  page: number;
+  limit: number;
+}
+
+export interface CreateCommentPayload {
+  taskId: string;
+  message: string;
+}
