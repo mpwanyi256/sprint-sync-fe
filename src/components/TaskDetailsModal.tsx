@@ -2,11 +2,8 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectUser } from '@/store/slices/auth';
 import {
-  createComment,
-  deleteComment,
+  clearSelectedTask,
   fetchTaskComments,
-  selectSelectedTaskComments,
-  selectSelectedTaskCommentsPagination,
 } from '@/store/slices/selectedTask';
 import { selectSelectedTask } from '@/store/slices/task';
 import { fetchTaskById } from '@/store/slices/task/taskThunks';
@@ -31,12 +28,7 @@ const TaskDetailsModal = ({
   const currentUser = useAppSelector(selectUser);
   const isAdmin = currentUser?.isAdmin || false;
   const task = useAppSelector(selectSelectedTask);
-  const comments = useAppSelector(selectSelectedTaskComments);
-  const commentsPagination = useAppSelector(
-    selectSelectedTaskCommentsPagination
-  );
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingComments, setIsLoadingComments] = useState(true);
 
   useEffect(() => {
     if (taskId && isOpen) {
@@ -56,55 +48,23 @@ const TaskDetailsModal = ({
           );
         } finally {
           setIsLoading(false);
-          setIsLoadingComments(false);
         }
       };
       getTaskDetails();
     }
   }, [taskId, isOpen, dispatch]);
 
-  const handleLoadComments = async (page: number) => {
-    if (!taskId) return;
-    setIsLoadingComments(true);
-    try {
-      dispatch(fetchTaskComments({ taskId, page, limit: 10 })).unwrap();
-    } catch (error) {
-      apiError(
-        error instanceof Error ? error.message : 'Failed to load comments'
-      );
-    } finally {
-      setIsLoadingComments(false);
-    }
-  };
-
-  const handleAddComment = async (message: string) => {
-    if (!taskId || !message.trim()) return;
-    try {
-      dispatch(createComment({ taskId, message })).unwrap();
-    } catch (error) {
-      apiError(
-        error instanceof Error ? error.message : 'Failed to post comment'
-      );
-    }
-  };
-
-  const handleDeleteComment = async (commentId: string) => {
-    if (!taskId) return;
-    try {
-      dispatch(deleteComment({ taskId, commentId })).unwrap();
-    } catch (error) {
-      apiError(
-        error instanceof Error ? error.message : 'Failed to delete comment'
-      );
-    }
-  };
-
   if (!isOpen) {
     return null;
   }
 
+  const handleClose = () => {
+    dispatch(clearSelectedTask());
+    onClose();
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className='max-h-[95vh] overflow-y-auto overflow-hidden p-0 sm:max-w-[1040px]'>
         <DialogTitle className='sr-only'>Task Details</DialogTitle>
 
@@ -122,15 +82,7 @@ const TaskDetailsModal = ({
               key={`${taskId}-${task.updatedAt}`}
               task={task}
               isAdmin={isAdmin}
-              onClose={onClose}
-              comments={comments}
-              commentsPagination={commentsPagination}
-              commentsLoading={isLoadingComments}
-              commentsPage={commentsPagination.page}
-              onLoadComments={handleLoadComments}
-              onAddComment={handleAddComment}
-              onDeleteComment={handleDeleteComment}
-              currentUserName={`${currentUser?.firstName || ''} ${currentUser?.lastName || ''}`.trim()}
+              onClose={handleClose}
             />
           </div>
         )}

@@ -33,14 +33,33 @@ const selectedTaskSlice = createSlice({
       state.comments = action.payload.comments;
     },
     clearSelectedTask(state) {
+      console.log('Clearing selected task');
       state.task = null;
-      state.comments.comments = [];
+      state.comments = {
+        comments: [],
+        pagination: {
+          page: 1,
+          limit: 10,
+          totalCount: 1,
+          totalPages: 1,
+        },
+      };
     },
   },
   extraReducers: builder => {
     builder
       .addCase(fetchTaskComments.fulfilled, (state, action) => {
-        state.comments.comments = action.payload.comments;
+        const page = action.payload.pagination.page;
+        if (page === 1) {
+          // first page, replace comments
+          state.comments.comments = action.payload.comments;
+        } else {
+          // append comments for subsequent pages
+          state.comments.comments = [
+            ...state.comments.comments,
+            ...action.payload.comments,
+          ];
+        }
         state.comments.pagination = action.payload.pagination;
         state.loading = false;
       })

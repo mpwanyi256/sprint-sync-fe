@@ -1,5 +1,6 @@
 import { Task, TaskState, TaskStatus } from '@/types/task';
 import { type ClassValue, clsx } from 'clsx';
+import { formatDistance } from 'date-fns';
 import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
@@ -15,6 +16,11 @@ export const formatDate = (date: string) => {
     minute: '2-digit',
   });
 };
+
+export const timeElapsed = (from: string, to?: string) =>
+  formatDistance(new Date(from), new Date(to ?? Date.now()), {
+    addSuffix: true,
+  });
 
 export const formatTime = (date: string) => {
   return new Date(date).toLocaleTimeString('en-US', {

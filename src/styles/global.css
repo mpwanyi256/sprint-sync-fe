@@ -12,6 +12,8 @@ body {
   scrollbar-width: 4px;
   scrollbar-color: var(--primary) var(--surface);
   scrollbar-gutter: stable;
+  color: #292a2e;
+  font-weight: 400;
 }
 
 * {

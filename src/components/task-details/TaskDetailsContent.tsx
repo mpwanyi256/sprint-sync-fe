@@ -5,13 +5,7 @@ import { RichTextEditor } from '@/components/common/RichTextEditor';
 import { Button } from '@/components/ui/button';
 import { useOptimisticTaskUpdates } from '@/hooks/useOptimisticTaskUpdates';
 import { extractTaskTextContent, normalizeTaskContentLinks } from '@/lib/utils';
-import {
-  Assignee,
-  CommentsPagination,
-  Task,
-  TaskComment,
-  TaskStatus,
-} from '@/types/task';
+import { Assignee, Task, TaskStatus } from '@/types/task';
 import { apiError, apiSuccess } from '@/util/toast';
 import {
   Book,
@@ -30,24 +24,12 @@ interface TaskDetailsContentProps {
   task: Task;
   isAdmin: boolean;
   onClose: () => void;
-  comments: TaskComment[];
-  commentsLoading: boolean;
-  commentsPage: number;
-  commentsPagination: CommentsPagination | null;
-  onLoadComments: (page: number) => void;
-  onAddComment: (content: string) => void;
-  onDeleteComment: (commentId: string) => void;
-  currentUserName: string;
 }
 
 export const TaskDetailsContent = ({
   task,
   isAdmin,
   onClose,
-  onLoadComments,
-  onAddComment,
-  onDeleteComment,
-  currentUserName,
 }: TaskDetailsContentProps) => {
   const { moveTask, updateTitle, updateDescription } =
     useOptimisticTaskUpdates();
@@ -204,7 +186,7 @@ export const TaskDetailsContent = ({
 
       <div className='flex flex-col sm:flex-row flex-1 overflow-y-auto overflow-x-hidden'>
         {/* Main Content */}
-        <div className='flex-1'>
+        <div className='flex-1 w-[650px] max-w-full'>
           {/* Content */}
           <div className='space-y-6 px-6 py-4'>
             {/* Title Editor */}
@@ -248,7 +230,7 @@ export const TaskDetailsContent = ({
                 onSave={handleDescriptionSave}
                 showToolbar
                 minHeight='150px'
-                maxWidth='630px'
+                maxWidth='100%'
                 className='text-sm'
               />
             </div>
@@ -282,18 +264,13 @@ export const TaskDetailsContent = ({
                   Work log
                 </button>
               </div>
-
-              <TaskComments
-                onLoadComments={onLoadComments}
-                onDeleteComment={onDeleteComment}
-                currentUserName={currentUserName}
-              />
+              <TaskComments />
             </div>
           </div>
         </div>
 
-        {/* Sidebar Details Panel */}
-        <div className='w-full sm:w-[360px] bg-white px-6 py-6'>
+        {/* Sidebar Details Panel px-4 py-6 */}
+        <div className='w-full sm:w-[300px] bg-white pr-1'>
           <TaskDetailsPanel
             task={localTask}
             onStatusChange={handleStatusChange}

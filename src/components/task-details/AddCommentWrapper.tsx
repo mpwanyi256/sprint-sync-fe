@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectSelectedTaskID } from '@/store/slices/selectedTask/selectedTaskSelectors';
 import { createComment } from '@/store/slices/selectedTask/selectedTaskThunks';
-import { apiError, apiSuccess } from '@/util/toast';
+import { apiError } from '@/util/toast';
 import { useState } from 'react';
 
 export const AddCommentWrapper = () => {
@@ -21,7 +21,6 @@ export const AddCommentWrapper = () => {
         createComment({ taskId: selectedTaskId, message: newComment })
       ).unwrap();
       setNewComment('');
-      apiSuccess('Comment added successfully');
     } catch (error) {
       apiError(
         error instanceof Error
