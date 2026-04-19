@@ -11,6 +11,8 @@ import { apiError } from '@/util/toast';
 import { DialogTitle } from '@radix-ui/react-dialog';
 import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { driver } from 'driver.js';
+import { taskDetailsTourSteps } from '@/lib/driverConfig';
 import { TaskDetailsContent } from './task-details/TaskDetailsContent';
 
 interface TaskDetailsModalProps {
@@ -53,6 +55,29 @@ const TaskDetailsModal = ({
       getTaskDetails();
     }
   }, [taskId, isOpen, dispatch]);
+
+  useEffect(() => {
+    if (!isLoading && task && isOpen) {
+      const hasSeenTour = localStorage.getItem('hasSeenTaskDetailsTour');
+      if (!hasSeenTour) {
+        const timer = setTimeout(() => {
+          const driverObj = driver({
+            showProgress: true,
+            steps: taskDetailsTourSteps,
+            onDestroyStarted: () => {
+              if (!driverObj.hasNextStep() || confirm('Are you sure you want to skip the tour?')) {
+                driverObj.destroy();
+                localStorage.setItem('hasSeenTaskDetailsTour', 'true');
+              }
+            },
+          });
+          driverObj.drive();
+        }, 500);
+
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [isLoading, task, isOpen]);
 
   if (!isOpen) {
     return null;

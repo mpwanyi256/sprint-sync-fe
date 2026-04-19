@@ -186,7 +186,7 @@ export const TaskDetailsContent = ({
 
       <div className='flex flex-col sm:flex-row flex-1 overflow-y-auto overflow-x-hidden'>
         {/* Main Content */}
-        <div className='flex-1 w-[650px] max-w-full'>
+        <div className='flex-1 min-w-0 max-w-full'>
           {/* Content */}
           <div className='space-y-6 px-6 py-4'>
             {/* Title Editor */}
@@ -243,7 +243,7 @@ export const TaskDetailsContent = ({
             </div> */}
 
             {/* Activity Section */}
-            <div className='space-y-2'>
+            <div id='task-comments-section' className='space-y-2'>
               <div className='flex items-center justify-between'>
                 <p className='text-[15px] font-semibold text-gray-900'>
                   Activity

@@ -19,7 +19,7 @@ export const TaskReporter: React.FC<TaskReporterProps> = ({ creator }) => {
   return (
     <>
       <div className='text-[13px] font-medium text-gray-600'>Reporter</div>
-      <div className='flex items-center gap-2 text-[14px]'>
+      <div id='task-reporter-section' className='flex items-center gap-2 text-[14px]'>
         <div className='flex h-6 w-6 items-center justify-center rounded-full bg-[#5E6C84] text-white'>
           <span className='text-[10px] font-bold'>{getInitials}</span>
         </div>
