@@ -1,4 +1,5 @@
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { taskDetailsTourSteps } from '@/lib/driverConfig';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectUser } from '@/store/slices/auth';
 import {
@@ -9,10 +10,9 @@ import { selectSelectedTask } from '@/store/slices/task';
 import { fetchTaskById } from '@/store/slices/task/taskThunks';
 import { apiError } from '@/util/toast';
 import { DialogTitle } from '@radix-ui/react-dialog';
+import { driver } from 'driver.js';
 import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { driver } from 'driver.js';
-import { taskDetailsTourSteps } from '@/lib/driverConfig';
 import { TaskDetailsContent } from './task-details/TaskDetailsContent';
 
 interface TaskDetailsModalProps {
@@ -58,6 +58,7 @@ const TaskDetailsModal = ({
 
   useEffect(() => {
     if (!isLoading && task && isOpen) {
+      // TODO:: Move this to the backend. We need to return keys of onboarding steps the user has seen
       const hasSeenTour = localStorage.getItem('hasSeenTaskDetailsTour');
       if (!hasSeenTour) {
         const timer = setTimeout(() => {
@@ -65,7 +66,10 @@ const TaskDetailsModal = ({
             showProgress: true,
             steps: taskDetailsTourSteps,
             onDestroyStarted: () => {
-              if (!driverObj.hasNextStep() || confirm('Are you sure you want to skip the tour?')) {
+              if (
+                !driverObj.hasNextStep() ||
+                confirm('Are you sure you want to skip the tour?')
+              ) {
                 driverObj.destroy();
                 localStorage.setItem('hasSeenTaskDetailsTour', 'true');
               }

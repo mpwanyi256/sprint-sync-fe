@@ -186,7 +186,7 @@ export const TaskDetailsContent = ({
 
       <div className='flex flex-col sm:flex-row flex-1 overflow-y-auto overflow-x-hidden'>
         {/* Main Content */}
-        <div className='flex-1 min-w-0 max-w-full'>
+        <div className='flex-1 w-[650px] max-w-full'>
           {/* Content */}
           <div className='space-y-6 px-6 py-4'>
             {/* Title Editor */}
@@ -270,7 +270,7 @@ export const TaskDetailsContent = ({
         </div>
 
         {/* Sidebar Details Panel px-4 py-6 */}
-        <div className='w-full sm:w-[300px] bg-white pr-1'>
+        <div className='w-full sm:w-[300px] bg-white pr-1 pt-2'>
           <TaskDetailsPanel
             task={localTask}
             onStatusChange={handleStatusChange}

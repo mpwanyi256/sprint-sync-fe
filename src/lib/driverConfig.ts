@@ -15,7 +15,8 @@ export const taskDetailsTourSteps: DriveStep[] = [
     element: '#task-comments-section',
     popover: {
       title: 'Comments',
-      description: 'We have added a new comments section! You can now collaborate and add comments to tasks.',
+      description:
+        'We have added a new comments section! You can now collaborate and add comments to tasks.',
       side: 'top',
       align: 'start',
     },
